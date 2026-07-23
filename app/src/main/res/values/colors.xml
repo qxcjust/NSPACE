@@ -14,6 +14,8 @@
   <color name="nspace_on_background">#EEEEEE</color>
   <color name="nspace_on_surface">#C9D1D9</color>
   <color name="nspace_muted">#7C8990</color>
+  <!-- Dark green text/glyph colour used on the light (cream) app panel. -->
+  <color name="nspace_on_light">#16352A</color>
 
   <color name="nspace_error">#F85149</color>
 

@@ -249,7 +249,7 @@ public final class HomeFragment extends Fragment {
     TextView name = new TextView(requireContext());
     name.setText(sc.label);
     name.setTextSize(16);
-    name.setTextColor(getResources().getColor(R.color.nspace_on_background, null));
+    name.setTextColor(getResources().getColor(R.color.nspace_on_light, null));
     name.setGravity(Gravity.CENTER);
     name.setSingleLine(true);
     name.setEllipsize(android.text.TextUtils.TruncateAt.END);
