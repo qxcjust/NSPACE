@@ -244,6 +244,29 @@ public final class BrowserFragment extends Fragment {
   @Override
   public void onDestroyView() {
     if (webView != null) {
+      // Best-effort snapshot before teardown: persist the current page to the
+      // recents store so the home-screen "Continue Playing" row is populated
+      // even when the user leaves via the Home button. goHome() destroys this
+      // fragment immediately, before the delayed onPageFinished capture (which
+      // runs 1200ms later via postDelayed) has a chance to execute.
+      try {
+        final String url = webView.getUrl();
+        final String title = webView.getTitle();
+        final int w = webView.getWidth();
+        final int h = webView.getHeight();
+        if (url != null && !url.isEmpty() && w > 0 && h > 0) {
+          final long now = System.currentTimeMillis();
+          if (!url.equals(lastCaptureUrl) || now - lastCaptureTime >= 5000) {
+            lastCaptureUrl = url;
+            lastCaptureTime = now;
+            Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            webView.draw(new Canvas(bitmap));
+            persistSnapshot(title, url, bitmap);
+          }
+        }
+      } catch (Exception ignored) {
+        // Best-effort only; never block teardown.
+      }
       webView.destroy();
       webView = null;
     }
