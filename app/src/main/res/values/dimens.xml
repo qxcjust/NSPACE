@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- TV-optimised dimensions (design target 1920x1080). -->
+  <dimen name="nspace_drawer_width">360dp</dimen>
+  <dimen name="nspace_content_padding">24dp</dimen>
+  <dimen name="nspace_toolbar_height">72dp</dimen>
+  <dimen name="nspace_list_row_min_height">72dp</dimen>
+  <dimen name="nspace_category_cell">200dp</dimen>
+
+  <!-- Shape language mirrored from the reference design. -->
+  <dimen name="nspace_button_radius">28dp</dimen>
+  <dimen name="nspace_card_radius">16dp</dimen>
+  <dimen name="nspace_edit_radius">26dp</dimen>
+  <dimen name="nspace_category_icon">56dp</dimen>
+</resources>

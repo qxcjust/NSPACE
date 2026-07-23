@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@android:color/black">
+
+    <!-- Left sidebar navigation (matches car machine's vertical nav bar) -->
+    <LinearLayout
+        android:id="@+id/browser_nav_sidebar"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:background="#0A0A0A">
+
+        <!-- Back -->
+        <ImageButton
+            android:id="@+id/nav_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_back"
+            android:contentDescription="@string/action_back"
+            android:scaleType="fitCenter"
+            android:padding="10dp" />
+
+        <!-- Forward -->
+        <ImageButton
+            android:id="@+id/nav_forward"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_forward"
+            android:contentDescription="@string/action_forward"
+            android:scaleType="fitCenter"
+            android:padding="10dp" />
+
+        <!-- Refresh -->
+        <ImageButton
+            android:id="@+id/nav_refresh"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_refresh"
+            android:contentDescription="@string/action_refresh"
+            android:scaleType="fitCenter"
+            android:padding="10dp" />
+
+        <!-- Home (go back to home screen) -->
+        <ImageButton
+            android:id="@+id/nav_home"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_nav_home"
+            android:contentDescription="@string/action_home"
+            android:scaleType="fitCenter"
+            android:padding="10dp" />
+
+    </LinearLayout>
+
+    <!-- WebView content area (fills remaining space) -->
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Loading indicator (shown while page loads) -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_gravity="top"
+            android:max="100"
+            android:progressTint="@color/nspace_primary"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout>

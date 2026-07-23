@@ -1,0 +1,14 @@
+// Top-level build file for the NSpace project.
+// NSpace is a clean-room re-implementation of a TV media-browser architecture.
+// It shares no source, assets, strings or package names with any existing product.
+buildscript {
+  repositories {
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+  }
+}
+
+plugins {
+  id 'com.android.application' version '8.2.2' apply false
+  id 'com.android.library' version '8.2.2' apply false
+}

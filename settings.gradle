@@ -1,0 +1,24 @@
+pluginManagement {
+  repositories {
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+  }
+}
+
+rootProject.name = "NSpace"
+
+// The application module. The optional :mmkv source module is documented in
+// README.md and mmkv/FETCH.md: clone the official Tencent MMKV source from
+// Gitee into mmkv/ and uncomment the line below to build MMKV from source.
+include(":app")
+// include(":mmkv")

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV Launcher-style home screen.
+     Structure (vertical, weight-balanced):
+       1. Hero banner area   (compact top banner)
+       2. Continue Playing   (vertically centred band; hidden when empty)
+       3. Favorite Apps bar  (single long panel, always at bottom) -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nspace_backdrop"
+    android:fitsSystemWindows="true">
+
+  <!-- Faint "N" watermark drawn on the background -->
+  <ImageView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:scaleType="centerInside"
+      android:src="@drawable/logo_n"
+      android:tint="@color/white"
+      android:alpha="0.32"
+      android:contentDescription="@null" />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical">
+
+    <!-- ════════════════ 1. HERO BANNER AREA (compact top banner) ════════════════ -->
+    <FrameLayout
+        android:id="@+id/hero_banner"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5">
+
+      <!-- Hero text content (top-left aligned) -->
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="top|start"
+          android:orientation="vertical"
+          android:paddingStart="36dp"
+          android:paddingEnd="36dp"
+          android:paddingTop="28dp">
+
+        <TextView
+            android:id="@+id/hero_source_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/nspace_accent"
+            android:textSize="14sp"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/hero_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/hero_title_default"
+            android:textColor="@color/nspace_on_background"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/hero_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/hero_subtitle_default"
+            android:textColor="@color/nspace_on_surface"
+            android:textSize="15sp" />
+      </LinearLayout>
+    </FrameLayout>
+
+    <!-- Flexible spacer: pushes the Continue band down from the hero for balance -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4" />
+
+    <!-- ════════════════ 2. CONTINUE PLAYING (vertically centred mid band) ════════════════ -->
+    <!-- Hidden by default; HomeFragment shows it only when recents exist. -->
+    <LinearLayout
+        android:id="@+id/continue_section"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:orientation="vertical"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:visibility="gone">
+
+      <TextView
+          android:id="@+id/continue_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/section_continue"
+          android:textColor="@color/nspace_on_background"
+          android:textSize="24sp"
+          android:textStyle="bold" />
+
+      <HorizontalScrollView
+          android:id="@+id/continue_scroll"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"
+          android:layout_marginTop="16dp"
+          android:clipToPadding="false"
+          android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/continue_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+          <!-- Continue-playing cards added programmatically by HomeFragment -->
+
+        </LinearLayout>
+      </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Flexible spacer: balances the band above the apps bar (vertical centring) -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4" />
+
+    <!-- ════════════════ 3. FAVORITE APPS BAR (bottom, single long panel) ════════════════ -->
+    <!-- Outer container: adds left/right margin so the panel does NOT span full width -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="16dp">
+
+      <!-- The long panel itself -->
+      <HorizontalScrollView
+          android:id="@+id/apps_scroll"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:clipToPadding="false"
+          android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/apps_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/apps_panel_bg"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+          <!-- App cards added programmatically by HomeFragment -->
+
+        </LinearLayout>
+      </HorizontalScrollView>
+    </FrameLayout>
+
+  </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Palette mirrored from the reference TV browser: near-black canvas,
+       light text, and an emerald/teal-green accent with a green gradient. -->
+  <color name="nspace_primary">#00B268</color>
+  <color name="nspace_primary_dark">#007B49</color>
+  <color name="nspace_accent">#1CDD8E</color>
+
+  <color name="nspace_background">#060709</color>
+  <color name="nspace_backdrop">#0E2A22</color>
+  <color name="nspace_surface">#0E1318</color>
+  <color name="nspace_surface_variant">#1A232B</color>
+
+  <color name="nspace_on_background">#EEEEEE</color>
+  <color name="nspace_on_surface">#C9D1D9</color>
+  <color name="nspace_muted">#7C8990</color>
+
+  <color name="nspace_error">#F85149</color>
+
+  <!-- Gradient stops and chrome tints used by drawables. -->
+  <color name="nspace_gradient_start">#007B49</color>
+  <color name="nspace_gradient_end">#1CDD8E</color>
+  <color name="nspace_button_default">#445552</color>
+  <color name="nspace_border">#006C80</color>
+
+  <color name="white">#FFFFFFFF</color>
+  <color name="black">#FF000000</color>
+</resources>

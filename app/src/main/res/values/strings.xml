@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Application -->
+  <string name="app_name">NSpace</string>
+
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Back</string>
+  <string name="action_forward">Forward</string>
+  <string name="action_refresh">Refresh</string>
+  <string name="action_home">Home</string>
+  <string name="action_settings">Settings</string>
+
+  <!-- Navigation drawer -->
+  <string name="nav_open">Open navigation</string>
+  <string name="nav_close">Close navigation</string>
+  <string name="nav_home">Home</string>
+  <string name="nav_bookmarks">Bookmarks</string>
+  <string name="nav_history">History</string>
+  <string name="nav_downloads">Downloads</string>
+  <string name="nav_privacy">Privacy</string>
+  <string name="nav_settings">Settings</string>
+  <string name="nav_account">Account</string>
+
+  <!-- Home -->
+  <string name="home_search_hint">Search or type a URL</string>
+  <string name="home_search_button">Search</string>
+  <string name="action_search">Search</string>
+
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Home</string>
+  <string name="tab_discover">Discover</string>
+  <string name="tab_apps">Apps</string>
+
+  <!-- Hero banner -->
+  <string name="hero_title_default">Welcome to NSpace</string>
+  <string name="hero_subtitle_default">Your media hub, all in one place</string>
+
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Favorite Apps</string>
+  <string name="section_continue">Continue Playing</string>
+  <string name="section_trending">Trending Now</string>
+  <string name="content_placeholder">Coming Soon</string>
+
+  <!-- Browser -->
+  <string name="browser_go">Go</string>
+  <string name="browser_bookmark">Bookmark</string>
+
+  <!-- Downloads -->
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="download_start">Start download</string>
+  <string name="download_clear">Clear finished</string>
+
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Clear history</string>
+  <string name="privacy_clear_cookies">Clear cookies</string>
+  <string name="privacy_clear_storage">Clear web storage</string>
+  <string name="privacy_clear_all">Clear everything</string>
+  <string name="privacy_cleared_history">History cleared</string>
+  <string name="privacy_cleared_cookies">Cookies cleared</string>
+  <string name="privacy_cleared_storage">Web storage cleared</string>
+  <string name="privacy_cleared_all">All private data cleared</string>
+
+  <!-- Settings -->
+  <string name="settings_search_engine">Default search engine</string>
+  <string name="settings_version">Version %1$s</string>
+
+  <!-- Account -->
+  <string name="account_email">Email</string>
+  <string name="account_password">Password</string>
+  <string name="account_sign_in">Sign in</string>
+  <string name="account_google">Continue with Google</string>
+  <string name="account_qr">Sign in with QR</string>
+  <string name="account_sign_out">Sign out</string>
+  <string name="account_signed_in_as">Signed in as %1$s (%2$s)</string>
+</resources>

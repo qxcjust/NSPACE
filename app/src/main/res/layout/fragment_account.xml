@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/nspace_content_padding">
+
+  <TextView
+      android:id="@+id/list_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textColor="@color/nspace_on_background"
+      android:textSize="28sp"
+      android:textStyle="bold" />
+
+  <!-- Signed-out controls -->
+  <LinearLayout
+      android:id="@+id/account_signed_out"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="24dp"
+      android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/edit_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/account_email"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/nspace_on_background"
+        android:textColorHint="@color/nspace_muted" />
+
+    <EditText
+        android:id="@+id/edit_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/account_password"
+        android:inputType="textPassword"
+        android:textColor="@color/nspace_on_background"
+        android:textColorHint="@color/nspace_muted" />
+
+    <Button
+        android:id="@+id/button_sign_in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/account_sign_in"
+        android:textColor="@color/white"
+        app:backgroundTint="@null"
+        android:background="@drawable/nspace_btn_gradient" />
+
+    <Button
+        android:id="@+id/button_google"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/account_google" />
+
+    <Button
+        android:id="@+id/button_qr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/account_qr" />
+  </LinearLayout>
+
+  <!-- Signed-in controls -->
+  <LinearLayout
+      android:id="@+id/account_signed_in"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="24dp"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+    <TextView
+        android:id="@+id/account_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/nspace_on_surface"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/button_sign_out"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/account_sign_out"
+        android:textColor="@color/white"
+        app:backgroundTint="@null"
+        android:background="@drawable/nspace_btn_gradient" />
+  </LinearLayout>
+</LinearLayout>

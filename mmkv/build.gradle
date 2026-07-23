@@ -1,0 +1,53 @@
+// MMKV module build file.
+//
+// This module consumes the official Tencent MMKV Android source. Populate it by
+// running the command in FETCH.md (clone the official source into this folder),
+// then enable `include(":mmkv")` in settings.gradle and switch app/build.gradle to
+// `implementation project(':mmkv')`.
+//
+// The block below mirrors the upstream MMKV Android library module. Adjust the
+// CMake path / NDK ABI filters to match the cloned source if needed.
+apply plugin: 'com.android.library'
+
+android {
+  namespace 'com.tencent.mmkv'
+  compileSdk 34
+
+  defaultConfig {
+    minSdk 19
+    targetSdk 34
+
+    externalNativeBuild {
+      cmake {
+        arguments '-DMMKV_ANDROID=TRUE', '-DMMKV_DISABLE_CRYPT=TRUE'
+        cppFlags '-std=c++17', '-frtti', '-fexceptions'
+      }
+    }
+
+    ndk {
+      abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+    }
+  }
+
+  externalNativeBuild {
+    cmake {
+      // Upstream places the CMakeLists under src/main/cpp after the clone.
+      path 'src/main/cpp/CMakeLists.txt'
+    }
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+}
+
+dependencies {
+  implementation 'androidx.annotation:annotation:1.7.1'
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom-up dark gradient overlay for the hero banner area.
+     Matches Android TV's banner text readability treatment. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <gradient
+      android:angle="270"
+      android:startColor="#00000000"
+      android:centerColor="#99000000"
+      android:endColor="#DD000000" />
+</shape>

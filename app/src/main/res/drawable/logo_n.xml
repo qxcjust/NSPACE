@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Standalone white "N" word-mark, used as a faint watermark on the
+     home background. Fill colour is overridden at use-site via tint. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1520dp"
+    android:height="1520dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M32,76 L32,32 L52,64 L72,32 L72,76 L60,76 L60,48 L44,76 Z" />
+</vector>

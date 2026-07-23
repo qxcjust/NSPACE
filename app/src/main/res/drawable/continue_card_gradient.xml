@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom-up dark gradient overlay for "Continue Playing" cards (top transparent,
+     bottom near-black) so the title stays readable over any snapshot. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <gradient
+      android:angle="270"
+      android:startColor="#00000000"
+      android:endColor="#DD000000" />
+</shape>

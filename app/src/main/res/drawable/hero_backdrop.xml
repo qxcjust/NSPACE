@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ambient brand backdrop: a near-black canvas washed with a subtle emerald
+     glow (top-left) and a teal glow (bottom-right), plus a faint diagonal
+     green tint, so the home screen never reads as flat black. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- Base diagonal wash: very dark green → near-black -->
+  <item>
+    <shape android:shape="rectangle">
+      <gradient
+          android:type="linear"
+          android:angle="135"
+          android:startColor="#0B1A15"
+          android:endColor="@color/nspace_background" />
+    </shape>
+  </item>
+
+  <!-- Top-left emerald glow -->
+  <item>
+    <shape android:shape="rectangle">
+      <gradient
+          android:type="radial"
+          android:gradientRadius="85%p"
+          android:centerX="0.08"
+          android:centerY="0.06"
+          android:startColor="#2E1CDD8E"
+          android:endColor="#00000000" />
+    </shape>
+  </item>
+
+  <!-- Bottom-right teal glow -->
+  <item>
+    <shape android:shape="rectangle">
+      <gradient
+          android:type="radial"
+          android:gradientRadius="80%p"
+          android:centerX="0.94"
+          android:centerY="0.96"
+          android:startColor="#22007B49"
+          android:endColor="#00000000" />
+    </shape>
+  </item>
+
+</layer-list>
