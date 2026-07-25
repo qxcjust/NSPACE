@@ -192,7 +192,8 @@
       android:scaleType="centerInside"
       android:contentDescription="@string/action_settings"
       android:clickable="true"
-      android:focusable="true" />
+      android:focusable="true"
+      android:visibility="gone"/>
 
   <!-- Region badge: visible only when a region override is set.
        Sits to the left of the settings gear. -->
