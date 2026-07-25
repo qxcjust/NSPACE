@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — Malay (ms) localization -->
+<resources>
+  <!-- Application -->
+  <string name="app_name">NSpace</string>
+
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Kembali</string>
+  <string name="action_forward">Ke hadapan</string>
+  <string name="action_refresh">Segar semula</string>
+  <string name="action_home">Laman utama</string>
+  <string name="action_settings">Tetapan</string>
+
+  <!-- Navigation drawer -->
+  <string name="nav_open">Buka navigasi</string>
+  <string name="nav_close">Tutup navigasi</string>
+  <string name="nav_home">Laman utama</string>
+  <string name="nav_bookmarks">Penanda buku</string>
+  <string name="nav_history">Sejarah</string>
+  <string name="nav_downloads">Muat turun</string>
+  <string name="nav_privacy">Privasi</string>
+  <string name="nav_settings">Tetapan</string>
+  <string name="nav_account">Akaun</string>
+
+  <!-- Home -->
+  <string name="home_search_hint">Cari atau taip URL</string>
+  <string name="home_search_button">Cari</string>
+  <string name="action_search">Cari</string>
+
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Laman utama</string>
+  <string name="tab_discover">Terokai</string>
+  <string name="tab_apps">Apl</string>
+
+  <!-- Hero banner -->
+  <string name="hero_title_default">Selamat datang ke NSpace</string>
+  <string name="hero_subtitle_default">Hab media anda, semua di satu tempat</string>
+
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Apl kegemaran</string>
+  <string name="section_continue">Terus main</string>
+  <string name="section_trending">Trending</string>
+  <string name="content_placeholder">Akan datang</string>
+
+  <!-- Browser -->
+  <string name="browser_go">Pergi</string>
+  <string name="browser_bookmark">Tanda buku</string>
+
+  <!-- Downloads -->
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="download_start">Mula muat turun</string>
+  <string name="download_clear">Kosongkan selesai</string>
+
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Kosongkan sejarah</string>
+  <string name="privacy_clear_cookies">Kosongkan kuki</string>
+  <string name="privacy_clear_storage">Kosongkan storan web</string>
+  <string name="privacy_clear_all">Kosongkan semua</string>
+  <string name="privacy_cleared_history">Sejarah dikosongkan</string>
+  <string name="privacy_cleared_cookies">Kuki dikosongkan</string>
+  <string name="privacy_cleared_storage">Storan web dikosongkan</string>
+  <string name="privacy_cleared_all">Semua data peribadi dikosongkan</string>
+
+  <!-- Settings -->
+  <string name="settings_search_engine">Enjin carian lalai</string>
+  <string name="settings_version">Versi %1$s</string>
+
+  <!-- Account -->
+  <string name="account_email">E-mel</string>
+  <string name="account_password">Kata laluan</string>
+  <string name="account_sign_in">Log masuk</string>
+  <string name="account_google">Terus dengan Google</string>
+  <string name="account_qr">Log masuk dengan QR</string>
+  <string name="account_sign_out">Log keluar</string>
+  <string name="account_signed_in_as">Log masuk sebagai %1$s (%2$s)</string>
+
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+
+  <!-- Region switcher (5-tap secret trigger) -->
+  <string name="region_picker_title">Pilih rantau sasaran</string>
+  <string name="region_follow_system">Ikut bahasa sistem</string>
+  <string name="region_badge_format">Rantau · %1$s</string>
+  <string name="region_toast_applied">Rantau ditukar: %1$s</string>
+</resources>

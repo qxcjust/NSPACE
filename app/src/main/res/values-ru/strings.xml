@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — Russian (ru) localization -->
+<resources>
+  <!-- Application -->
+  <string name="app_name">NSpace</string>
+
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Назад</string>
+  <string name="action_forward">Вперёд</string>
+  <string name="action_refresh">Обновить</string>
+  <string name="action_home">Главная</string>
+  <string name="action_settings">Настройки</string>
+
+  <!-- Navigation drawer -->
+  <string name="nav_open">Открыть меню</string>
+  <string name="nav_close">Закрыть меню</string>
+  <string name="nav_home">Главная</string>
+  <string name="nav_bookmarks">Закладки</string>
+  <string name="nav_history">История</string>
+  <string name="nav_downloads">Загрузки</string>
+  <string name="nav_privacy">Приватность</string>
+  <string name="nav_settings">Настройки</string>
+  <string name="nav_account">Аккаунт</string>
+
+  <!-- Home -->
+  <string name="home_search_hint">Поиск или введите URL</string>
+  <string name="home_search_button">Поиск</string>
+  <string name="action_search">Поиск</string>
+
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Главная</string>
+  <string name="tab_discover">Обзор</string>
+  <string name="tab_apps">Приложения</string>
+
+  <!-- Hero banner -->
+  <string name="hero_title_default">Добро пожаловать в NSpace</string>
+  <string name="hero_subtitle_default">Ваш медиа-центр, всё в одном месте</string>
+
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Избранные приложения</string>
+  <string name="section_continue">Продолжить просмотр</string>
+  <string name="section_trending">Сейчас популярно</string>
+  <string name="content_placeholder">Скоро</string>
+
+  <!-- Browser -->
+  <string name="browser_go">Перейти</string>
+  <string name="browser_bookmark">В закладки</string>
+
+  <!-- Downloads -->
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="download_start">Начать загрузку</string>
+  <string name="download_clear">Очистить завершённые</string>
+
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Очистить историю</string>
+  <string name="privacy_clear_cookies">Очистить cookies</string>
+  <string name="privacy_clear_storage">Очистить веб-хранилище</string>
+  <string name="privacy_clear_all">Очистить всё</string>
+  <string name="privacy_cleared_history">История очищена</string>
+  <string name="privacy_cleared_cookies">Cookies очищены</string>
+  <string name="privacy_cleared_storage">Веб-хранилище очищено</string>
+  <string name="privacy_cleared_all">Все личные данные очищены</string>
+
+  <!-- Settings -->
+  <string name="settings_search_engine">Поисковая система по умолчанию</string>
+  <string name="settings_version">Версия %1$s</string>
+
+  <!-- Account -->
+  <string name="account_email">Эл. почта</string>
+  <string name="account_password">Пароль</string>
+  <string name="account_sign_in">Войти</string>
+  <string name="account_google">Продолжить с Google</string>
+  <string name="account_qr">Войти через QR</string>
+  <string name="account_sign_out">Выйти</string>
+  <string name="account_signed_in_as">Вы вошли как %1$s (%2$s)</string>
+
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+
+  <!-- Region switcher (5-tap secret trigger) -->
+  <string name="region_picker_title">Выбрать целевой регион</string>
+  <string name="region_follow_system">Как в системе</string>
+  <string name="region_badge_format">Регион · %1$s</string>
+  <string name="region_toast_applied">Регион изменён: %1$s</string>
+</resources>

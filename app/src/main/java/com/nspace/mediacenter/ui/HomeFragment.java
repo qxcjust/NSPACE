@@ -1,10 +1,13 @@
 package com.nspace.mediacenter.ui;
 
+import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,13 +16,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
+import com.nspace.mediacenter.config.RegionAppsConfig;
 import com.nspace.mediacenter.core.RecentsManager;
 import com.nspace.mediacenter.model.RecentItem;
 import java.io.File;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Android TV Launcher-style home screen.
@@ -37,19 +44,19 @@ import java.io.File;
  */
 public final class HomeFragment extends Fragment {
 
-  /** App-entry definitions: display name, logo glyph, brand colour, web URL. */
+  /** App-entry definitions: string-res label, brand colour, web URL. Logo glyph is the first letter of the (translated) label. */
   private static final Shortcut[] SHORTCUTS = {
-      new Shortcut("Bilibili", "B", "#FB7299", "https://www.bilibili.com"),
-      new Shortcut("腾讯视频", "腾", "#23ADE5", "https://v.qq.com"),
-      new Shortcut("抖音", "抖", "#FE2C55", "https://www.douyin.com"),
-      new Shortcut("西瓜", "西", "#FF7A00", "https://www.ixigua.com"),
-      new Shortcut("快手", "快", "#FF6600", "https://www.kuaishou.com"),
-      new Shortcut("好看视频", "好", "#2B5CFF", "https://haokan.baidu.com"),
-      new Shortcut("搜狐视频", "搜", "#C80815", "https://tv.sohu.com"),
-      new Shortcut("小红书", "小", "#FF2442", "https://www.xiaohongshu.com"),
-      new Shortcut("得到", "得", "#FF6A00", "https://www.dedao.cn"),
-      new Shortcut("今日头条", "今", "#FE0601", "https://www.toutiao.com"),
-      new Shortcut("Apple Music", "\u266A", "#FA2D48", "https://music.apple.com"),
+      new Shortcut(R.string.shortcut_bilibili, "#FB7299", "https://www.bilibili.com"),
+      new Shortcut(R.string.shortcut_tencent, "#23ADE5", "https://v.qq.com"),
+      new Shortcut(R.string.shortcut_douyin, "#FE2C55", "https://www.douyin.com"),
+      new Shortcut(R.string.shortcut_xigua, "#FF7A00", "https://www.ixigua.com"),
+      new Shortcut(R.string.shortcut_kuaishou, "#FF6600", "https://www.kuaishou.com"),
+      new Shortcut(R.string.shortcut_haokan, "#2B5CFF", "https://haokan.baidu.com"),
+      new Shortcut(R.string.shortcut_sohu, "#C80815", "https://tv.sohu.com"),
+      new Shortcut(R.string.shortcut_xiaohongshu, "#FF2442", "https://www.xiaohongshu.com"),
+      new Shortcut(R.string.shortcut_dedao, "#FF6A00", "https://www.dedao.cn"),
+      new Shortcut(R.string.shortcut_toutiao, "#FE0601", "https://www.toutiao.com"),
+      new Shortcut(R.string.shortcut_apple_music, "#FA2D48", "https://music.apple.com"),
   };
 
   @Nullable
@@ -63,27 +70,49 @@ public final class HomeFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    // ── Favorite Apps row ────────────────────────────────
-    LinearLayout appsContainer = view.findViewById(R.id.apps_container);
     final float density = getResources().getDisplayMetrics().density;
-    final int cardW = (int) (150 * density);
-    final int logoSize = (int) (100 * density);
-    final int gap = (int) (12 * density);
 
-    for (int i = 0; i < SHORTCUTS.length; i++) {
-      Shortcut sc = SHORTCUTS[i];
-      View card = createAppCard(sc, logoSize, density);
-      LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-          cardW, ViewGroup.LayoutParams.WRAP_CONTENT);
-      if (i > 0) {
-        lp.setMargins(gap, 0, 0, 0);
-      }
-      card.setLayoutParams(lp);
-      appsContainer.addView(card);
-    }
+    // ── Region badge (display-only, top-right) ──
+    updateRegionBadge(view.findViewById(R.id.region_badge));
+
+    // ── Favorite Apps row ────────────────────────────────
+    populateApps(view, density);
 
     // ── Continue Playing row (mid screen) ──────────────────
     populateContinuePlaying(view, density);
+  }
+
+  /**
+   * (Re)build the Favorite Apps row from the active shortcut set, clearing any
+   * previous cards first. Safe to call again after a region switch.
+   */
+  private void populateApps(@NonNull View root, float density) {
+    LinearLayout appsContainer = root.findViewById(R.id.apps_container);
+    Shortcut[] activeShortcuts = resolveShortcuts();
+
+    final int cardW = (int) (120 * density);
+    final int logoSize = (int) (80 * density);
+    final int gap = (int) (10 * density);
+
+    appsContainer.removeAllViews();
+
+    // Leading "Settings" entry (always visible, reliable tap zone in the
+    // apps panel). Opens the region switcher.
+    View settingsCard = createSettingsCard(density);
+    LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+        cardW, ViewGroup.LayoutParams.WRAP_CONTENT);
+    settingsCard.setLayoutParams(slp);
+    appsContainer.addView(settingsCard);
+
+    for (int i = 0; i < activeShortcuts.length; i++) {
+      Shortcut sc = activeShortcuts[i];
+      View card = createAppCard(sc, logoSize, density);
+      LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+          cardW, ViewGroup.LayoutParams.WRAP_CONTENT);
+      lp.setMargins(gap, 0, 0, 0);
+      card.setLayoutParams(lp);
+      appsContainer.addView(card);
+    }
   }
 
   /**
@@ -188,7 +217,7 @@ public final class HomeFragment extends Fragment {
     TextView title = new TextView(requireContext());
     title.setTag("title");
     title.setText(item.getTitle());
-    title.setTextSize(18);
+    title.setTextSize(14);
     title.setTextColor(Color.WHITE);
     title.setSingleLine(true);
     title.setEllipsize(TextUtils.TruncateAt.END);
@@ -229,8 +258,9 @@ public final class HomeFragment extends Fragment {
 
     // Brand-coloured rounded logo tile
     TextView logo = new TextView(requireContext());
-    logo.setText(sc.glyph);
-    logo.setTextSize(34);
+    String label = sc.getLabel(requireContext());
+    logo.setText(label.substring(0, 1).toUpperCase(Locale.ROOT));
+    logo.setTextSize(28);
     logo.setTextColor(Color.WHITE);
     logo.setGravity(Gravity.CENTER);
     logo.setTypeface(logo.getTypeface(), android.graphics.Typeface.BOLD);
@@ -247,15 +277,15 @@ public final class HomeFragment extends Fragment {
 
     // App name underneath
     TextView name = new TextView(requireContext());
-    name.setText(sc.label);
-    name.setTextSize(16);
+    name.setText(label);
+    name.setTextSize(13);
     name.setTextColor(getResources().getColor(R.color.nspace_on_light, null));
     name.setGravity(Gravity.CENTER);
     name.setSingleLine(true);
     name.setEllipsize(android.text.TextUtils.TruncateAt.END);
     LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    nameLp.setMargins(0, (int) (10 * density), 0, 0);
+    nameLp.setMargins(0, (int) (8 * density), 0, 0);
     name.setLayoutParams(nameLp);
     card.addView(name);
 
@@ -273,6 +303,169 @@ public final class HomeFragment extends Fragment {
     return card;
   }
 
+  /**
+   * Resolve the active shortcut list: a manual region override (chosen via the
+   * settings gear) takes priority, then a region match on the system locale,
+   * finally the built-in {@link #SHORTCUTS} array.
+   */
+  private Shortcut[] resolveShortcuts() {
+    String override = getOverrideRegion();
+    try {
+      RegionAppsConfig config = RegionAppsConfig.getInstance(requireContext());
+      RegionAppsConfig.RegionInfo region = (override != null)
+          ? config.getRegion(override)
+          : config.getRegionForCurrentLocale(requireContext(), null);
+      if (region != null) {
+        List<RegionAppsConfig.AppInfo> apps = region.getAllAppsDeduped();
+        if (!apps.isEmpty()) {
+          Shortcut[] regionShortcuts = new Shortcut[apps.size()];
+          for (int i = 0; i < apps.size(); i++) {
+            RegionAppsConfig.AppInfo app = apps.get(i);
+            regionShortcuts[i] = new Shortcut(app.name, app.brandColor, app.url);
+          }
+          return regionShortcuts;
+        }
+      }
+    } catch (Exception ignored) {
+      // Config missing or parse error → use defaults
+    }
+    return SHORTCUTS;
+  }
+
+  // ── Region switcher (settings gear entry) ──────────────
+
+  private static final String PREFS_NAME = "nspace_prefs";
+  private static final String KEY_OVERRIDE_REGION = "override_region";
+
+  /** Show a single-choice dialog listing all target regions + "follow system". */
+  private void showRegionPicker() {
+    RegionAppsConfig config = RegionAppsConfig.getInstance(requireContext());
+    if (config == null) {
+      Toast.makeText(requireContext(), R.string.region_config_error, Toast.LENGTH_SHORT).show();
+      return;
+    }
+    List<String> codes = config.getRegionCodes(); // sorted ISO codes
+    String current = getOverrideRegion();
+
+    final CharSequence[] items = new CharSequence[codes.size() + 1];
+    int checked = 0;
+    items[0] = getString(R.string.region_follow_system);
+    for (int i = 0; i < codes.size(); i++) {
+      RegionAppsConfig.RegionInfo r = config.getRegion(codes.get(i));
+      items[i + 1] = r.name + "  (" + r.nameEn + ")";
+      if (codes.get(i).equalsIgnoreCase(current)) {
+        checked = i + 1;
+      }
+    }
+
+    new AlertDialog.Builder(requireContext())
+        .setTitle(R.string.region_picker_title)
+        .setSingleChoiceItems(items, checked, (dialog, which) -> {
+          String sel = (which == 0) ? null : codes.get(which - 1);
+          saveOverrideRegion(sel);
+          dialog.dismiss();
+          updateRegionBadge(requireView().findViewById(R.id.region_badge));
+          final float density = getResources().getDisplayMetrics().density;
+          populateApps(requireView(), density);
+          String label = (sel == null)
+              ? getString(R.string.region_follow_system)
+              : config.getRegion(sel).name;
+          Toast.makeText(requireContext(),
+              getString(R.string.region_toast_applied, label), Toast.LENGTH_SHORT).show();
+        })
+        .setNegativeButton(android.R.string.cancel, null)
+        .show();
+  }
+
+  /**
+   * Build the leading "Settings" entry card: a neutral rounded tile with a gear
+   * glyph and the "Settings" label. Tapping opens the region switcher. Placed in
+   * the apps panel (a reliably tappable zone) because the screen corners are
+   * reserved by the car launcher.
+   */
+  private View createSettingsCard(float density) {
+    LinearLayout card = new LinearLayout(requireContext());
+    card.setOrientation(LinearLayout.VERTICAL);
+    card.setGravity(Gravity.CENTER);
+    card.setClickable(true);
+    card.setFocusable(true);
+
+    ImageView logo = new ImageView(requireContext());
+    logo.setImageResource(R.drawable.ic_settings);
+    logo.setColorFilter(Color.WHITE);
+    logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+    GradientDrawable logoBg = new GradientDrawable();
+    logoBg.setShape(GradientDrawable.RECTANGLE);
+    logoBg.setColor(Color.parseColor("#2E4038"));
+    logoBg.setCornerRadius(20 * density);
+    logo.setBackground(logoBg);
+
+    final int logoSize = (int) (80 * density);
+    LinearLayout.LayoutParams logoLp = new LinearLayout.LayoutParams(logoSize, logoSize);
+    logo.setLayoutParams(logoLp);
+    card.addView(logo);
+
+    TextView name = new TextView(requireContext());
+    name.setText(R.string.action_settings);
+    name.setTextSize(14);
+    name.setTextColor(getResources().getColor(R.color.nspace_on_light, null));
+    name.setGravity(Gravity.CENTER);
+    name.setSingleLine(true);
+    name.setEllipsize(android.text.TextUtils.TruncateAt.END);
+    LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    nameLp.setMargins(0, (int) (8 * density), 0, 0);
+    name.setLayoutParams(nameLp);
+    card.addView(name);
+
+    final int strokeW = (int) (3 * density);
+    final int green = getResources().getColor(R.color.nspace_primary, null);
+    card.setOnFocusChangeListener((v, hasFocus) -> {
+      logoBg.setStroke(hasFocus ? strokeW : 0, green);
+      card.setScaleX(hasFocus ? 1.06f : 1.0f);
+      card.setScaleY(hasFocus ? 1.06f : 1.0f);
+    });
+
+    card.setOnClickListener(v -> showRegionPicker());
+    return card;
+  }
+
+  /** Refresh the top-right badge: visible only when a region override is set. */
+  private void updateRegionBadge(TextView badge) {
+    if (badge == null) return;
+    String code = getOverrideRegion();
+    if (code == null) {
+      badge.setVisibility(View.GONE);
+      return;
+    }
+    RegionAppsConfig config = RegionAppsConfig.getInstance(requireContext());
+    if (config == null) {
+      badge.setVisibility(View.GONE);
+      return;
+    }
+    RegionAppsConfig.RegionInfo r = config.getRegion(code);
+    String name = (r != null) ? r.name : code;
+    badge.setText(getString(R.string.region_badge_format, name));
+    badge.setVisibility(View.VISIBLE);
+  }
+
+  private SharedPreferences prefs() {
+    return requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE);
+  }
+
+  /** Returns the manual override region code, or {@code null} to follow system. */
+  private String getOverrideRegion() {
+    String v = prefs().getString(KEY_OVERRIDE_REGION, null);
+    return (v == null || v.isEmpty()) ? null : v.toUpperCase(Locale.US);
+  }
+
+  private void saveOverrideRegion(String code) {
+    prefs().edit()
+        .putString(KEY_OVERRIDE_REGION, code == null ? "" : code.toUpperCase(Locale.US))
+        .apply();
+  }
+
   private void onAppClicked(Shortcut sc) {
     if (getActivity() instanceof MainNavigator && sc.url != null) {
       ((MainNavigator) getActivity()).openUrl(sc.url);
@@ -282,16 +475,33 @@ public final class HomeFragment extends Fragment {
   // ── Data class ─────────────────────────────────────────────
 
   private static final class Shortcut {
-    final String label;
-    final String glyph;
+    /** String resource ID for label (used by built-in defaults). {@code 0} = use {@link #name} instead. */
+    final int labelRes;
+    /** Raw app name string (used by region-based config when labelRes == 0). */
+    final String name;
     final String brandColor;
     final String url;
 
-    Shortcut(String label, String glyph, String brandColor, String url) {
-      this.label = label;
-      this.glyph = glyph;
+    /** Constructor for built-in defaults (string-res based, supports i18n). */
+    Shortcut(int labelRes, String brandColor, String url) {
+      this.labelRes = labelRes;
+      this.name = null;
       this.brandColor = brandColor;
       this.url = url;
+    }
+
+    /** Constructor for region-based config (raw name from JSON). */
+    Shortcut(String name, String brandColor, String url) {
+      this.labelRes = 0;
+      this.name = name;
+      this.brandColor = brandColor;
+      this.url = url;
+    }
+
+    /** Resolve display label: translated string-res or raw name. */
+    String getLabel(android.content.Context ctx) {
+      if (labelRes != 0) return ctx.getString(labelRes);
+      return (name != null) ? name : "?";
     }
   }
 }

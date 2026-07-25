@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — Spanish (es) localization -->
+<resources>
+  <!-- Application -->
+  <string name="app_name">NSpace</string>
+
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Atrás</string>
+  <string name="action_forward">Adelante</string>
+  <string name="action_refresh">Actualizar</string>
+  <string name="action_home">Inicio</string>
+  <string name="action_settings">Ajustes</string>
+
+  <!-- Navigation drawer -->
+  <string name="nav_open">Abrir navegación</string>
+  <string name="nav_close">Cerrar navegación</string>
+  <string name="nav_home">Inicio</string>
+  <string name="nav_bookmarks">Marcadores</string>
+  <string name="nav_history">Historial</string>
+  <string name="nav_downloads">Descargas</string>
+  <string name="nav_privacy">Privacidad</string>
+  <string name="nav_settings">Ajustes</string>
+  <string name="nav_account">Cuenta</string>
+
+  <!-- Home -->
+  <string name="home_search_hint">Buscar o escribe una URL</string>
+  <string name="home_search_button">Buscar</string>
+  <string name="action_search">Buscar</string>
+
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Inicio</string>
+  <string name="tab_discover">Descubrir</string>
+  <string name="tab_apps">Aplicaciones</string>
+
+  <!-- Hero banner -->
+  <string name="hero_title_default">Bienvenido a NSpace</string>
+  <string name="hero_subtitle_default">Tu centro multimedia, todo en un solo lugar</string>
+
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Aplicaciones favoritas</string>
+  <string name="section_continue">Continuar viendo</string>
+  <string name="section_trending">Tendencias</string>
+  <string name="content_placeholder">Próximamente</string>
+
+  <!-- Browser -->
+  <string name="browser_go">Ir</string>
+  <string name="browser_bookmark">Marcar</string>
+
+  <!-- Downloads -->
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="download_start">Iniciar descarga</string>
+  <string name="download_clear">Borrar terminadas</string>
+
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Borrar historial</string>
+  <string name="privacy_clear_cookies">Borrar cookies</string>
+  <string name="privacy_clear_storage">Borrar almacenamiento web</string>
+  <string name="privacy_clear_all">Borrar todo</string>
+  <string name="privacy_cleared_history">Historial borrado</string>
+  <string name="privacy_cleared_cookies">Cookies borradas</string>
+  <string name="privacy_cleared_storage">Almacenamiento web borrado</string>
+  <string name="privacy_cleared_all">Todos los datos privados borrados</string>
+
+  <!-- Settings -->
+  <string name="settings_search_engine">Motor de búsqueda predeterminado</string>
+  <string name="settings_version">Versión %1$s</string>
+
+  <!-- Account -->
+  <string name="account_email">Correo electrónico</string>
+  <string name="account_password">Contraseña</string>
+  <string name="account_sign_in">Iniciar sesión</string>
+  <string name="account_google">Continuar con Google</string>
+  <string name="account_qr">Iniciar sesión con QR</string>
+  <string name="account_sign_out">Cerrar sesión</string>
+  <string name="account_signed_in_as">Sesión iniciada como %1$s (%2$s)</string>
+
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+
+  <!-- Region switcher (5-tap secret trigger) -->
+  <string name="region_picker_title">Seleccionar región de destino</string>
+  <string name="region_follow_system">Seguir idioma del sistema</string>
+  <string name="region_badge_format">Región · %1$s</string>
+  <string name="region_toast_applied">Región cambiada: %1$s</string>
+</resources>

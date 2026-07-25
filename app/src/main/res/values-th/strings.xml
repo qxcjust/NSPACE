@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — Thai (th) localization -->
+<resources>
+  <!-- Application -->
+  <string name="app_name">NSpace</string>
+
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">ย้อนกลับ</string>
+  <string name="action_forward">ไปข้างหน้า</string>
+  <string name="action_refresh">รีเฟรช</string>
+  <string name="action_home">หน้าแรก</string>
+  <string name="action_settings">ตั้งค่า</string>
+
+  <!-- Navigation drawer -->
+  <string name="nav_open">เปิดการนำทาง</string>
+  <string name="nav_close">ปิดการนำทาง</string>
+  <string name="nav_home">หน้าแรก</string>
+  <string name="nav_bookmarks">ที่คั่นหน้า</string>
+  <string name="nav_history">ประวัติ</string>
+  <string name="nav_downloads">การดาวน์โหลด</string>
+  <string name="nav_privacy">ความเป็นส่วนตัว</string>
+  <string name="nav_settings">ตั้งค่า</string>
+  <string name="nav_account">บัญชี</string>
+
+  <!-- Home -->
+  <string name="home_search_hint">ค้นหาหรือพิมพ์ URL</string>
+  <string name="home_search_button">ค้นหา</string>
+  <string name="action_search">ค้นหา</string>
+
+  <!-- Top navigation tabs -->
+  <string name="tab_home">หน้าแรก</string>
+  <string name="tab_discover">ค้นพบ</string>
+  <string name="tab_apps">แอป</string>
+
+  <!-- Hero banner -->
+  <string name="hero_title_default">ยินดีต้อนรับสู่ NSpace</string>
+  <string name="hero_subtitle_default">ศูนย์สื่อของคุณ ทุกอย่างในที่เดียว</string>
+
+  <!-- Content sections -->
+  <string name="section_favorite_apps">แอปที่ชื่นชอบ</string>
+  <string name="section_continue">เล่นต่อ</string>
+  <string name="section_trending">กำลังมาแรง</string>
+  <string name="content_placeholder">เร็วๆ นี้</string>
+
+  <!-- Browser -->
+  <string name="browser_go">ไป</string>
+  <string name="browser_bookmark">เพิ่มที่คั่นหน้า</string>
+
+  <!-- Downloads -->
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="download_start">เริ่มดาวน์โหลด</string>
+  <string name="download_clear">ล้างที่เสร็จแล้ว</string>
+
+  <!-- Privacy -->
+  <string name="privacy_clear_history">ล้างประวัติ</string>
+  <string name="privacy_clear_cookies">ล้างคุกกี้</string>
+  <string name="privacy_clear_storage">ล้างที่เก็บเว็บ</string>
+  <string name="privacy_clear_all">ล้างทั้งหมด</string>
+  <string name="privacy_cleared_history">ล้างประวัติแล้ว</string>
+  <string name="privacy_cleared_cookies">ล้างคุกกี้แล้ว</string>
+  <string name="privacy_cleared_storage">ล้างที่เก็บเว็บแล้ว</string>
+  <string name="privacy_cleared_all">ล้างข้อมูลส่วนตัวทั้งหมดแล้ว</string>
+
+  <!-- Settings -->
+  <string name="settings_search_engine">ใช้เครื่องมือค้นหาเริ่มต้น</string>
+  <string name="settings_version">เวอร์ชัน %1$s</string>
+
+  <!-- Account -->
+  <string name="account_email">อีเมล</string>
+  <string name="account_password">รหัสผ่าน</string>
+  <string name="account_sign_in">เข้าสู่ระบบ</string>
+  <string name="account_google">ดำเนินการต่อด้วย Google</string>
+  <string name="account_qr">เข้าสู่ระบบด้วย QR</string>
+  <string name="account_sign_out">ออกจากระบบ</string>
+  <string name="account_signed_in_as">เข้าสู่ระบบในนาม %1$s (%2$s)</string>
+
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+
+  <!-- Region switcher (5-tap secret trigger) -->
+  <string name="region_picker_title">เลือกภูมิภาคเป้าหมาย</string>
+  <string name="region_follow_system">ตามภาษาระบบ</string>
+  <string name="region_badge_format">ภูมิภาค · %1$s</string>
+  <string name="region_toast_applied">เปลี่ยนภูมิภาคแล้ว: %1$s</string>
+</resources>
