@@ -8,11 +8,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,25 +40,25 @@ import java.util.Locale;
  *   <li>Favorite Apps: single long panel with brand-coloured app cards, always at bottom</li>
  * </ol>
  *
- * <p>Each app card is a rounded tile with a brand-coloured logo glyph and the app name,
+ * <p>Each app card is a rounded square tile with a centred brand-coloured logo glyph,
  * focusable with a green outline (DPAD / car-remote friendly). Tapping opens the URL in
  * the built-in browser.
  */
 public final class HomeFragment extends Fragment {
 
-  /** App-entry definitions: string-res label, brand colour, web URL. Logo glyph is the first letter of the (translated) label. */
+  /** App-entry definitions: string-res label, web URL. Logo glyph is the first letter of the (translated) label. */
   private static final Shortcut[] SHORTCUTS = {
-      new Shortcut(R.string.shortcut_bilibili, "#FB7299", "https://www.bilibili.com"),
-      new Shortcut(R.string.shortcut_tencent, "#23ADE5", "https://v.qq.com"),
-      new Shortcut(R.string.shortcut_douyin, "#FE2C55", "https://www.douyin.com"),
-      new Shortcut(R.string.shortcut_xigua, "#FF7A00", "https://www.ixigua.com"),
-      new Shortcut(R.string.shortcut_kuaishou, "#FF6600", "https://www.kuaishou.com"),
-      new Shortcut(R.string.shortcut_haokan, "#2B5CFF", "https://haokan.baidu.com"),
-      new Shortcut(R.string.shortcut_sohu, "#C80815", "https://tv.sohu.com"),
-      new Shortcut(R.string.shortcut_xiaohongshu, "#FF2442", "https://www.xiaohongshu.com"),
-      new Shortcut(R.string.shortcut_dedao, "#FF6A00", "https://www.dedao.cn"),
-      new Shortcut(R.string.shortcut_toutiao, "#FE0601", "https://www.toutiao.com"),
-      new Shortcut(R.string.shortcut_apple_music, "#FA2D48", "https://music.apple.com"),
+      new Shortcut(R.string.shortcut_bilibili, "https://www.bilibili.com"),
+      new Shortcut(R.string.shortcut_tencent, "https://v.qq.com"),
+      new Shortcut(R.string.shortcut_douyin, "https://www.douyin.com"),
+      new Shortcut(R.string.shortcut_xigua, "https://www.ixigua.com"),
+      new Shortcut(R.string.shortcut_kuaishou, "https://www.kuaishou.com"),
+      new Shortcut(R.string.shortcut_haokan, "https://haokan.baidu.com"),
+      new Shortcut(R.string.shortcut_sohu, "https://tv.sohu.com"),
+      new Shortcut(R.string.shortcut_xiaohongshu, "https://www.xiaohongshu.com"),
+      new Shortcut(R.string.shortcut_dedao, "https://www.dedao.cn"),
+      new Shortcut(R.string.shortcut_toutiao, "https://www.toutiao.com"),
+      new Shortcut(R.string.shortcut_apple_music, "https://music.apple.com"),
   };
 
   @Nullable
@@ -75,6 +77,12 @@ public final class HomeFragment extends Fragment {
     // ── Region badge (display-only, top-right) ──
     updateRegionBadge(view.findViewById(R.id.region_badge));
 
+    // ── Settings gear (top-right, outside system hot zone) ──
+    View settingsBtn = view.findViewById(R.id.settings_button);
+    if (settingsBtn != null) {
+      settingsBtn.setOnClickListener(v -> showRegionPicker());
+    }
+
     // ── Favorite Apps row ────────────────────────────────
     populateApps(view, density);
 
@@ -90,28 +98,36 @@ public final class HomeFragment extends Fragment {
     LinearLayout appsContainer = root.findViewById(R.id.apps_container);
     Shortcut[] activeShortcuts = resolveShortcuts();
 
-    final int cardW = (int) (120 * density);
-    final int logoSize = (int) (80 * density);
-    final int gap = (int) (10 * density);
+    // Fixed large tiles like the reference launcher.  The row lives inside a
+    // HorizontalScrollView, so when there are more apps than fit on screen the
+    // user simply slides the panel left/right.
+    int cardSize = (int) (200 * density);
+    int gap = (int) (20 * density);
+    int logoSize = (int) (cardSize * 0.58f);
+    int count = activeShortcuts.length;
 
     appsContainer.removeAllViews();
 
-    // Leading "Settings" entry (always visible, reliable tap zone in the
-    // apps panel). Opens the region switcher.
-    View settingsCard = createSettingsCard(density);
-    LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-        cardW, ViewGroup.LayoutParams.WRAP_CONTENT);
-    settingsCard.setLayoutParams(slp);
-    appsContainer.addView(settingsCard);
-
     for (int i = 0; i < activeShortcuts.length; i++) {
       Shortcut sc = activeShortcuts[i];
-      View card = createAppCard(sc, logoSize, density);
+      View card = createAppCard(sc, cardSize, logoSize, density);
       LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-          cardW, ViewGroup.LayoutParams.WRAP_CONTENT);
-      lp.setMargins(gap, 0, 0, 0);
+          cardSize, cardSize);
+      // left margin on every card (including first) so the row is centred;
+      // the trailing gap is handled by the symmetrical padding maths above.
+      lp.setMargins(gap, 0, (i == count - 1) ? gap : 0, 0);
       card.setLayoutParams(lp);
       appsContainer.addView(card);
+    }
+
+    // Reset the scroller to the left edge so the large tiles always start from
+    // the first app.  Disable saved state so the car launcher doesn't restore a
+    // previous scroll position after reinstalling the app.
+    HorizontalScrollView appsScroll = root.findViewById(R.id.apps_scroll);
+    if (appsScroll != null) {
+      appsScroll.setSaveEnabled(false);
+      appsContainer.setSaveEnabled(false);
+      appsScroll.post(() -> appsScroll.scrollTo(0, 0));
     }
   }
 
@@ -244,59 +260,61 @@ public final class HomeFragment extends Fragment {
   }
 
   /**
-   * Build a single app entry (no own frame): a brand-coloured rounded logo
-   * tile with the app glyph and the app name underneath. The whole row sits
-   * inside one long panel (see {@code apps_panel_bg}); on DPAD focus the logo
-   * gains a green ring and the entry zooms slightly for TV feedback.
+   * Build a single app entry as a large rounded square tile (reference style):
+   * brand-coloured background with a centred app icon or a white letter glyph.
+   * Focus zooms the whole tile and adds a green outline for DPAD / car-remote
+   * feedback. The tiles are large and sit inside a horizontal scroller, so
+   * any overflow is handled by sliding left/right instead of shrinking the cards.
    */
-  private View createAppCard(Shortcut sc, int logoSize, float density) {
-    LinearLayout card = new LinearLayout(requireContext());
-    card.setOrientation(LinearLayout.VERTICAL);
-    card.setGravity(Gravity.CENTER);
+  private View createAppCard(Shortcut sc, int cardSize, int logoSize, float density) {
+    FrameLayout card = new FrameLayout(requireContext());
     card.setClickable(true);
     card.setFocusable(true);
 
-    // Brand-coloured rounded logo tile
-    TextView logo = new TextView(requireContext());
-    String label = sc.getLabel(requireContext());
-    logo.setText(label.substring(0, 1).toUpperCase(Locale.ROOT));
-    logo.setTextSize(28);
-    logo.setTextColor(Color.WHITE);
-    logo.setGravity(Gravity.CENTER);
-    logo.setTypeface(logo.getTypeface(), android.graphics.Typeface.BOLD);
-
-    GradientDrawable logoBg = new GradientDrawable();
-    logoBg.setShape(GradientDrawable.RECTANGLE);
-    logoBg.setColor(Color.parseColor(sc.brandColor));
-    logoBg.setCornerRadius(20 * density);
-    logo.setBackground(logoBg);
-
-    LinearLayout.LayoutParams logoLp = new LinearLayout.LayoutParams(logoSize, logoSize);
-    logo.setLayoutParams(logoLp);
-    card.addView(logo);
-
-    // App name underneath
-    TextView name = new TextView(requireContext());
-    name.setText(label);
-    name.setTextSize(13);
-    name.setTextColor(getResources().getColor(R.color.nspace_on_light, null));
-    name.setGravity(Gravity.CENTER);
-    name.setSingleLine(true);
-    name.setEllipsize(android.text.TextUtils.TruncateAt.END);
-    LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    nameLp.setMargins(0, (int) (8 * density), 0, 0);
-    name.setLayoutParams(nameLp);
-    card.addView(name);
-
-    // Focus feedback: green ring on the logo + subtle zoom. No per-card frame,
-    // so the entire row stays inside the single long panel.
+    // Card background: icons already bring their own artwork, so keep the tile
+    // transparent to avoid the ugly "double box" look. Only the letter-glyph
+    // fallback keeps a neutral tile so the white text stays readable.
     final int strokeW = (int) (3 * density);
     final int green = getResources().getColor(R.color.nspace_primary, null);
+    GradientDrawable cardBg = new GradientDrawable();
+    cardBg.setShape(GradientDrawable.RECTANGLE);
+    if (sc.iconResId != 0) {
+      cardBg.setColor(Color.TRANSPARENT);
+    } else {
+      cardBg.setColor(Color.parseColor("#2C2C34"));
+    }
+    cardBg.setCornerRadius(28 * density);
+    card.setBackground(cardBg);
+
+    if (sc.iconResId != 0) {
+      // Real app logo centred on the transparent tile.
+      ImageView icon = new ImageView(requireContext());
+      icon.setImageResource(sc.iconResId);
+      icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+      FrameLayout.LayoutParams iconLp = new FrameLayout.LayoutParams(
+          logoSize, logoSize, Gravity.CENTER);
+      icon.setLayoutParams(iconLp);
+      card.addView(icon);
+    } else {
+      // Fallback: white first-letter glyph on the neutral tile.
+      TextView logo = new TextView(requireContext());
+      String label = sc.getLabel(requireContext());
+      logo.setText(label.substring(0, 1).toUpperCase(Locale.ROOT));
+      logo.setTextSize(TypedValue.COMPLEX_UNIT_PX, logoSize * 0.5f);
+      logo.setTextColor(Color.WHITE);
+      logo.setGravity(Gravity.CENTER);
+      logo.setTypeface(logo.getTypeface(), android.graphics.Typeface.BOLD);
+      FrameLayout.LayoutParams logoLp = new FrameLayout.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER);
+      logo.setLayoutParams(logoLp);
+      card.addView(logo);
+    }
+
+    // Focus feedback: green ring on the tile + subtle zoom.
     card.setOnFocusChangeListener((v, hasFocus) -> {
-      logoBg.setStroke(hasFocus ? strokeW : 0, green);
-      card.setScaleX(hasFocus ? 1.06f : 1.0f);
-      card.setScaleY(hasFocus ? 1.06f : 1.0f);
+      cardBg.setStroke(hasFocus ? strokeW : 0, green);
+      card.setScaleX(hasFocus ? 1.08f : 1.0f);
+      card.setScaleY(hasFocus ? 1.08f : 1.0f);
     });
 
     card.setOnClickListener(v -> onAppClicked(sc));
@@ -305,8 +323,9 @@ public final class HomeFragment extends Fragment {
 
   /**
    * Resolve the active shortcut list: a manual region override (chosen via the
-   * settings gear) takes priority, then a region match on the system locale,
-   * finally the built-in {@link #SHORTCUTS} array.
+   * settings gear) takes priority, otherwise the GLOBAL region (AquaChannel
+   * app set) is used as the default home screen. The built-in {@link #SHORTCUTS}
+   * array is only a last-resort fallback when the config cannot be loaded.
    */
   private Shortcut[] resolveShortcuts() {
     String override = getOverrideRegion();
@@ -314,14 +333,19 @@ public final class HomeFragment extends Fragment {
       RegionAppsConfig config = RegionAppsConfig.getInstance(requireContext());
       RegionAppsConfig.RegionInfo region = (override != null)
           ? config.getRegion(override)
-          : config.getRegionForCurrentLocale(requireContext(), null);
+          : config.getRegion("GLOBAL");
       if (region != null) {
         List<RegionAppsConfig.AppInfo> apps = region.getAllAppsDeduped();
         if (!apps.isEmpty()) {
           Shortcut[] regionShortcuts = new Shortcut[apps.size()];
           for (int i = 0; i < apps.size(); i++) {
             RegionAppsConfig.AppInfo app = apps.get(i);
-            regionShortcuts[i] = new Shortcut(app.name, app.brandColor, app.url);
+            int iconResId = 0;
+            if (!app.icon.isEmpty()) {
+              iconResId = requireContext().getResources().getIdentifier(
+                  app.icon, "drawable", requireContext().getPackageName());
+            }
+            regionShortcuts[i] = new Shortcut(app.name, app.url, iconResId);
           }
           return regionShortcuts;
         }
@@ -377,60 +401,6 @@ public final class HomeFragment extends Fragment {
         .show();
   }
 
-  /**
-   * Build the leading "Settings" entry card: a neutral rounded tile with a gear
-   * glyph and the "Settings" label. Tapping opens the region switcher. Placed in
-   * the apps panel (a reliably tappable zone) because the screen corners are
-   * reserved by the car launcher.
-   */
-  private View createSettingsCard(float density) {
-    LinearLayout card = new LinearLayout(requireContext());
-    card.setOrientation(LinearLayout.VERTICAL);
-    card.setGravity(Gravity.CENTER);
-    card.setClickable(true);
-    card.setFocusable(true);
-
-    ImageView logo = new ImageView(requireContext());
-    logo.setImageResource(R.drawable.ic_settings);
-    logo.setColorFilter(Color.WHITE);
-    logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-
-    GradientDrawable logoBg = new GradientDrawable();
-    logoBg.setShape(GradientDrawable.RECTANGLE);
-    logoBg.setColor(Color.parseColor("#2E4038"));
-    logoBg.setCornerRadius(20 * density);
-    logo.setBackground(logoBg);
-
-    final int logoSize = (int) (80 * density);
-    LinearLayout.LayoutParams logoLp = new LinearLayout.LayoutParams(logoSize, logoSize);
-    logo.setLayoutParams(logoLp);
-    card.addView(logo);
-
-    TextView name = new TextView(requireContext());
-    name.setText(R.string.action_settings);
-    name.setTextSize(14);
-    name.setTextColor(getResources().getColor(R.color.nspace_on_light, null));
-    name.setGravity(Gravity.CENTER);
-    name.setSingleLine(true);
-    name.setEllipsize(android.text.TextUtils.TruncateAt.END);
-    LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    nameLp.setMargins(0, (int) (8 * density), 0, 0);
-    name.setLayoutParams(nameLp);
-    card.addView(name);
-
-    final int strokeW = (int) (3 * density);
-    final int green = getResources().getColor(R.color.nspace_primary, null);
-    card.setOnFocusChangeListener((v, hasFocus) -> {
-      logoBg.setStroke(hasFocus ? strokeW : 0, green);
-      card.setScaleX(hasFocus ? 1.06f : 1.0f);
-      card.setScaleY(hasFocus ? 1.06f : 1.0f);
-    });
-
-    card.setOnClickListener(v -> showRegionPicker());
-    return card;
-  }
-
   /** Refresh the top-right badge: visible only when a region override is set. */
   private void updateRegionBadge(TextView badge) {
     if (badge == null) return;
@@ -479,23 +449,31 @@ public final class HomeFragment extends Fragment {
     final int labelRes;
     /** Raw app name string (used by region-based config when labelRes == 0). */
     final String name;
-    final String brandColor;
     final String url;
+    /** Drawable resource ID for the app logo, or {@code 0} when unavailable (letter glyph fallback). */
+    final int iconResId;
 
-    /** Constructor for built-in defaults (string-res based, supports i18n). */
-    Shortcut(int labelRes, String brandColor, String url) {
+    /** Primary constructor. */
+    Shortcut(int labelRes, String name, String url, int iconResId) {
       this.labelRes = labelRes;
-      this.name = null;
-      this.brandColor = brandColor;
+      this.name = name;
       this.url = url;
+      this.iconResId = iconResId;
     }
 
-    /** Constructor for region-based config (raw name from JSON). */
-    Shortcut(String name, String brandColor, String url) {
-      this.labelRes = 0;
-      this.name = name;
-      this.brandColor = brandColor;
-      this.url = url;
+    /** Constructor for built-in defaults (string-res based, supports i18n). */
+    Shortcut(int labelRes, String url) {
+      this(labelRes, null, url, 0);
+    }
+
+    /** Constructor for region-based config without a bundled icon. */
+    Shortcut(String name, String url) {
+      this(0, name, url, 0);
+    }
+
+    /** Constructor for region-based config with a bundled app logo. */
+    Shortcut(String name, String url, int iconResId) {
+      this(0, name, url, iconResId);
     }
 
     /** Resolve display label: translated string-res or raw name. */

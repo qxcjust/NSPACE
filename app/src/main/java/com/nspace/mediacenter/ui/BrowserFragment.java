@@ -43,6 +43,13 @@ public final class BrowserFragment extends Fragment {
 
   public static final String ARG_URL = "arg_url";
 
+  // Desktop browser UA so video portals (e.g. mgtv.com) serve the full web
+  // player instead of their mobile layout. The car head unit is a 1920x1080
+  // screen, so the desktop rendering fits much better than a phone layout.
+  private static final String DESKTOP_USER_AGENT =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+          + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
   private WebView webView;
   private ProgressBar progressBar;
 
@@ -91,6 +98,12 @@ public final class BrowserFragment extends Fragment {
     // Configure WebView
     webView.getSettings().setJavaScriptEnabled(true);
     webView.getSettings().setDomStorageEnabled(true);
+    // Request the desktop version of web pages: without this the WebView's
+    // default mobile UA makes sites like mgtv.com return a phone layout that
+    // looks broken on the 1080p car screen.
+    webView.getSettings().setUseWideViewPort(true);
+    webView.getSettings().setLoadWithOverviewMode(true);
+    webView.getSettings().setUserAgentString(DESKTOP_USER_AGENT);
     webView.setWebViewClient(new WebViewClient() {
       @Override
       public void onPageFinished(WebView view, String url) {

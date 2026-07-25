@@ -1,1 +1,1159 @@
-{"_meta": {"version": "1.0", "description": "点击出海国家清单 - 按国家/地区音视频App用户量排名", "source": "NSpace出海配置", "updated": "2026-07-23"}, "apps": {"YouTube Music": {"category": "audio", "brandColor": "#FF0000", "url": "https://music.youtube.com", "locales": {"default": "YouTube Music"}}, "Melon": {"category": "audio", "brandColor": "#01C877", "url": "https://www.melon.com", "locales": {"default": "Melon"}}, "Spotify": {"category": "audio", "brandColor": "#1DB954", "url": "https://www.spotify.com", "locales": {"default": "Spotify"}}, "Genie": {"category": "audio", "brandColor": "#2D2D7B", "url": "https://www.genie.co.kr", "locales": {"default": "Genie"}}, "FLO": {"category": "audio", "brandColor": "#1E90FF", "url": "https://www.flo.music", "locales": {"default": "FLO"}}, "Netflix": {"category": "video", "brandColor": "#E50914", "url": "https://www.netflix.com", "locales": {"default": "Netflix"}}, "Coupang Play": {"category": "video", "brandColor": "#2D3436", "url": "https://play.coupang.com", "locales": {"default": "Coupang Play"}}, "Tving": {"category": "video", "brandColor": "#FF3D00", "url": "https://www.tving.com", "locales": {"default": "TVING"}}, "Wavve": {"category": "video", "brandColor": "#00BCD4", "url": "https://www.wavve.com", "locales": {"default": "Wavve"}}, "Disney+": {"category": "video", "brandColor": "#113CCF", "url": "https://www.disneyplus.com", "locales": {"default": "Disney+"}}, "Apple Music": {"category": "audio", "brandColor": "#FA2D48", "url": "https://music.apple.com", "locales": {"default": "Apple Music"}}, "StarMaker": {"category": "audio", "brandColor": "#9C27B0", "url": "https://www.starmakerstudios.com", "locales": {"default": "StarMaker"}}, "Smule": {"category": "audio", "brandColor": "#FF6B35", "url": "https://www.smule.com", "locales": {"default": "Smule"}}, "Deezer": {"category": "audio", "brandColor": "#FEAA2C", "url": "https://www.deezer.com", "locales": {"default": "Deezer"}}, "DramaBox": {"category": "video", "brandColor": "#E91E63", "url": "https://dramaboxtv.com", "locales": {"default": "DramaBox"}}, "Vivamax": {"category": "video", "brandColor": "#F50057", "url": "https://vivamax.net.ph", "locales": {"default": "Vivamax"}}, "ReelShort": {"category": "video", "brandColor": "#FF4081", "url": "https://reelshort.com", "locales": {"default": "ReelShort"}}, "WeTV": {"category": "video", "brandColor": "#FF9800", "url": "https://wetv.vip", "locales": {"default": "WeTV"}}, "Zing MP3": {"category": "audio", "brandColor": "#00AEEF", "url": "https://zingmp3.vn", "locales": {"default": "Zing MP3"}}, "SoundCloud": {"category": "audio", "brandColor": "#FF5500", "url": "https://soundcloud.com", "locales": {"default": "SoundCloud"}}, "VieON": {"category": "video", "brandColor": "#00C853", "url": "https://vieon.vn", "locales": {"default": "VieON"}}, "iQIYI": {"category": "video", "brandColor": "#00BE06", "url": "https://www.iqiyi.com", "locales": {"default": "iQIYI"}}, "FPT Play": {"category": "video", "brandColor": "#0078D4", "url": "https://fptplay.vn", "locales": {"default": "FPT Play"}}, "YOUKU": {"category": "video", "brandColor": "#19A0E6", "url": "https://www.youku.com", "locales": {"default": "Youku"}}, "Shahid": {"category": "video", "brandColor": "#000000", "url": "https://shahid.mbc.net", "locales": {"default": "Shahid"}}, "TOD": {"category": "video", "brandColor": "#29B6F6", "url": "https://tod.tv", "locales": {"default": "TOD"}}, "OSN": {"category": "video", "brandColor": "#FFD600", "url": "https://www.osn.com", "locales": {"default": "OSN"}}, "YouTube Kids": {"category": "video", "brandColor": "#FF0000", "url": "https://youtubekids.com", "locales": {"default": "YouTube Kids"}}, "Anghami": {"category": "audio", "brandColor": "#FF6F00", "url": "https://www.anghami.com", "locales": {"default": "Anghami"}}, "JACO": {"category": "video", "brandColor": "#7B1FA2", "url": "https://jaco.com.sa", "locales": {"default": "JACO"}}, "Amazon Music": {"category": "audio", "brandColor": "#FF9900", "url": "https://music.amazon.com", "locales": {"default": "Amazon Music"}}, "TIDAL": {"category": "audio", "brandColor": "#000000", "url": "https://tidal.com", "locales": {"default": "TIDAL"}}, "Crunchyroll": {"category": "video", "brandColor": "#F47521", "url": "https://www.crunchyroll.com", "locales": {"default": "Crunchyroll"}}, "ViX": {"category": "video", "brandColor": "#002776", "url": "https://www.vix.com", "locales": {"default": "ViX"}}, "Pluto TV": {"category": "video", "brandColor": "#5ABECE", "url": "https://pluto.tv", "locales": {"default": "Pluto TV"}}, "Max": {"category": "video", "brandColor": "#0043CE", "url": "https://max.com", "locales": {"default": "Max"}}, "Yandex Music": {"category": "audio", "brandColor": "#FFCC00", "url": "https://music.yandex.com", "locales": {"default": "Yandex Music"}}, "Kinopoisk": {"category": "video", "brandColor": "#F44336", "url": "https://www.kinopoisk.ru", "locales": {"default": "Kinopoisk"}}, "IVI": {"category": "video", "brandColor": "#0F9D58", "url": "https://www.ivi.ru", "locales": {"default": "IVI"}}, "MEGOGO": {"category": "video", "brandColor": "#00BFA5", "url": "https://megogo.net", "locales": {"default": "MEGOGO"}}, "Okko": {"category": "video", "brandColor": "#303F9F", "url": "https://okko.tv", "locales": {"default": "Okko"}}, "START": {"category": "video", "brandColor": "#E65100", "url": "https://start.ru", "locales": {"default": "START"}}, "VK Music": {"category": "audio", "brandColor": "#4A76A8", "url": "https://vk.com/music", "locales": {"default": "VK Music"}}, "Prime Video": {"category": "video", "brandColor": "#00A8E1", "url": "https://www.amazon.com/primevideo", "locales": {"default": "Prime Video"}}, "ZDFmediathek": {"category": "video", "brandColor": "#263238", "url": "https://zdfmediathek.de", "locales": {"default": "ZDFmediathek"}}, "Joyn": {"category": "video", "brandColor": "#E91E63", "url": "https://www.joyn.de", "locales": {"default": "Joyn"}}, "TF1+": {"category": "video", "brandColor": "#1565C0", "url": "https://www.tf1.fr", "locales": {"default": "TF1+"}}, "Molotov TV": {"category": "video", "brandColor": "#FF5722", "url": "https://www.molotov.tv", "locales": {"default": "Molotov TV"}}, "Atresplayer": {"category": "video", "brandColor": "#D32F2F", "url": "https://atresplayer.com", "locales": {"default": "Atresplayer"}}, "Tabil": {"category": "video", "brandColor": "#455A64", "url": "https://tabil.com.tr", "locales": {"default": "Tabil"}}, "HBO Max": {"category": "video", "brandColor": "#702F8F", "url": "https://www.hbomax.com", "locales": {"default": "HBO Max"}}, "Rakuten TV": {"category": "video", "brandColor": "#BF0000", "url": "https://rakuten.tv", "locales": {"default": "Rakuten TV"}}, "Prima+": {"category": "video", "brandColor": "#0277BD", "url": "https://iprima.cz", "locales": {"default": "Prima+"}}, "SWEET TV": {"category": "video", "brandColor": "#C2185B", "url": "https://sweet.tv", "locales": {"default": "SWEET TV"}}, "StarDustTV": {"category": "video", "brandColor": "#5D4037", "url": "https://stardusttv.com", "locales": {"default": "StarDustTV"}}, "JioSaavn": {"category": "audio", "brandColor": "#36C1B9", "url": "https://www.jiosaavn.com", "locales": {"default": "JioSaavn"}}, "Gaana": {"category": "audio", "brandColor": "#E91E63", "url": "https://gaana.com", "locales": {"default": "Gaana"}}, "Disney+Hotstar": {"category": "video", "brandColor": "#113CCF", "url": "https://www.hotstar.com", "locales": {"default": "Disney+ Hotstar"}}, "Zee5": {"category": "video", "brandColor": "#2A2A86", "url": "https://www.zee5.com", "locales": {"default": "Zee5"}}, "JioCinema": {"category": "video", "brandColor": "#00BCD4", "url": "https://www.jiocinema.com", "locales": {"default": "JioCinema"}}, "JOOX": {"category": "audio", "brandColor": "#00CA98", "url": "https://www.joox.com", "locales": {"default": "JOOX"}}, "Mango TV": {"category": "video", "brandColor": "#FF6D00", "url": "https://www.mgtv.com", "locales": {"default": "Mango TV"}}, "VIU": {"category": "video", "brandColor": "#00BEB8", "url": "https://www.viu.com", "locales": {"default": "VIU"}}, "Paramount+": {"category": "video", "brandColor": "#006699", "url": "https://www.paramountplus.com", "locales": {"default": "Paramount+"}}, "Discovery+": {"category": "video", "brandColor": "#009FDA", "url": "https://www.discoveryplus.com", "locales": {"default": "Discovery+"}}}, "regions": {"KR": {"name": "韩国", "nameEn": "South Korea", "continent": "亚洲", "audioTop5": ["YouTube Music", "Melon", "Spotify", "Genie", "FLO"], "videoTop5": ["Netflix", "Coupang Play", "Tving", "Wavve", "Disney+"]}, "PH": {"name": "菲律宾", "nameEn": "Philippines", "continent": "亚洲", "audioTop5": ["Spotify", "Apple Music", "StarMaker", "Smule", "Deezer"], "videoTop5": ["Disney+", "DramaBox", "Vivamax", "ReelShort", "WeTV"]}, "VN": {"name": "越南", "nameEn": "Vietnam", "continent": "亚洲", "audioTop5": ["Zing MP3", "Spotify", "StarMaker", "SoundCloud", "Apple Music"], "videoTop5": ["VieON", "iQIYI", "FPT Play", "WeTV", "YOUKU"]}, "JO": {"name": "约旦", "nameEn": "Jordan", "continent": "亚洲", "audioTop5": ["Spotify", "Deezer", "Apple Music", "SoundCloud", "StarMaker"], "videoTop5": ["Shahid", "DramaBox", "TOD", "OSN", "YouTube Kids"]}, "AE": {"name": "阿联酋", "nameEn": "UAE", "continent": "中东", "audioTop5": ["Spotify", "Anghami", "StarMaker", "Apple Music", "Deezer"], "videoTop5": ["Shahid", "Disney+", "TOD", "JACO", "OSN"]}, "SA": {"name": "沙特阿拉伯", "nameEn": "Saudi Arabia", "continent": "中东", "audioTop5": ["StarMaker", "Anghami", "Spotify", "Smule", "Apple Music"], "videoTop5": ["Shahid", "JACO", "Disney+", "DramaBox", "OSN"]}, "EG": {"name": "埃及", "nameEn": "Egypt", "continent": "非洲", "audioTop5": ["Anghami", "Spotify", "SoundCloud", "Apple Music", "Deezer"], "videoTop5": ["Shahid", "DramaBox", "Crunchyroll", "Disney+", "OSN"]}, "MA": {"name": "摩洛哥", "nameEn": "Morocco", "continent": "非洲", "audioTop5": ["Spotify", "Deezer", "Anghami", "StarMaker", "SoundCloud"], "videoTop5": ["Shahid", "DramaBox", "TOD", "OSN", "Crunchyroll"]}, "KE": {"name": "肯尼亚", "nameEn": "Kenya", "continent": "非洲", "audioTop5": ["Spotify", "Amazon Music", "Apple Music", "Deezer", "TIDAL"], "videoTop5": ["Disney+", "Max", "ViX", "Crunchyroll", "Pluto TV"]}, "CO": {"name": "哥伦比亚", "nameEn": "Colombia", "continent": "拉丁美洲", "audioTop5": ["Spotify", "Amazon Music", "Apple Music", "Deezer", "TIDAL"], "videoTop5": ["Disney+", "Max", "Crunchyroll", "DramaBox", "Pluto TV"]}, "CL": {"name": "智利", "nameEn": "Chile", "continent": "拉丁美洲", "audioTop5": ["Spotify", "Amazon Music", "Apple Music", "Deezer", "TIDAL"], "videoTop5": ["Disney+", "Max", "Crunchyroll", "DramaBox", "Pluto TV"]}, "UZ": {"name": "乌兹别克斯坦", "nameEn": "Uzbekistan", "continent": "中亚", "audioTop5": ["Spotify", "Deezer", "Apple Music", "SoundCloud", "Yandex Music"], "videoTop5": ["Kinopoisk", "IVI", "MEGOGO", "Okko", "START"]}, "KZ": {"name": "哈萨克斯坦", "nameEn": "Kazakhstan", "continent": "中亚", "audioTop5": ["Yandex Music", "Spotify", "VK Music", "Apple Music", "Deezer"], "videoTop5": ["Kinopoisk", "IVI", "MEGOGO", "Okko", "START"]}, "DE": {"name": "德国", "nameEn": "Germany", "continent": "西欧", "audioTop5": ["Spotify", "Deezer", "SoundCloud", "Amazon Music", "Apple Music"], "videoTop5": ["Prime Video", "Prime Video", "Crunchyroll", "ZDFmediathek", "Joyn"]}, "FR": {"name": "法国", "nameEn": "France", "continent": "西欧", "audioTop5": ["Deezer", "Spotify", "SoundCloud", "Apple Music", "Amazon Music"], "videoTop5": ["Disney+", "Prime Video", "Crunchyroll", "TF1+", "Molotov TV"]}, "ES": {"name": "西班牙", "nameEn": "Spain", "continent": "西欧", "audioTop5": ["Spotify", "SoundCloud", "Amazon Music", "Apple Music", "Deezer"], "videoTop5": ["Disney+", "Max", "Prime Video", "Crunchyroll", "Atresplayer"]}, "TR": {"name": "土耳其", "nameEn": "Turkey", "continent": "西欧", "audioTop5": ["Spotify", "Smule", "StarMaker", "Apple Music", "Deezer"], "videoTop5": ["Disney+", "YouTube Kids", "TOD", "Netflix", "Tabil"]}, "PL": {"name": "波兰", "nameEn": "Poland", "continent": "东欧", "audioTop5": ["Spotify", "TIDAL", "Deezer", "Apple Music", "SoundCloud"], "videoTop5": ["HBO Max", "Prime Video", "Rakuten TV", "MEGOGO"]}, "CZ": {"name": "捷克", "nameEn": "Czech Republic", "continent": "东欧", "audioTop5": ["Spotify", "TIDAL", "Apple Music", "Deezer", "SoundCloud"], "videoTop5": ["Disney+", "HBO Max", "Prima+", "Prime Video", "Crunchyroll"]}, "UA": {"name": "乌克兰", "nameEn": "Ukraine", "continent": "东欧", "audioTop5": ["Spotify", "SoundCloud", "StarMaker", "Smule", "YouTube Music"], "videoTop5": ["MEGOGO", "SWEET TV", "Crunchyroll", "ReelShort", "Prime Video"]}, "AZ": {"name": "阿塞拜疆", "nameEn": "Azerbaijan", "continent": "东欧", "audioTop5": ["Spotify", "Yandex Music", "StarMaker", "Apple Music", "Smule"], "videoTop5": ["Kinopoisk", "MEGOGO", "DramaBox", "StarDustTV", "Crunchyroll"]}, "IL": {"name": "以色列", "nameEn": "Israel", "continent": "其他", "audioTop5": ["Spotify", "Apple Music", "Deezer", "YouTube Music", "Yandex Music"], "videoTop5": ["Disney+", "Shahid", "ReelShort", "DramaBox", "Crunchyroll"]}, "IN": {"name": "印度", "nameEn": "India", "continent": "亚洲", "audioTop5": ["YouTube Music", "JioSaavn", "Spotify", "Gaana", "Apple Music"], "videoTop5": ["Disney+Hotstar", "Prime Video", "Zee5", "YouTube", "JioCinema"]}, "TH": {"name": "泰国", "nameEn": "Thailand", "continent": "东南亚", "audioTop5": ["Spotify", "JOOX", "StarMaker", "Apple Music", "Smule"], "videoTop5": ["DramaBox", "WeTV", "iQIYI", "YOUKU", "VIU"]}, "MY": {"name": "马来西亚", "nameEn": "Malaysia", "continent": "东南亚", "audioTop5": ["Spotify", "Smule", "StarMaker", "JOOX", "YouTube Music"], "videoTop5": ["DramaBox", "Disney+", "iQIYI", "Mango TV", "VIU"]}, "ID": {"name": "印尼", "nameEn": "Indonesia", "continent": "东南亚", "audioTop5": ["Spotify", "Smule", "StarMaker", "Apple Music", "JOOX"], "videoTop5": ["DramaBox", "WeTV", "VIU", "Mango TV", "Mango TV"]}, "ZA": {"name": "南非", "nameEn": "South Africa", "continent": "非洲", "audioTop5": ["Spotify", "Apple Music", "Deezer", "TIDAL", "SoundCloud"], "videoTop5": ["Disney+", "DramaBox", "ReelShort", "Crunchyroll", "VIU"]}, "AU": {"name": "澳大利亚", "nameEn": "Australia", "continent": "大洋洲", "audioTop5": ["Spotify", "SoundCloud", "Apple Music", "TIDAL", "Amazon Music"], "videoTop5": ["Paramount+", "Crunchyroll", "ReelShort", "DramaBox", "Discovery+"]}, "GB": {"name": "英国", "nameEn": "United Kingdom", "continent": "欧洲", "audioTop5": ["Spotify", "Amazon Music", "Apple Music", "SoundCloud", "Deezer"], "videoTop5": ["Disney+", "Crunchyroll", "ReelShort", "Paramount+", "Discovery+"]}}}
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "点击出海国家清单 - 按国家/地区音视频App用户量排名 (已并入 AquaChannel 主页 App 入口)",
+    "source": "NSpace出海配置 + AquaChannel-Base-release-3.5.8.1553.apk",
+    "updated": "2026-07-25"
+  },
+  "apps": {
+    "YouTube Music": {
+      "category": "audio",
+      "url": "https://music.youtube.com/",
+      "locales": {
+        "default": "YouTube Music"
+      },
+      "icon": "ic_youtube_music"
+    },
+    "Melon": {
+      "category": "audio",
+      "url": "https://www.melon.com",
+      "locales": {
+        "default": "Melon"
+      }
+    },
+    "Spotify": {
+      "category": "audio",
+      "url": "https://www.spotify.com",
+      "locales": {
+        "default": "Spotify"
+      }
+    },
+    "Genie": {
+      "category": "audio",
+      "url": "https://www.genie.co.kr",
+      "locales": {
+        "default": "Genie"
+      }
+    },
+    "FLO": {
+      "category": "audio",
+      "url": "https://www.flo.music",
+      "locales": {
+        "default": "FLO"
+      }
+    },
+    "Netflix": {
+      "category": "video",
+      "url": "https://www.netflix.com",
+      "locales": {
+        "default": "Netflix"
+      }
+    },
+    "Coupang Play": {
+      "category": "video",
+      "url": "https://play.coupang.com",
+      "locales": {
+        "default": "Coupang Play"
+      }
+    },
+    "Tving": {
+      "category": "video",
+      "url": "https://www.tving.com",
+      "locales": {
+        "default": "TVING"
+      }
+    },
+    "Wavve": {
+      "category": "video",
+      "url": "https://www.wavve.com",
+      "locales": {
+        "default": "Wavve"
+      }
+    },
+    "Disney+": {
+      "category": "video",
+      "url": "https://www.disneyplus.com",
+      "locales": {
+        "default": "Disney+"
+      }
+    },
+    "Apple Music": {
+      "category": "audio",
+      "url": "https://music.apple.com",
+      "locales": {
+        "default": "Apple Music"
+      }
+    },
+    "StarMaker": {
+      "category": "audio",
+      "url": "https://www.starmakerstudios.com",
+      "locales": {
+        "default": "StarMaker"
+      }
+    },
+    "Smule": {
+      "category": "audio",
+      "url": "https://www.smule.com",
+      "locales": {
+        "default": "Smule"
+      }
+    },
+    "Deezer": {
+      "category": "audio",
+      "url": "https://www.deezer.com/us/channels/explore/",
+      "locales": {
+        "default": "Deezer"
+      },
+      "icon": "ic_deezer"
+    },
+    "DramaBox": {
+      "category": "video",
+      "url": "https://dramaboxtv.com",
+      "locales": {
+        "default": "DramaBox"
+      }
+    },
+    "Vivamax": {
+      "category": "video",
+      "url": "https://vivamax.net.ph",
+      "locales": {
+        "default": "Vivamax"
+      }
+    },
+    "ReelShort": {
+      "category": "video",
+      "url": "https://reelshort.com",
+      "locales": {
+        "default": "ReelShort"
+      }
+    },
+    "WeTV": {
+      "category": "video",
+      "url": "https://wetv.vip/en",
+      "locales": {
+        "default": "WeTV"
+      },
+      "icon": "ic_wetv"
+    },
+    "Zing MP3": {
+      "category": "audio",
+      "url": "https://zingmp3.vn",
+      "locales": {
+        "default": "Zing MP3"
+      }
+    },
+    "SoundCloud": {
+      "category": "audio",
+      "url": "https://soundcloud.com",
+      "locales": {
+        "default": "SoundCloud"
+      }
+    },
+    "VieON": {
+      "category": "video",
+      "url": "https://vieon.vn",
+      "locales": {
+        "default": "VieON"
+      }
+    },
+    "iQIYI": {
+      "category": "video",
+      "url": "https://www.iqiyi.com",
+      "locales": {
+        "default": "iQIYI"
+      }
+    },
+    "FPT Play": {
+      "category": "video",
+      "url": "https://fptplay.vn",
+      "locales": {
+        "default": "FPT Play"
+      }
+    },
+    "YOUKU": {
+      "category": "video",
+      "url": "https://www.youku.com",
+      "locales": {
+        "default": "Youku"
+      }
+    },
+    "Shahid": {
+      "category": "video",
+      "url": "https://shahid.mbc.net",
+      "locales": {
+        "default": "Shahid"
+      }
+    },
+    "TOD": {
+      "category": "video",
+      "url": "https://tod.tv",
+      "locales": {
+        "default": "TOD"
+      }
+    },
+    "OSN": {
+      "category": "video",
+      "url": "https://www.osn.com",
+      "locales": {
+        "default": "OSN"
+      }
+    },
+    "YouTube Kids": {
+      "category": "video",
+      "url": "https://youtubekids.com",
+      "locales": {
+        "default": "YouTube Kids"
+      }
+    },
+    "Anghami": {
+      "category": "audio",
+      "url": "https://www.anghami.com",
+      "locales": {
+        "default": "Anghami"
+      }
+    },
+    "JACO": {
+      "category": "video",
+      "url": "https://jaco.com.sa",
+      "locales": {
+        "default": "JACO"
+      }
+    },
+    "Amazon Music": {
+      "category": "audio",
+      "url": "https://music.amazon.com",
+      "locales": {
+        "default": "Amazon Music"
+      }
+    },
+    "TIDAL": {
+      "category": "audio",
+      "url": "https://tidal.com",
+      "locales": {
+        "default": "TIDAL"
+      }
+    },
+    "Crunchyroll": {
+      "category": "video",
+      "url": "https://www.crunchyroll.com",
+      "locales": {
+        "default": "Crunchyroll"
+      }
+    },
+    "ViX": {
+      "category": "video",
+      "url": "https://www.vix.com",
+      "locales": {
+        "default": "ViX"
+      }
+    },
+    "Pluto TV": {
+      "category": "video",
+      "url": "https://pluto.tv",
+      "locales": {
+        "default": "Pluto TV"
+      }
+    },
+    "Max": {
+      "category": "video",
+      "url": "https://max.com",
+      "locales": {
+        "default": "Max"
+      }
+    },
+    "Yandex Music": {
+      "category": "audio",
+      "url": "https://music.yandex.com",
+      "locales": {
+        "default": "Yandex Music"
+      }
+    },
+    "Kinopoisk": {
+      "category": "video",
+      "url": "https://www.kinopoisk.ru",
+      "locales": {
+        "default": "Kinopoisk"
+      }
+    },
+    "IVI": {
+      "category": "video",
+      "url": "https://www.ivi.ru",
+      "locales": {
+        "default": "IVI"
+      }
+    },
+    "MEGOGO": {
+      "category": "video",
+      "url": "https://megogo.net",
+      "locales": {
+        "default": "MEGOGO"
+      }
+    },
+    "Okko": {
+      "category": "video",
+      "url": "https://okko.tv",
+      "locales": {
+        "default": "Okko"
+      }
+    },
+    "START": {
+      "category": "video",
+      "url": "https://start.ru",
+      "locales": {
+        "default": "START"
+      }
+    },
+    "VK Music": {
+      "category": "audio",
+      "url": "https://vk.com/music",
+      "locales": {
+        "default": "VK Music"
+      }
+    },
+    "Prime Video": {
+      "category": "video",
+      "url": "https://www.amazon.com/primevideo",
+      "locales": {
+        "default": "Prime Video"
+      }
+    },
+    "ZDFmediathek": {
+      "category": "video",
+      "url": "https://zdfmediathek.de",
+      "locales": {
+        "default": "ZDFmediathek"
+      }
+    },
+    "Joyn": {
+      "category": "video",
+      "url": "https://www.joyn.de",
+      "locales": {
+        "default": "Joyn"
+      }
+    },
+    "TF1+": {
+      "category": "video",
+      "url": "https://www.tf1.fr",
+      "locales": {
+        "default": "TF1+"
+      }
+    },
+    "Molotov TV": {
+      "category": "video",
+      "url": "https://www.molotov.tv",
+      "locales": {
+        "default": "Molotov TV"
+      }
+    },
+    "Atresplayer": {
+      "category": "video",
+      "url": "https://atresplayer.com",
+      "locales": {
+        "default": "Atresplayer"
+      }
+    },
+    "Tabil": {
+      "category": "video",
+      "url": "https://tabil.com.tr",
+      "locales": {
+        "default": "Tabil"
+      }
+    },
+    "HBO Max": {
+      "category": "video",
+      "url": "https://www.hbomax.com",
+      "locales": {
+        "default": "HBO Max"
+      }
+    },
+    "Rakuten TV": {
+      "category": "video",
+      "url": "https://rakuten.tv",
+      "locales": {
+        "default": "Rakuten TV"
+      }
+    },
+    "Prima+": {
+      "category": "video",
+      "url": "https://iprima.cz",
+      "locales": {
+        "default": "Prima+"
+      }
+    },
+    "SWEET TV": {
+      "category": "video",
+      "url": "https://sweet.tv",
+      "locales": {
+        "default": "SWEET TV"
+      }
+    },
+    "StarDustTV": {
+      "category": "video",
+      "url": "https://stardusttv.com",
+      "locales": {
+        "default": "StarDustTV"
+      }
+    },
+    "JioSaavn": {
+      "category": "audio",
+      "url": "https://www.jiosaavn.com",
+      "locales": {
+        "default": "JioSaavn"
+      }
+    },
+    "Gaana": {
+      "category": "audio",
+      "url": "https://gaana.com",
+      "locales": {
+        "default": "Gaana"
+      }
+    },
+    "Disney+Hotstar": {
+      "category": "video",
+      "url": "https://www.hotstar.com",
+      "locales": {
+        "default": "Disney+ Hotstar"
+      }
+    },
+    "Zee5": {
+      "category": "video",
+      "url": "https://www.zee5.com",
+      "locales": {
+        "default": "Zee5"
+      }
+    },
+    "JioCinema": {
+      "category": "video",
+      "url": "https://www.jiocinema.com",
+      "locales": {
+        "default": "JioCinema"
+      }
+    },
+    "JOOX": {
+      "category": "audio",
+      "url": "https://www.joox.com",
+      "locales": {
+        "default": "JOOX"
+      }
+    },
+    "Mango TV": {
+      "category": "video",
+      "url": "https://www.mgtv.com/?isappinstalled=0",
+      "locales": {
+        "default": "Mango TV"
+      }
+    },
+    "VIU": {
+      "category": "video",
+      "url": "https://www.viu.com",
+      "locales": {
+        "default": "VIU"
+      }
+    },
+    "Paramount+": {
+      "category": "video",
+      "url": "https://www.paramountplus.com",
+      "locales": {
+        "default": "Paramount+"
+      }
+    },
+    "Discovery+": {
+      "category": "video",
+      "url": "https://www.discoveryplus.com",
+      "locales": {
+        "default": "Discovery+"
+      }
+    },
+    "Tiktok": {
+      "category": "video",
+      "url": "https://www.tiktok.com/",
+      "locales": {
+        "default": "Tiktok"
+      },
+      "icon": "ic_tiktok"
+    },
+    "Radioline": {
+      "category": "audio",
+      "url": "https://app-car-demo-asia.radioline.co/",
+      "locales": {
+        "default": "Radioline"
+      },
+      "icon": "ic_radioline"
+    },
+    "Dailymotion": {
+      "category": "video",
+      "url": "https://www.dailymotion.com/",
+      "locales": {
+        "default": "Dailymotion"
+      },
+      "icon": "ic_dailymotion"
+    },
+    "Plex": {
+      "category": "video",
+      "url": "https://watch.plex.tv/en-GB",
+      "locales": {
+        "default": "Plex"
+      },
+      "icon": "ic_plex"
+    },
+    "Iheart": {
+      "category": "audio",
+      "url": "https://www.iheart.com/",
+      "locales": {
+        "default": "Iheart"
+      },
+      "icon": "ic_iheart"
+    },
+    "Stingray": {
+      "category": "audio",
+      "url": "https://karaoke-car-player-prod-demo.stingray.com/en",
+      "locales": {
+        "default": "Stingray"
+      },
+      "icon": "ic_stingray"
+    },
+    "Distro": {
+      "category": "video",
+      "url": "https://www.distro.tv/",
+      "locales": {
+        "default": "Distro"
+      },
+      "icon": "ic_distro"
+    },
+    "Oil Hunt": {
+      "category": "game",
+      "url": "https://plays.org/game/oil-hunt/",
+      "locales": {
+        "default": "Oil Hunt"
+      },
+      "icon": "ic_oil_hunt"
+    },
+    "Toongoggles": {
+      "category": "video",
+      "url": "https://toongoggles.com/",
+      "locales": {
+        "default": "Toongoggles"
+      },
+      "icon": "ic_toongoggles"
+    },
+    "Tencent Video": {
+      "category": "video",
+      "url": "https://v.qq.com",
+      "locales": {
+        "default": "Tencent Video"
+      },
+      "icon": "ic_tencent_video"
+    },
+    "Kuaishou": {
+      "category": "video",
+      "url": "https://www.kuaishou.com",
+      "locales": {
+        "default": "Kuaishou"
+      },
+      "icon": "ic_kuaishou"
+    },
+    "MGTV": {
+      "category": "video",
+      "url": "https://www.mgtv.com/?isappinstalled=0",
+      "locales": {
+        "default": "MGTV"
+      },
+      "icon": "ic_mgtv"
+    },
+    "Haokan": {
+      "category": "video",
+      "url": "https://haokan.baidu.com",
+      "locales": {
+        "default": "Haokan"
+      },
+      "icon": "ic_haokan"
+    },
+    "YouTube": {
+      "category": "video",
+      "url": "https://www.youtube.com",
+      "locales": {
+        "default": "Youtube"
+      },
+      "name": "YouTube",
+      "icon": "ic_youtube"
+    }
+  },
+  "regions": {
+    "KR": {
+      "name": "韩国",
+      "nameEn": "South Korea",
+      "continent": "亚洲",
+      "audioTop5": [
+        "YouTube Music",
+        "Melon",
+        "Spotify",
+        "Genie",
+        "FLO"
+      ],
+      "videoTop5": [
+        "Netflix",
+        "Coupang Play",
+        "Tving",
+        "Wavve",
+        "Disney+"
+      ]
+    },
+    "PH": {
+      "name": "菲律宾",
+      "nameEn": "Philippines",
+      "continent": "亚洲",
+      "audioTop5": [
+        "Spotify",
+        "Apple Music",
+        "StarMaker",
+        "Smule",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "DramaBox",
+        "Vivamax",
+        "ReelShort",
+        "WeTV"
+      ]
+    },
+    "VN": {
+      "name": "越南",
+      "nameEn": "Vietnam",
+      "continent": "亚洲",
+      "audioTop5": [
+        "Zing MP3",
+        "Spotify",
+        "StarMaker",
+        "SoundCloud",
+        "Apple Music"
+      ],
+      "videoTop5": [
+        "VieON",
+        "iQIYI",
+        "FPT Play",
+        "WeTV",
+        "YOUKU"
+      ]
+    },
+    "JO": {
+      "name": "约旦",
+      "nameEn": "Jordan",
+      "continent": "亚洲",
+      "audioTop5": [
+        "Spotify",
+        "Deezer",
+        "Apple Music",
+        "SoundCloud",
+        "StarMaker"
+      ],
+      "videoTop5": [
+        "Shahid",
+        "DramaBox",
+        "TOD",
+        "OSN",
+        "YouTube Kids"
+      ]
+    },
+    "AE": {
+      "name": "阿联酋",
+      "nameEn": "UAE",
+      "continent": "中东",
+      "audioTop5": [
+        "Spotify",
+        "Anghami",
+        "StarMaker",
+        "Apple Music",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Shahid",
+        "Disney+",
+        "TOD",
+        "JACO",
+        "OSN"
+      ]
+    },
+    "SA": {
+      "name": "沙特阿拉伯",
+      "nameEn": "Saudi Arabia",
+      "continent": "中东",
+      "audioTop5": [
+        "StarMaker",
+        "Anghami",
+        "Spotify",
+        "Smule",
+        "Apple Music"
+      ],
+      "videoTop5": [
+        "Shahid",
+        "JACO",
+        "Disney+",
+        "DramaBox",
+        "OSN"
+      ]
+    },
+    "EG": {
+      "name": "埃及",
+      "nameEn": "Egypt",
+      "continent": "非洲",
+      "audioTop5": [
+        "Anghami",
+        "Spotify",
+        "SoundCloud",
+        "Apple Music",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Shahid",
+        "DramaBox",
+        "Crunchyroll",
+        "Disney+",
+        "OSN"
+      ]
+    },
+    "MA": {
+      "name": "摩洛哥",
+      "nameEn": "Morocco",
+      "continent": "非洲",
+      "audioTop5": [
+        "Spotify",
+        "Deezer",
+        "Anghami",
+        "StarMaker",
+        "SoundCloud"
+      ],
+      "videoTop5": [
+        "Shahid",
+        "DramaBox",
+        "TOD",
+        "OSN",
+        "Crunchyroll"
+      ]
+    },
+    "KE": {
+      "name": "肯尼亚",
+      "nameEn": "Kenya",
+      "continent": "非洲",
+      "audioTop5": [
+        "Spotify",
+        "Amazon Music",
+        "Apple Music",
+        "Deezer",
+        "TIDAL"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Max",
+        "ViX",
+        "Crunchyroll",
+        "Pluto TV"
+      ]
+    },
+    "CO": {
+      "name": "哥伦比亚",
+      "nameEn": "Colombia",
+      "continent": "拉丁美洲",
+      "audioTop5": [
+        "Spotify",
+        "Amazon Music",
+        "Apple Music",
+        "Deezer",
+        "TIDAL"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Max",
+        "Crunchyroll",
+        "DramaBox",
+        "Pluto TV"
+      ]
+    },
+    "CL": {
+      "name": "智利",
+      "nameEn": "Chile",
+      "continent": "拉丁美洲",
+      "audioTop5": [
+        "Spotify",
+        "Amazon Music",
+        "Apple Music",
+        "Deezer",
+        "TIDAL"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Max",
+        "Crunchyroll",
+        "DramaBox",
+        "Pluto TV"
+      ]
+    },
+    "UZ": {
+      "name": "乌兹别克斯坦",
+      "nameEn": "Uzbekistan",
+      "continent": "中亚",
+      "audioTop5": [
+        "Spotify",
+        "Deezer",
+        "Apple Music",
+        "SoundCloud",
+        "Yandex Music"
+      ],
+      "videoTop5": [
+        "Kinopoisk",
+        "IVI",
+        "MEGOGO",
+        "Okko",
+        "START"
+      ]
+    },
+    "KZ": {
+      "name": "哈萨克斯坦",
+      "nameEn": "Kazakhstan",
+      "continent": "中亚",
+      "audioTop5": [
+        "Yandex Music",
+        "Spotify",
+        "VK Music",
+        "Apple Music",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Kinopoisk",
+        "IVI",
+        "MEGOGO",
+        "Okko",
+        "START"
+      ]
+    },
+    "DE": {
+      "name": "德国",
+      "nameEn": "Germany",
+      "continent": "西欧",
+      "audioTop5": [
+        "Spotify",
+        "Deezer",
+        "SoundCloud",
+        "Amazon Music",
+        "Apple Music"
+      ],
+      "videoTop5": [
+        "Prime Video",
+        "Prime Video",
+        "Crunchyroll",
+        "ZDFmediathek",
+        "Joyn"
+      ]
+    },
+    "FR": {
+      "name": "法国",
+      "nameEn": "France",
+      "continent": "西欧",
+      "audioTop5": [
+        "Deezer",
+        "Spotify",
+        "SoundCloud",
+        "Apple Music",
+        "Amazon Music"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Prime Video",
+        "Crunchyroll",
+        "TF1+",
+        "Molotov TV"
+      ]
+    },
+    "ES": {
+      "name": "西班牙",
+      "nameEn": "Spain",
+      "continent": "西欧",
+      "audioTop5": [
+        "Spotify",
+        "SoundCloud",
+        "Amazon Music",
+        "Apple Music",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Max",
+        "Prime Video",
+        "Crunchyroll",
+        "Atresplayer"
+      ]
+    },
+    "TR": {
+      "name": "土耳其",
+      "nameEn": "Turkey",
+      "continent": "西欧",
+      "audioTop5": [
+        "Spotify",
+        "Smule",
+        "StarMaker",
+        "Apple Music",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "YouTube Kids",
+        "TOD",
+        "Netflix",
+        "Tabil"
+      ]
+    },
+    "PL": {
+      "name": "波兰",
+      "nameEn": "Poland",
+      "continent": "东欧",
+      "audioTop5": [
+        "Spotify",
+        "TIDAL",
+        "Deezer",
+        "Apple Music",
+        "SoundCloud"
+      ],
+      "videoTop5": [
+        "HBO Max",
+        "Prime Video",
+        "Rakuten TV",
+        "MEGOGO"
+      ]
+    },
+    "CZ": {
+      "name": "捷克",
+      "nameEn": "Czech Republic",
+      "continent": "东欧",
+      "audioTop5": [
+        "Spotify",
+        "TIDAL",
+        "Apple Music",
+        "Deezer",
+        "SoundCloud"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "HBO Max",
+        "Prima+",
+        "Prime Video",
+        "Crunchyroll"
+      ]
+    },
+    "UA": {
+      "name": "乌克兰",
+      "nameEn": "Ukraine",
+      "continent": "东欧",
+      "audioTop5": [
+        "Spotify",
+        "SoundCloud",
+        "StarMaker",
+        "Smule",
+        "YouTube Music"
+      ],
+      "videoTop5": [
+        "MEGOGO",
+        "SWEET TV",
+        "Crunchyroll",
+        "ReelShort",
+        "Prime Video"
+      ]
+    },
+    "AZ": {
+      "name": "阿塞拜疆",
+      "nameEn": "Azerbaijan",
+      "continent": "东欧",
+      "audioTop5": [
+        "Spotify",
+        "Yandex Music",
+        "StarMaker",
+        "Apple Music",
+        "Smule"
+      ],
+      "videoTop5": [
+        "Kinopoisk",
+        "MEGOGO",
+        "DramaBox",
+        "StarDustTV",
+        "Crunchyroll"
+      ]
+    },
+    "IL": {
+      "name": "以色列",
+      "nameEn": "Israel",
+      "continent": "其他",
+      "audioTop5": [
+        "Spotify",
+        "Apple Music",
+        "Deezer",
+        "YouTube Music",
+        "Yandex Music"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Shahid",
+        "ReelShort",
+        "DramaBox",
+        "Crunchyroll"
+      ]
+    },
+    "IN": {
+      "name": "印度",
+      "nameEn": "India",
+      "continent": "亚洲",
+      "audioTop5": [
+        "YouTube Music",
+        "JioSaavn",
+        "Spotify",
+        "Gaana",
+        "Apple Music"
+      ],
+      "videoTop5": [
+        "Disney+Hotstar",
+        "Prime Video",
+        "Zee5",
+        "YouTube",
+        "JioCinema"
+      ]
+    },
+    "TH": {
+      "name": "泰国",
+      "nameEn": "Thailand",
+      "continent": "东南亚",
+      "audioTop5": [
+        "Spotify",
+        "JOOX",
+        "StarMaker",
+        "Apple Music",
+        "Smule"
+      ],
+      "videoTop5": [
+        "DramaBox",
+        "WeTV",
+        "iQIYI",
+        "YOUKU",
+        "VIU"
+      ]
+    },
+    "MY": {
+      "name": "马来西亚",
+      "nameEn": "Malaysia",
+      "continent": "东南亚",
+      "audioTop5": [
+        "Spotify",
+        "Smule",
+        "StarMaker",
+        "JOOX",
+        "YouTube Music"
+      ],
+      "videoTop5": [
+        "DramaBox",
+        "Disney+",
+        "iQIYI",
+        "Mango TV",
+        "VIU"
+      ]
+    },
+    "ID": {
+      "name": "印尼",
+      "nameEn": "Indonesia",
+      "continent": "东南亚",
+      "audioTop5": [
+        "Spotify",
+        "Smule",
+        "StarMaker",
+        "Apple Music",
+        "JOOX"
+      ],
+      "videoTop5": [
+        "DramaBox",
+        "WeTV",
+        "VIU",
+        "Mango TV",
+        "Mango TV"
+      ]
+    },
+    "ZA": {
+      "name": "南非",
+      "nameEn": "South Africa",
+      "continent": "非洲",
+      "audioTop5": [
+        "Spotify",
+        "Apple Music",
+        "Deezer",
+        "TIDAL",
+        "SoundCloud"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "DramaBox",
+        "ReelShort",
+        "Crunchyroll",
+        "VIU"
+      ]
+    },
+    "AU": {
+      "name": "澳大利亚",
+      "nameEn": "Australia",
+      "continent": "大洋洲",
+      "audioTop5": [
+        "Spotify",
+        "SoundCloud",
+        "Apple Music",
+        "TIDAL",
+        "Amazon Music"
+      ],
+      "videoTop5": [
+        "Paramount+",
+        "Crunchyroll",
+        "ReelShort",
+        "DramaBox",
+        "Discovery+"
+      ]
+    },
+    "GB": {
+      "name": "英国",
+      "nameEn": "United Kingdom",
+      "continent": "欧洲",
+      "audioTop5": [
+        "Spotify",
+        "Amazon Music",
+        "Apple Music",
+        "SoundCloud",
+        "Deezer"
+      ],
+      "videoTop5": [
+        "Disney+",
+        "Crunchyroll",
+        "ReelShort",
+        "Paramount+",
+        "Discovery+"
+      ]
+    },
+    "GLOBAL": {
+      "name": "全球",
+      "nameEn": "Global",
+      "continent": "全球",
+      "audioTop5": [
+        "Radioline",
+        "Iheart",
+        "Deezer",
+        "Stingray",
+        "YouTube Music"
+      ],
+      "videoTop5": [
+        "WeTV",
+        "YouTube",
+        "Tiktok",
+        "Dailymotion",
+        "Plex",
+        "Distro",
+        "Oil Hunt",
+        "Toongoggles",
+        "Tencent Video",
+        "Kuaishou",
+        "MGTV",
+        "Haokan"
+      ]
+    }
+  }
+}

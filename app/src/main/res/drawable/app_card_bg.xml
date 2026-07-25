@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rounded square tile for a single app entry in the bottom apps bar. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+  <solid android:color="#E8FFFFFF" />
+  <corners android:radius="18dp" />
+  <stroke
+      android:width="0.5dp"
+      android:color="#1A000000" />
+</shape>

@@ -19,7 +19,7 @@ import org.json.JSONObject;
  * apps per target country (the "出海" / go-global market list). Provides:
  * <ul>
  *   <li>Full region → app mapping (audio Top5 + video Top5)</li>
- *   <li>App metadata: brand colour, URL, category</li>
+ *   <li>App metadata: URL, category, icon</li>
  *   <li>Convenience methods to resolve shortcuts for a given country code</li>
  * </ul>
  *
@@ -37,15 +37,15 @@ public final class RegionAppsConfig {
   public static final class AppInfo {
     public final String name;
     public final String category;       // "audio" | "video"
-    public final String brandColor;
     public final String url;
+    public final String icon;           // drawable resource name, or "" when absent
     public final int rank;              // 1-based within its category for the region
 
-    AppInfo(String name, String category, String brandColor, String url, int rank) {
+    AppInfo(String name, String category, String url, String icon, int rank) {
       this.name = name;
       this.category = category;
-      this.brandColor = brandColor;
       this.url = url;
+      this.icon = (icon != null) ? icon : "";
       this.rank = rank;
     }
 
@@ -176,8 +176,8 @@ public final class RegionAppsConfig {
     return new AppInfo(
         appName,
         a.optString("category", "video"),
-        a.optString("brandColor", "#888888"),
         a.optString("url", ""),
+        a.optString("icon", ""),
         0
     );
   }
@@ -204,9 +204,8 @@ public final class RegionAppsConfig {
       String name = arr.optString(i, null);
       if (name == null) continue;
       AppInfo meta = getAppInfo(name);
-      String color = (meta != null) ? meta.brandColor : "#888888";
       String url   = (meta != null) ? meta.url : "";
-      list.add(new AppInfo(name, category, color, url, i + 1));
+      list.add(new AppInfo(name, category, url, (meta != null) ? meta.icon : "", i + 1));
     }
     return list;
   }

@@ -85,7 +85,7 @@
     <LinearLayout
         android:id="@+id/continue_section"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="400dp"
         android:orientation="vertical"
         android:paddingStart="40dp"
         android:paddingEnd="40dp"
@@ -128,7 +128,7 @@
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.15" />
+        android:layout_weight="0.08" />
 
     <!-- ════════════════ 3. FAVORITE APPS BAR (bottom, single long panel) ════════════════ -->
     <!-- Outer container: adds left/right margin so the panel does NOT span full width -->
@@ -137,15 +137,20 @@
         android:layout_height="wrap_content"
         android:paddingStart="40dp"
         android:paddingEnd="40dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="16dp">
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
 
-      <!-- The long panel itself -->
+      <!-- The long panel itself.
+           Background is set on the scroll view (match_parent) so the panel
+           always spans the screen width; the inner row scrolls when the app
+           count exceeds the visible width. -->
       <HorizontalScrollView
           android:id="@+id/apps_scroll"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:background="@drawable/apps_panel_bg"
           android:clipToPadding="false"
+          android:clipChildren="false"
           android:scrollbars="none">
 
         <LinearLayout
@@ -154,11 +159,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/apps_panel_bg"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
+            android:clipChildren="false"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp">
 
           <!-- App cards added programmatically by HomeFragment -->
 
@@ -168,35 +173,36 @@
 
   </LinearLayout>
 
-  <!-- Region badge (top-right, below the system status bar): shows the
-       currently active target region. Hidden when following system locale. -->
-  <TextView
-      android:id="@+id/region_badge"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|end"
-      android:layout_marginTop="100dp"
-      android:layout_marginEnd="108dp"
-      android:paddingStart="12dp"
-      android:paddingEnd="12dp"
-      android:paddingTop="5dp"
-      android:paddingBottom="5dp"
-      android:textSize="13sp"
-      android:textColor="@color/nspace_on_surface"
-      android:background="@drawable/region_badge_bg"
-      android:visibility="gone" />
+  <!-- ════════════════ TOP-RIGHT: Settings gear + region badge ════════════════ -->
+  <!-- Positioned below the status bar (fitsSystemWindows pushes content to y≥90)
+       and inset 120dp from the right edge so the gear sits at x≈1748-1800,
+       safely outside the car launcher's shortcut-menu hot zone (x≥1824, y≤96). -->
 
-  <!-- Region badge (top-right, below the system status bar): shows the
-       currently active target region. Display-only; the tap target lives in
-       the apps panel because the top-right corner is reserved by the car
-       launcher's shortcut menu. -->
+  <!-- Settings gear button (tap → region picker dialog) -->
+  <ImageButton
+      android:id="@+id/settings_button"
+      android:layout_width="52dp"
+      android:layout_height="52dp"
+      android:layout_gravity="top|end"
+      android:layout_marginTop="100dp"
+      android:layout_marginEnd="120dp"
+      android:background="@drawable/settings_btn_bg"
+      android:src="@drawable/ic_settings"
+      android:tint="@color/nspace_on_surface"
+      android:scaleType="centerInside"
+      android:contentDescription="@string/action_settings"
+      android:clickable="true"
+      android:focusable="true" />
+
+  <!-- Region badge: visible only when a region override is set.
+       Sits to the left of the settings gear. -->
   <TextView
       android:id="@+id/region_badge"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
-      android:layout_marginTop="100dp"
-      android:layout_marginEnd="24dp"
+      android:layout_marginTop="112dp"
+      android:layout_marginEnd="184dp"
       android:paddingStart="12dp"
       android:paddingEnd="12dp"
       android:paddingTop="5dp"
