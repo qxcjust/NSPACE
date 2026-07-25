@@ -29,6 +29,8 @@ import com.nspace.mediacenter.model.RecentItem;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Android TV Launcher-style home screen.
@@ -47,6 +49,11 @@ import java.util.Locale;
 public final class HomeFragment extends Fragment {
 
   /** App-entry definitions: string-res label, web URL. Logo glyph is the first letter of the (translated) label. */
+  // Cache reflection-based drawable lookups so rebuilding the app row (which
+  // happens on every home-screen entry and on each region switch) doesn't
+  // re-query getIdentifier() for every app on every pass.
+  private static final Map<String, Integer> ICON_RES_CACHE = new ConcurrentHashMap<>();
+
   private static final Shortcut[] SHORTCUTS = {
       new Shortcut(R.string.shortcut_bilibili, "https://www.bilibili.com"),
       new Shortcut(R.string.shortcut_tencent, "https://v.qq.com"),
@@ -342,8 +349,14 @@ public final class HomeFragment extends Fragment {
             RegionAppsConfig.AppInfo app = apps.get(i);
             int iconResId = 0;
             if (!app.icon.isEmpty()) {
-              iconResId = requireContext().getResources().getIdentifier(
-                  app.icon, "drawable", requireContext().getPackageName());
+              Integer cached = ICON_RES_CACHE.get(app.icon);
+              if (cached == null) {
+                int id = requireContext().getResources().getIdentifier(
+                    app.icon, "drawable", requireContext().getPackageName());
+                cached = id;
+                ICON_RES_CACHE.put(app.icon, id);
+              }
+              iconResId = cached;
             }
             regionShortcuts[i] = new Shortcut(app.name, app.url, iconResId);
           }

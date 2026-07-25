@@ -1,8 +1,10 @@
 package com.nspace.mediacenter.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,17 +17,21 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.core.HistoryManager;
 import com.nspace.mediacenter.core.RecentsManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * In-app browser surface matching the real Metax app's browser view.
@@ -53,9 +59,23 @@ public final class BrowserFragment extends Fragment {
   private WebView webView;
   private ProgressBar progressBar;
 
+  // HTML5 video fullscreen support (e.g. the MGTV player's fullscreen button).
+  private View mCustomView;
+  private WebChromeClient.CustomViewCallback mCustomViewCallback;
+  private FrameLayout mFullscreenContainer;
+
   // Throttle consecutive snapshots of the same URL (e.g. reloads / back-forward)
   private String lastCaptureUrl;
   private long lastCaptureTime;
+
+  // Background thread for snapshot encoding + disk write, so a captured frame
+  // never blocks the UI thread (the RK3588 head unit is tight on CPU/RAM).
+  private static final ExecutorService SNAPSHOT_EXECUTOR = Executors.newSingleThreadExecutor();
+
+  // Snapshots are only shown as small 16:9 "Continue Playing" cards on the home
+  // screen, so capturing the full 1920x1080 surface is pure waste. Cap the
+  // longest side to keep the bitmap ~1.1MB instead of ~8.3MB and speed encode.
+  private static final int CAPTURE_MAX_SIDE = 720;
 
   @Nullable
   @Override
@@ -122,6 +142,71 @@ public final class BrowserFragment extends Fragment {
         progressBar.setProgress(newProgress);
         progressBar.setVisibility(newProgress >= 100 ? View.GONE : View.VISIBLE);
       }
+
+      @Override
+      public void onShowCustomView(View view, CustomViewCallback callback) {
+        // Reject a second request while one is already active.
+        if (mCustomView != null) {
+          callback.onCustomViewHidden();
+          return;
+        }
+        FragmentActivity act = getActivity();
+        if (act == null) {
+          callback.onCustomViewHidden();
+          return;
+        }
+        mCustomView = view;
+        mCustomViewCallback = callback;
+
+        // Hide the in-app browser UI (sidebar, progress, web view) so the
+        // video fills the whole screen.
+        View root = getView();
+        if (root != null) {
+          root.setVisibility(View.GONE);
+        }
+
+        mFullscreenContainer = new FrameLayout(requireContext());
+        mFullscreenContainer.setBackgroundColor(Color.BLACK);
+        mFullscreenContainer.addView(view, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        ViewGroup decor = (ViewGroup) act.getWindow().getDecorView();
+        decor.addView(mFullscreenContainer, new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // Immersive mode: drop the status bar and nav bar while playing.
+        decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+      }
+
+      @Override
+      public void onHideCustomView() {
+        if (mCustomView == null) {
+          return;
+        }
+        FragmentActivity act = getActivity();
+        if (act != null) {
+          ViewGroup decor = (ViewGroup) act.getWindow().getDecorView();
+          decor.setSystemUiVisibility(0);
+          if (mFullscreenContainer != null) {
+            decor.removeView(mFullscreenContainer);
+            mFullscreenContainer = null;
+          }
+        }
+        if (mCustomView != null && mCustomView.getParent() instanceof ViewGroup) {
+          ((ViewGroup) mCustomView.getParent()).removeView(mCustomView);
+        }
+        mCustomView = null;
+
+        View root = getView();
+        if (root != null) {
+          root.setVisibility(View.VISIBLE);
+        }
+        if (mCustomViewCallback != null) {
+          mCustomViewCallback.onCustomViewHidden();
+          mCustomViewCallback = null;
+        }
+      }
     });
 
     // Load initial URL
@@ -163,6 +248,19 @@ public final class BrowserFragment extends Fragment {
    * Prefers {@link PixelCopy} (Android O+) and falls back to a software
    * {@link Canvas} draw on older devices.
    */
+  /**
+   * Computes the dimensions of a downscaled snapshot, preserving the WebView's
+   * aspect ratio while capping the longest side at {@link #CAPTURE_MAX_SIDE}.
+   * Capturing the full 1920x1080 surface wastes ~8MB of RAM and CPU for a
+   * thumbnail that is only ever shown as a ~16:9 "Continue Playing" card.
+   */
+  private int[] computeCaptureSize(int w, int h) {
+    if (w >= h) {
+      return new int[] { CAPTURE_MAX_SIDE, Math.max(1, (int) (h * (float) CAPTURE_MAX_SIDE / w)) };
+    }
+    return new int[] { Math.max(1, (int) (w * (float) CAPTURE_MAX_SIDE / h)), CAPTURE_MAX_SIDE };
+  }
+
   private void captureSnapshot(String title, String url) {
     if (getContext() == null || webView == null || !isAdded()) {
       return;
@@ -172,16 +270,21 @@ public final class BrowserFragment extends Fragment {
     if (w <= 0 || h <= 0) {
       return;
     }
+    final int[] size = computeCaptureSize(w, h);
+    final int tw = size[0];
+    final int th = size[1];
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       try {
-        final Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        final Bitmap bitmap = Bitmap.createBitmap(tw, th, Bitmap.Config.ARGB_8888);
         final Rect srcRect = new Rect();
         webView.getGlobalVisibleRect(srcRect);
         PixelCopy.request(getActivity().getWindow(), srcRect, bitmap,
             copyResult -> {
               if (copyResult == PixelCopy.SUCCESS) {
                 persistSnapshot(title, url, bitmap);
+              } else {
+                bitmap.recycle();
               }
             },
             new Handler(Looper.getMainLooper()));
@@ -191,10 +294,12 @@ public final class BrowserFragment extends Fragment {
       }
     }
 
-    // Fallback: software draw (may be blank on some hardware-accelerated WebViews)
+    // Fallback: software draw straight into a pre-scaled canvas (may be blank
+    // on some hardware-accelerated WebViews).
     try {
-      Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+      Bitmap bitmap = Bitmap.createBitmap(tw, th, Bitmap.Config.ARGB_8888);
       Canvas canvas = new Canvas(bitmap);
+      canvas.scale((float) tw / w, (float) th / h);
       webView.draw(canvas);
       persistSnapshot(title, url, bitmap);
     } catch (Exception ignored) {
@@ -203,25 +308,42 @@ public final class BrowserFragment extends Fragment {
   }
 
   /**
-   * Writes the snapshot bitmap to the app's private storage and records the
-   * entry in {@link RecentsManager}.
+   * Encodes the snapshot bitmap to JPEG and writes it to the app's private
+   * storage on a background thread (encoding even a 720px frame is wasteful on
+   * the RK3588's UI thread), then records the entry in {@link RecentsManager}.
+   * The bitmap is always recycled on the background thread so its pixel buffer
+   * is never leaked. JPEG over PNG roughly halves the file size at this size
+   * with no visible quality loss on a small card.
    */
   private void persistSnapshot(String title, String url, Bitmap bitmap) {
-    if (getContext() == null || bitmap == null) {
+    if (bitmap == null) {
       return;
     }
-    File dir = new File(getContext().getFilesDir(), "recents");
-    if (!dir.exists() && !dir.mkdirs()) {
+    final Context appCtx = (getContext() == null) ? null : getContext().getApplicationContext();
+    if (appCtx == null) {
+      bitmap.recycle();
       return;
     }
-    String id = UUID.randomUUID().toString();
-    File file = new File(dir, id + ".png");
-    try (FileOutputStream out = new FileOutputStream(file)) {
-      bitmap.compress(Bitmap.CompressFormat.PNG, 75, out);
-      RecentsManager.getInstance().add(title, url, file.getAbsolutePath());
-    } catch (Exception ignored) {
-      // Storage unavailable; skip recording this snapshot.
-    }
+    final String pageTitle = title;
+    final String pageUrl = url;
+    SNAPSHOT_EXECUTOR.execute(() -> {
+      File dir = new File(appCtx.getFilesDir(), "recents");
+      if (!dir.exists() && !dir.mkdirs()) {
+        bitmap.recycle();
+        return;
+      }
+      String id = UUID.randomUUID().toString();
+      File file = new File(dir, id + ".jpg");
+      try (FileOutputStream out = new FileOutputStream(file)) {
+        if (bitmap.compress(Bitmap.CompressFormat.JPEG, 72, out)) {
+          RecentsManager.getInstance().add(pageTitle, pageUrl, file.getAbsolutePath());
+        }
+      } catch (Exception ignored) {
+        // Storage unavailable; skip recording this snapshot.
+      } finally {
+        bitmap.recycle();
+      }
+    });
   }
 
   private void loadUrl(String raw) {
@@ -272,8 +394,13 @@ public final class BrowserFragment extends Fragment {
           if (!url.equals(lastCaptureUrl) || now - lastCaptureTime >= 5000) {
             lastCaptureUrl = url;
             lastCaptureTime = now;
-            Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            webView.draw(new Canvas(bitmap));
+            // Draw straight into a pre-scaled bitmap so we never allocate the
+            // full 1920x1080 (~8MB) buffer just before teardown.
+            final int[] size = computeCaptureSize(w, h);
+            Bitmap bitmap = Bitmap.createBitmap(size[0], size[1], Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.scale((float) size[0] / w, (float) size[1] / h);
+            webView.draw(canvas);
             persistSnapshot(title, url, bitmap);
           }
         }
@@ -282,6 +409,24 @@ public final class BrowserFragment extends Fragment {
       }
       webView.destroy();
       webView = null;
+    }
+    // Tear down any active HTML5 fullscreen view so it doesn't leak into the
+    // activity decor after this fragment is destroyed.
+    if (mCustomView != null && mFullscreenContainer != null) {
+      FragmentActivity act = getActivity();
+      if (act != null) {
+        try {
+          ((ViewGroup) act.getWindow().getDecorView()).removeView(mFullscreenContainer);
+        } catch (Exception ignored) {
+          // Best-effort cleanup.
+        }
+      }
+      mFullscreenContainer = null;
+      mCustomView = null;
+      if (mCustomViewCallback != null) {
+        mCustomViewCallback.onCustomViewHidden();
+        mCustomViewCallback = null;
+      }
     }
     super.onDestroyView();
   }

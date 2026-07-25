@@ -4,6 +4,10 @@ import com.nspace.mediacenter.model.HistoryItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +24,14 @@ public final class HistoryManager {
   private static final int MAX_ENTRIES = 500;
 
   private final List<HistoryItem> history = new ArrayList<>();
+
+  // Persist on a single background thread, coalescing bursts of page loads so a
+  // rapid sequence of navigations doesn't serialize 500 JSON entries on the UI
+  // thread each time. A 1.5s debounce window collapses a burst into one write.
+  private static final long SAVE_DEBOUNCE_MS = 1500;
+  private final ScheduledExecutorService saveScheduler =
+      Executors.newSingleThreadScheduledExecutor();
+  private ScheduledFuture<?> pendingSave;
 
   private HistoryManager() {
     load();
@@ -79,16 +91,36 @@ public final class HistoryManager {
     if (url == null || url.isEmpty()) {
       return;
     }
-    if (!history.isEmpty() && history.get(0).getUrl().equals(url)) {
-      history.get(0).setVisitedAt(System.currentTimeMillis());
-    } else {
-      history.add(0, new HistoryItem(UUID.randomUUID().toString(), title, url,
-          System.currentTimeMillis()));
+    synchronized (history) {
+      if (!history.isEmpty() && history.get(0).getUrl().equals(url)) {
+        history.get(0).setVisitedAt(System.currentTimeMillis());
+      } else {
+        history.add(0, new HistoryItem(UUID.randomUUID().toString(), title, url,
+            System.currentTimeMillis()));
+      }
+      while (history.size() > MAX_ENTRIES) {
+        history.remove(history.size() - 1);
+      }
     }
-    while (history.size() > MAX_ENTRIES) {
-      history.remove(history.size() - 1);
+    scheduleSave();
+  }
+
+  /**
+   * Debounced flush: cancels any pending save and re-arms the timer, so the
+   * actual JSON serialization + MMKV write happens once, 1.5s after the last
+   * navigation in a burst. Runs entirely off the UI thread.
+   */
+  private void scheduleSave() {
+    if (pendingSave != null && !pendingSave.isDone()) {
+      pendingSave.cancel(false);
     }
-    save();
+    pendingSave = saveScheduler.schedule(this::flush, SAVE_DEBOUNCE_MS, TimeUnit.MILLISECONDS);
+  }
+
+  private void flush() {
+    synchronized (history) {
+      save();
+    }
   }
 
   /**
@@ -97,14 +129,18 @@ public final class HistoryManager {
    * @return copy of the history list
    */
   public List<HistoryItem> getHistory() {
-    return new ArrayList<>(history);
+    synchronized (history) {
+      return new ArrayList<>(history);
+    }
   }
 
   /**
    * Clears all history.
    */
   public void clear() {
-    history.clear();
-    save();
+    synchronized (history) {
+      history.clear();
+      save();
+    }
   }
 }

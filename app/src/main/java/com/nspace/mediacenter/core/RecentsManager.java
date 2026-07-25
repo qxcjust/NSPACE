@@ -91,7 +91,7 @@ public final class RecentsManager {
    *
    * @param title        page title
    * @param url          page URL
-   * @param thumbnailPath absolute path to the captured snapshot PNG, or empty
+   * @param thumbnailPath absolute path to the captured snapshot (JPEG), or empty
    */
   public void add(String title, String url, String thumbnailPath) {
     if (url == null || url.isEmpty()) {
