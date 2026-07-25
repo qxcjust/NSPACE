@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import com.nspace.mediacenter.R;
+import com.nspace.mediacenter.BuildConfig;
 import com.nspace.mediacenter.core.HistoryManager;
 import com.nspace.mediacenter.core.RecentsManager;
 import java.io.File;
@@ -56,6 +58,55 @@ public final class BrowserFragment extends Fragment {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
           + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+  // Android WebView's native <video controls> UI has NO volume slider (unlike
+  // desktop Chrome), so sites that rely on the native controls (e.g. distro.tv)
+  // leave the user unable to change volume on the car head unit. For those
+  // hosts we inject a small floating volume widget that drives the page's
+  // HTMLMediaElement.volume / muted directly.
+  private static final String TAG = "BrowserFragment";
+  private static final String VOLUME_WIDGET_HOST = "distro.tv";
+  // Builds a floating volume widget when a <video> exists. This is injected
+  // repeatedly (see maybeInjectVolumeWidget) so it survives late-appearing
+  // videos and page redirects. It is a no-op once the widget already exists.
+  private static final String VOLUME_WIDGET_JS =
+      "(function(){"
+    + "window.__nspaceInj=(window.__nspaceInj||0)+1;"
+    + "if(document.getElementById('nspace_vol_widget'))return;"
+    + "var v=document.querySelector('video');"
+    + "if(!v)return;"
+    + "var s=document.createElement('style');"
+    + "s.textContent='#nspace_vol_widget{position:fixed;right:18px;top:50%;transform:translateY(-50%);"
+    + "z-index:2147483646;background:rgba(0,0,0,0.6);padding:10px 8px;border-radius:12px;"
+    + "display:flex;flex-direction:column;align-items:center;gap:10px;font-family:sans-serif;"
+    + "opacity:0;transition:opacity 0.25s;pointer-events:none;}"
+    + "#nspace_vol_widget.ns-visible{opacity:1;pointer-events:auto;}"
+    + "#nspace_vol_btn{background:none;border:none;color:#fff;font-size:14px;font-weight:700;"
+    + "cursor:pointer;white-space:nowrap;}"
+    + "#nspace_vol_range{writing-mode:vertical-lr;direction:rtl;width:10px;height:130px;}';"
+    + "document.head.appendChild(s);"
+    + "var w=document.createElement('div');w.id='nspace_vol_widget';"
+    + "var b=document.createElement('button');b.id='nspace_vol_btn';"
+    + "b.textContent=(v.muted?'Unmute':'Mute');"
+    + "var r=document.createElement('input');r.id='nspace_vol_range';r.type='range';"
+    + "r.min='0';r.max='1';r.step='0.05';"
+    + "var iv=(v.volume==null||isNaN(v.volume)||v.volume<=0)?0.5:v.volume;"
+    + "r.value=String(iv);if(v.volume<=0){v.volume=iv;}"
+    + "w.appendChild(b);w.appendChild(r);document.body.appendChild(w);"
+    + "var hideTimer=null;"
+    + "function showWidget(){w.classList.add('ns-visible');"
+    + "if(hideTimer)clearTimeout(hideTimer);"
+    + "hideTimer=setTimeout(function(){w.classList.remove('ns-visible');},4000);}"
+    + "function onActivity(e){if(e&&e.isTrusted===false)return;showWidget();}"
+    + "r.addEventListener('input',function(){v.volume=parseFloat(r.value);"
+    + "if(v.volume>0)v.muted=false;showWidget();});"
+    + "b.addEventListener('click',function(e){e.stopPropagation();v.muted=!v.muted;"
+    + "if(!v.muted&&v.volume<=0){v.volume=parseFloat(r.value)||0.5;}"
+    + "b.textContent=(v.muted?'Unmute':'Mute');showWidget();});"
+    + "w.addEventListener('pointerdown',function(e){e.stopPropagation();showWidget();});"
+    + "['click','touchstart','pointerdown','pointermove'].forEach(function(ev){"
+    + "document.addEventListener(ev,onActivity,true);});"
+    + "})();";
+
   private WebView webView;
   private ProgressBar progressBar;
 
@@ -77,6 +128,25 @@ public final class BrowserFragment extends Fragment {
   // longest side to keep the bitmap ~1.1MB instead of ~8.3MB and speed encode.
   private static final int CAPTURE_MAX_SIDE = 720;
 
+  // Periodic volume-widget check. Re-runs the idempotent injection every 3s
+  // while the BrowserFragment is alive so it covers retained/persistent
+  // WebView renderers (which never fire onPageFinished on a re-attach) as
+  // well as normal navigations. The JS itself is a no-op once the widget
+  // exists, so the cost is one getUrl() + one JS frame per tick.
+  private final Handler volumeHandler = new Handler(Looper.getMainLooper());
+  private final Runnable volumeCheck = new Runnable() {
+    @Override
+    public void run() {
+      String u = (webView == null) ? null : webView.getUrl();
+      Log.d(TAG, "volumeCheck tick: webView=" + (webView != null) + " url=" + u);
+      if (webView != null && u != null && u.contains(VOLUME_WIDGET_HOST)) {
+        Log.d(TAG, "volumeCheck: injecting for " + u);
+        webView.evaluateJavascript(VOLUME_WIDGET_JS, null);
+      }
+      volumeHandler.postDelayed(this, 3000);
+    }
+  };
+
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -89,8 +159,20 @@ public final class BrowserFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
+    // Allow Chrome DevTools (chrome://inspect) to attach to this WebView so the
+    // in-page player DOM can be inspected/debugged on a real device. Debug-only
+    // so a release build never exposes the WebView over CDP.
+    if (BuildConfig.DEBUG) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
+
     webView = view.findViewById(R.id.webview);
     progressBar = view.findViewById(R.id.progress_bar);
+
+    // Start the periodic volume-widget check (see volumeCheck). The first tick
+    // runs after 3s so it doesn't race the page-load progress bar.
+    volumeHandler.removeCallbacks(volumeCheck);
+    volumeHandler.postDelayed(volumeCheck, 3000);
 
     // Left sidebar navigation buttons
     ImageButton btnBack = view.findViewById(R.id.nav_back);
@@ -134,6 +216,9 @@ public final class BrowserFragment extends Fragment {
         btnForward.setAlpha(view.canGoForward() ? 1f : 0.3f);
         // Capture a snapshot so the home screen can offer "Continue Playing"
         scheduleCapture(title == null ? url : title, url);
+        // Sites whose player relies on native <video controls> get no volume
+        // slider on WebView — inject our own floating volume widget.
+        maybeInjectVolumeWidget(url);
       }
     });
     webView.setWebChromeClient(new WebChromeClient() {
@@ -241,6 +326,53 @@ public final class BrowserFragment extends Fragment {
     lastCaptureTime = now;
     final String pageTitle = title;
     webView.postDelayed(() -> captureSnapshot(pageTitle, url), 1200);
+  }
+
+  /**
+   * Injects the floating volume widget for hosts whose player relies on the
+   * native <video controls> (which lack a volume slider on Android WebView).
+   * The widget drives the page's HTMLMediaElement.volume / muted directly.
+   *
+   * <p>The injection is repeated every ~2s for ~40s because the live <video>
+   * element often appears several seconds after onPageFinished (slow car-unit
+   * network) and the page may redirect (e.g. daystar-tv -> daystar-espanol),
+   * which tears down any previously injected widget. A session token cancels
+   * an in-flight chain as soon as the user navigates away from the host, so
+   * the widget never leaks onto unrelated sites.
+   */
+  private int volumeWidgetSession = 0;
+
+  private void maybeInjectVolumeWidget(String url) {
+    if (url == null || url.isEmpty() || webView == null) {
+      Log.d(TAG, "maybeInjectVolumeWidget: skip (url/webView null)");
+      return;
+    }
+    if (!url.contains(VOLUME_WIDGET_HOST)) {
+      // Not a volume-widget host (or navigating away): cancel any chain.
+      volumeWidgetSession++;
+      Log.d(TAG, "maybeInjectVolumeWidget: host not matched, cancel chain: " + url);
+      return;
+    }
+    final int mySession = ++volumeWidgetSession;
+    final int[] attempts = {0};
+    final int MAX_ATTEMPTS = 20; // ~40s of retries
+    Log.d(TAG, "maybeInjectVolumeWidget: start repeating inject (session " + mySession + ") for " + url);
+    final Runnable inject = new Runnable() {
+      @Override
+      public void run() {
+        if (mySession != volumeWidgetSession) {
+          return; // superseded by a newer navigation
+        }
+        if (attempts[0]++ >= MAX_ATTEMPTS) {
+          return;
+        }
+        webView.evaluateJavascript(VOLUME_WIDGET_JS, null);
+        if (attempts[0] < MAX_ATTEMPTS) {
+          webView.postDelayed(this, 2000);
+        }
+      }
+    };
+    webView.postDelayed(inject, 0);
   }
 
   /**
@@ -378,6 +510,7 @@ public final class BrowserFragment extends Fragment {
 
   @Override
   public void onDestroyView() {
+    volumeHandler.removeCallbacks(volumeCheck);
     if (webView != null) {
       // Best-effort snapshot before teardown: persist the current page to the
       // recents store so the home-screen "Continue Playing" row is populated

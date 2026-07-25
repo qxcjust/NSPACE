@@ -1,5 +1,6 @@
 package com.nspace.mediacenter.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -23,11 +24,33 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    if (savedInstanceState == null) {
+    handleLaunchIntent(getIntent());
+    if (savedInstanceState == null && browserFragment == null) {
       goHome();
     }
 
     enableImmersiveMode();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    handleLaunchIntent(intent);
+  }
+
+  /**
+   * Opens a URL passed via the "url" intent extra. Handy for external
+   * deep-links and adb testing, e.g.
+   * {@code am start -n com.nspace.mediacenter/.ui.MainActivity -e url "https://..."}.
+   */
+  private void handleLaunchIntent(Intent intent) {
+    if (intent == null) {
+      return;
+    }
+    String url = intent.getStringExtra("url");
+    if (url != null && !url.isEmpty()) {
+      openUrl(url);
+    }
   }
 
   /**
