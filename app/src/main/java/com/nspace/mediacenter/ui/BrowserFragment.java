@@ -112,6 +112,41 @@ public final class BrowserFragment extends Fragment {
     + "document.addEventListener(ev,onActivity,true);});"
     + "})();";
 
+  // Haokan's own HTML5 player paints a "播放出现小问题" (playback hit a small
+  // problem) toast during the first second of buffering on the slow car unit;
+  // it self-dismisses once the stream starts. We pre-emptively hide that toast
+  // (scoped to the haokan host) so the user only ever sees smooth playback.
+  private static final String HAOKAN_HIDE_ERROR_JS =
+      "(function(){"
+    + "if(window.__nspaceHaokanHide)return;"
+    + "window.__nspaceHaokanHide=1;"
+    + "function hideErr(){"
+    + "var all=document.querySelectorAll('*');"
+    + "for(var i=0;i<all.length;i++){"
+    + "var t=all[i].textContent||'';"
+    + "if(t.indexOf('播放出现小问题')>=0){"
+    + "var el=all[i];"
+    + "while(el&&el!==document.documentElement){"
+    + "var pos=window.getComputedStyle(el).position;"
+    + "if(pos==='fixed'||pos==='absolute')break;"
+    + "el=el.parentNode;"
+    + "}"
+    + "if(el&&el.style)el.style.display='none';"
+    + "}"
+    + "}"
+    + "}"
+    + "var obs=new MutationObserver(function(){hideErr();});"
+    + "obs.observe(document.documentElement,{childList:true,subtree:true});"
+    + "setTimeout(hideErr,1500);setTimeout(hideErr,4000);setTimeout(hideErr,8000);"
+    + "})();";
+
+  private void maybeHideHaokanError() {
+    if (webView == null) {
+      return;
+    }
+    webView.evaluateJavascript(HAOKAN_HIDE_ERROR_JS, null);
+  }
+
   private WebView webView;
   private ProgressBar progressBar;
 
@@ -211,7 +246,12 @@ public final class BrowserFragment extends Fragment {
       webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+      // ALWAYS_ALLOW: Haokan/Kuaishou players pull video segments and player
+      // assets over mixed schemes; the COMPATIBILITY_MODE default can
+      // intermittently block some of them, which surfaces as a transient
+      // "播放出现了小问题" before the stream recovers. Permitting all mixed
+      // content keeps the player loading smoothly.
+      webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
     }
     // Request the desktop version of web pages: without this the WebView's
     // default mobile UA makes sites like mgtv.com return a phone layout that
@@ -258,6 +298,11 @@ public final class BrowserFragment extends Fragment {
         // Sites whose player relies on native <video controls> get no volume
         // slider on WebView — inject our own floating volume widget.
         maybeInjectVolumeWidget(url);
+        // Haokan's player shows a transient "播放出现了小问题" toast while
+        // buffering; hide it so only smooth playback is visible.
+        if (url != null && url.contains("haokan")) {
+          maybeHideHaokanError();
+        }
       }
     });
     webView.setWebChromeClient(new WebChromeClient() {
