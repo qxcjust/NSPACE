@@ -34,7 +34,7 @@ android {
   // always increases monotonically (MAJOR*10000 + MINOR*100 + PATCH).
   def verMajor = 1
   def verMinor = 0
-  def verPatch = 1
+  def verPatch = 6
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

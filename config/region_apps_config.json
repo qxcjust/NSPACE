@@ -231,14 +231,56 @@
       "url": "https://tidal.com",
       "locales": {
         "default": "TIDAL"
-      }
+      },
+      "icon": "ic_tidal"
     },
     "Crunchyroll": {
       "category": "video",
       "url": "https://www.crunchyroll.com",
       "locales": {
         "default": "Crunchyroll"
-      }
+      },
+      "icon": "ic_crunchyroll"
+    },
+    "Twitch": {
+      "category": "video",
+      "url": "https://www.twitch.tv",
+      "locales": {
+        "default": "Twitch"
+      },
+      "icon": "ic_twitch"
+    },
+    "Rumble": {
+      "category": "video",
+      "url": "https://rumble.com",
+      "locales": {
+        "default": "Rumble"
+      },
+      "icon": "ic_rumble"
+    },
+    "MUBI": {
+      "category": "video",
+      "url": "https://mubi.com",
+      "locales": {
+        "default": "MUBI"
+      },
+      "icon": "ic_mubi"
+    },
+    "Qobuz": {
+      "category": "audio",
+      "url": "https://www.qobuz.com",
+      "locales": {
+        "default": "Qobuz"
+      },
+      "icon": "ic_qobuz"
+    },
+    "Bandcamp": {
+      "category": "audio",
+      "url": "https://bandcamp.com",
+      "locales": {
+        "default": "Bandcamp"
+      },
+      "icon": "ic_bandcamp"
     },
     "ViX": {
       "category": "video",
@@ -1138,7 +1180,8 @@
         "Iheart",
         "Deezer",
         "Stingray",
-        "YouTube Music"
+        "YouTube Music",
+        "TIDAL"
       ],
       "videoTop5": [
         "WeTV",

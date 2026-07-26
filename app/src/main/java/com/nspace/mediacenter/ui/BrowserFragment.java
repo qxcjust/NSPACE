@@ -15,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -54,9 +56,12 @@ public final class BrowserFragment extends Fragment {
   // Desktop browser UA so video portals (e.g. mgtv.com) serve the full web
   // player instead of their mobile layout. The car head unit is a 1920x1080
   // screen, so the desktop rendering fits much better than a phone layout.
+  // NOTE: mobile UA was tried for Chinese portals (haokan/kuaishou) but the
+  // mobile pages are app-download funnels that cannot be operated or played
+  // on the car screen — desktop UA is used for ALL sites by decision.
   private static final String DESKTOP_USER_AGENT =
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-          + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+          + "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
   // Android WebView's native <video controls> UI has NO volume slider (unlike
   // desktop Chrome), so sites that rely on the native controls (e.g. distro.tv)
@@ -200,6 +205,14 @@ public final class BrowserFragment extends Fragment {
     // Configure WebView
     webView.getSettings().setJavaScriptEnabled(true);
     webView.getSettings().setDomStorageEnabled(true);
+    webView.getSettings().setDatabaseEnabled(true);
+    webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+    }
     // Request the desktop version of web pages: without this the WebView's
     // default mobile UA makes sites like mgtv.com return a phone layout that
     // looks broken on the 1080p car screen.
@@ -207,6 +220,32 @@ public final class BrowserFragment extends Fragment {
     webView.getSettings().setLoadWithOverviewMode(true);
     webView.getSettings().setUserAgentString(DESKTOP_USER_AGENT);
     webView.setWebViewClient(new WebViewClient() {
+      @Override
+      public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+      }
+
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        String url = request == null ? null : request.getUrl().toString();
+        if (url != null && !url.startsWith("http://") && !url.startsWith("https://")
+            && !url.startsWith("about:") && !url.startsWith("javascript:")) {
+          return true;
+        }
+        return super.shouldOverrideUrlLoading(view, request);
+      }
+
+      @Override
+      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        // Block custom app schemes (e.g. baiduhaokan://) that the WebView cannot
+        // render. Letting them through shows ERR_UNKNOWN_URL_SCHEME.
+        if (url != null && !url.startsWith("http://") && !url.startsWith("https://")
+            && !url.startsWith("about:") && !url.startsWith("javascript:")) {
+          return true;
+        }
+        return super.shouldOverrideUrlLoading(view, url);
+      }
+
       @Override
       public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
