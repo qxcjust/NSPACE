@@ -62,18 +62,6 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
         setContentView(R.layout.activity_lock);
         enableImmersiveMode();
       }
-      // Diagnostic side-effect (removed before final release): lets us confirm
-      // the remote result via adb pull of vin_remote_result.txt.
-      try {
-        java.io.File dir = getExternalFilesDir(null);
-        if (dir != null) {
-          try (java.io.FileWriter w = new java.io.FileWriter(new java.io.File(dir, "vin_remote_result.txt"))) {
-            w.write(result.name());
-          }
-        }
-      } catch (Exception ignored) {
-        // Verification only; never block on it.
-      }
     });
   }
 
