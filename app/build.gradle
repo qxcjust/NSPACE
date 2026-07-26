@@ -7,19 +7,58 @@ android {
   compileSdk 34
   buildToolsVersion '35.0.0'
 
+  // Load release signing credentials from the gitignored local.properties.
+  def localProps = new Properties()
+  def localPropsFile = rootProject.file('local.properties')
+  if (localPropsFile.exists()) {
+    localProps.load(new FileInputStream(localPropsFile))
+  }
+  def storeFileProp = localProps.getProperty('nspace.store.file')
+  def storePass = localProps.getProperty('nspace.store.password')
+  def keyAliasProp = localProps.getProperty('nspace.key.alias')
+  def keyPass = localProps.getProperty('nspace.key.password')
+
+  signingConfigs {
+    release {
+      if (storeFileProp != null && storePass != null && keyAliasProp != null && keyPass != null) {
+        storeFile file(storeFileProp)
+        storePassword storePass
+        keyAlias keyAliasProp
+        keyPassword keyPass
+      }
+    }
+  }
+
+  // ---- Semantic version: single source of truth (MAJOR.MINOR.PATCH) ----
+  // Bump these three numbers on every release; versionCode is derived and
+  // always increases monotonically (MAJOR*10000 + MINOR*100 + PATCH).
+  def verMajor = 1
+  def verMinor = 0
+  def verPatch = 0
+
   defaultConfig {
     applicationId "com.nspace.mediacenter"
     minSdk 24
     targetSdk 33
-    versionCode 1
-    versionName "1.0.0"
+    versionCode verMajor * 10000 + verMinor * 100 + verPatch
+    versionName "${verMajor}.${verMinor}.${verPatch}"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    // AES-256-GCM key for the encrypted region_apps_config.enc asset.
+    // Source of truth is the gitignored nspace.config.key in local.properties.
+    // If absent, the field is empty and the app safely falls back to built-in defaults.
+    def cfgKey = localProps.getProperty('nspace.config.key')
+    buildConfigField "String", "NSPACE_CONFIG_KEY", "\"" + (cfgKey != null ? cfgKey : "") + "\""
   }
 
   buildTypes {
     release {
-      minifyEnabled false
+      // Anti-decompile: full R8 obfuscation + optimization + resource shrinking.
+      minifyEnabled true
+      shrinkResources true
+      zipAlignEnabled true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      signingConfig signingConfigs.release
     }
     debug {
       minifyEnabled false
@@ -39,7 +78,15 @@ android {
 
   lintOptions {
     abortOnError false
+    checkReleaseBuilds false
     disable 'MissingTranslation'
+  }
+
+  // Standardize output APK naming: NSpace-v<versionName>-<buildType>.apk
+  applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+      outputFileName = "NSpace-v${variant.versionName}-${variant.buildType.name}.apk"
+    }
   }
 }
 

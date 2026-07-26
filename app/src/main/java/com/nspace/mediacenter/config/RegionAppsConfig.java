@@ -3,31 +3,39 @@ package com.nspace.mediacenter.config;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import com.nspace.mediacenter.BuildConfig;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
  * Region-based app ranking configuration loader.
  *
- * <p>Parses {@code assets/region_apps_config.json} which contains top-5 audio/video
- * apps per target country (the "出海" / go-global market list). Provides:
+ * <p>Parses the encrypted asset {@code assets/region_apps_config.enc}, which is the
+ * AES-256-GCM ciphertext of {@code region_apps_config.json}. The plaintext JSON is
+ * NOT bundled in the APK — only the ciphertext ships. See {@code scripts/encrypt_config.js}
+ * for how to (re)generate the asset from the source file in {@code config/}.
+ *
+ * <p>GCM is authenticated encryption: any tampering with the ciphertext (e.g. someone
+ * unpacking the APK and editing the blob) makes decryption throw, so the app rejects a
+ * modified config instead of silently trusting it and falls back to the built-in defaults.
+ *
+ * <p>Provides:
  * <ul>
  *   <li>Full region → app mapping (audio Top5 + video Top5)</li>
  *   <li>App metadata: URL, category, icon</li>
  *   <li>Convenience methods to resolve shortcuts for a given country code</li>
  * </ul>
- *
- * <p>Usage:
- * <pre>{@code
- * RegionAppsConfig config = RegionAppsConfig.getInstance(context);
- * List<RegionAppsConfig.AppInfo> apps = config.getTopAppsForRegion("TH");
- * }</pre>
  */
 public final class RegionAppsConfig {
 
@@ -97,20 +105,23 @@ public final class RegionAppsConfig {
   }
 
   /**
-   * Load (or return cached) config from {@code assets/region_apps_config.json}.
+   * Load (or return cached) config from the encrypted asset
+   * {@code assets/region_apps_config.enc}.
    *
-   * @return the config, or {@code null} if the asset is missing or malformed.
-   *         Callers MUST null-check; parsing failures must never crash the app.
+   * @return the config, or {@code null} if the asset is missing, cannot be decrypted,
+   *         or is malformed. Callers MUST null-check; parsing failures must never crash
+   *         the app — it falls back to the built-in {@code SHORTCUTS} in HomeFragment.
    */
   public static RegionAppsConfig getInstance(Context ctx) {
     if (sInstance != null) return sInstance;
     synchronized (RegionAppsConfig.class) {
       if (sInstance == null) {
         try {
-          String json = loadAsset(ctx, "region_apps_config.json");
+          byte[] enc = readAssetBytes(ctx, "region_apps_config.enc");
+          String json = decrypt(enc);
           sInstance = new RegionAppsConfig(new JSONObject(json));
         } catch (Exception e) {
-          Log.e(TAG, "Failed to load region_apps_config.json, falling back", e);
+          Log.e(TAG, "Failed to decrypt region_apps_config.enc, falling back", e);
           return null;
         }
       }
@@ -182,20 +193,53 @@ public final class RegionAppsConfig {
     );
   }
 
-  // ── Internal helpers ───────────────────────────────────────
+  // ── Encrypted asset loading (AES-256-GCM) ─────────────────
 
-  private static String loadAsset(Context ctx, String filename) throws Exception {
+  private static final int GCM_IV_LEN = 12;       // recommended GCM IV length
+  private static final int GCM_TAG_BITS = 128;    // GCM authentication tag length
+
+  /** Read a whole asset into a byte array. */
+  private static byte[] readAssetBytes(Context ctx, String filename) throws Exception {
     InputStream is = ctx.getAssets().open(filename);
-    byte[] data = new byte[is.available()];
-    int total = 0;
-    while (total < data.length) {
-      int n = is.read(data, total, data.length - total);
-      if (n < 0) break;
-      total += n;
-    }
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] buf = new byte[8192];
+    int n;
+    while ((n = is.read(buf)) != -1) bos.write(buf, 0, n);
     is.close();
-    return new String(data, 0, total, StandardCharsets.UTF_8);
+    return bos.toByteArray();
   }
+
+  /**
+   * Decrypt an AES-256-GCM asset. On-disk layout is:
+   * <pre>[ 12-byte IV ][ ciphertext ][ 16-byte auth tag ]</pre>
+   * The auth tag lets {@link Cipher} detect tampering/bit-rot: altering the file makes
+   * {@link Cipher#doFinal(byte[])} throw {@code AEADBadTagException}.
+   */
+  private static String decrypt(byte[] data) throws Exception {
+    if (data == null || data.length <= GCM_IV_LEN + (GCM_TAG_BITS / 8)) {
+      throw new IllegalArgumentException("config blob too short");
+    }
+    byte[] iv = Arrays.copyOfRange(data, 0, GCM_IV_LEN);
+    byte[] ct = Arrays.copyOfRange(data, GCM_IV_LEN, data.length);
+    byte[] key = hexToBytes(BuildConfig.NSPACE_CONFIG_KEY);
+    SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    cipher.init(Cipher.DECRYPT_MODE, keySpec, new GCMParameterSpec(GCM_TAG_BITS, iv));
+    byte[] plain = cipher.doFinal(ct);
+    return new String(plain, StandardCharsets.UTF_8);
+  }
+
+  private static byte[] hexToBytes(String s) {
+    int len = s.length();
+    if ((len % 2) != 0) throw new IllegalArgumentException("hex key length must be even");
+    byte[] out = new byte[len / 2];
+    for (int i = 0; i < out.length; i++) {
+      out[i] = (byte) Integer.parseInt(s.substring(2 * i, 2 * i + 2), 16);
+    }
+    return out;
+  }
+
+  // ── Internal helpers ───────────────────────────────────────
 
   private List<AppInfo> parseAppList(JSONArray arr, String category) {
     List<AppInfo> list = new ArrayList<>();

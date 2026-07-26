@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keep all app icons that are loaded dynamically by name in HomeFragment.resolveShortcuts().
+     The resource shrinker cannot detect getIdentifier("ic_...", "drawable", ...) references,
+     so it replaces these PNGs with dummy black files unless we keep them explicitly. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_*" />

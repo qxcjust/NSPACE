@@ -328,12 +328,6 @@ public final class HomeFragment extends Fragment {
     return card;
   }
 
-  /**
-   * Resolve the active shortcut list: a manual region override (chosen via the
-   * settings gear) takes priority, otherwise the GLOBAL region (AquaChannel
-   * app set) is used as the default home screen. The built-in {@link #SHORTCUTS}
-   * array is only a last-resort fallback when the config cannot be loaded.
-   */
   private Shortcut[] resolveShortcuts() {
     String override = getOverrideRegion();
     try {

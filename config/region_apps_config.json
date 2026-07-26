@@ -1,8 +1,8 @@
 {
   "_meta": {
     "version": "1.0",
-    "description": "点击出海国家清单 - 按国家/地区音视频App用户量排名 (已并入 AquaChannel 主页 App 入口)",
-    "source": "NSpace出海配置 + AquaChannel-Base-release-3.5.8.1553.apk",
+    "description": "点击出海国家清单 - 按国家/地区音视频App用户量排名",
+    "source": "NSpace出海配置",
     "updated": "2026-07-25"
   },
   "apps": {
