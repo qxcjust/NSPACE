@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — Chinese (zh) localization -->
+<resources>
+  <!-- Device lock screen (VIN binding) -->
+  <string name="lock_title">未授权设备</string>
+  <string name="lock_message">本应用已绑定至指定车机，\n仅限绑定的车辆使用。</string>
+</resources>

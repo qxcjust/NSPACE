@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.util.DeviceBinder;
+import com.nspace.mediacenter.util.VinRemoteChecker;
 
 /**
  * Host activity for NSpace.
@@ -42,6 +43,38 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
     }
 
     enableImmersiveMode();
+
+    // Remote revocation check (async, offline-safe). The local binding above
+    // is the always-on gate; this only escalates to a lock screen if the
+    // remote allowlist explicitly revokes this unit. A missing file or no
+    // network is treated as "trust local" – startup is never blocked.
+    startRemoteRevocationCheck();
+  }
+
+  private void startRemoteRevocationCheck() {
+    VinRemoteChecker.verify(result -> {
+      if (result == VinRemoteChecker.Result.REVOKED) {
+        mLocked = true;
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        if (f != null) {
+          getSupportFragmentManager().beginTransaction().remove(f).commitNow();
+        }
+        setContentView(R.layout.activity_lock);
+        enableImmersiveMode();
+      }
+      // Diagnostic side-effect (removed before final release): lets us confirm
+      // the remote result via adb pull of vin_remote_result.txt.
+      try {
+        java.io.File dir = getExternalFilesDir(null);
+        if (dir != null) {
+          try (java.io.FileWriter w = new java.io.FileWriter(new java.io.File(dir, "vin_remote_result.txt"))) {
+            w.write(result.name());
+          }
+        }
+      } catch (Exception ignored) {
+        // Verification only; never block on it.
+      }
+    });
   }
 
   @Override

@@ -92,4 +92,7 @@
   <string name="region_follow_system">Ikut bahasa sistem</string>
   <string name="region_badge_format">Rantau · %1$s</string>
   <string name="region_toast_applied">Rantau ditukar: %1$s</string>
+  <!-- Device lock screen (VIN binding) -->
+  <string name="lock_title">Peranti Tidak Dibenarkan</string>
+  <string name="lock_message">Apl ini diikat pada kenderaan tertentu.\nHanya kenderaan yang diikat dibenarkan menggunakannya.</string>
 </resources>

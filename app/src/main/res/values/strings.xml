@@ -189,4 +189,7 @@
   <string name="region_badge_format">区域 · %1$s</string>
   <string name="region_toast_applied">已切换区域：%1$s</string>
   <string name="region_config_error">区域配置加载失败</string>
+  <!-- Device lock screen (VIN binding) -->
+  <string name="lock_title">Unauthorized Device</string>
+  <string name="lock_message">This app is bound to a specific vehicle.\nOnly the bound vehicle is allowed to use it.</string>
 </resources>

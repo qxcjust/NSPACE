@@ -92,4 +92,7 @@
   <string name="region_follow_system">စနစ်ဘာသာစကား အတိုင်း</string>
   <string name="region_badge_format">ဒေသ · %1$s</string>
   <string name="region_toast_applied">ဒေသ ပြောင်းလဲသွားပြီ: %1$s</string>
+  <!-- Device lock screen (VIN binding) -->
+  <string name="lock_title">အခွင့်မပြုသော စက်ပစ္စည်း</string>
+  <string name="lock_message">ဤအက်ပ်ကို သီးသန့်မော်တော်တစ်စီးတွင် ချိတ်ဆက်ထားသည်။\nချိတ်ဆက်ထားသော မော်တော်သာ အသုံးပြုနိုင်သည်။</string>
 </resources>

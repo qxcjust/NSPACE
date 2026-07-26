@@ -92,4 +92,7 @@
   <string name="region_follow_system">Seguir idioma del sistema</string>
   <string name="region_badge_format">Región · %1$s</string>
   <string name="region_toast_applied">Región cambiada: %1$s</string>
+  <!-- Device lock screen (VIN binding) -->
+  <string name="lock_title">Dispositivo no autorizado</string>
+  <string name="lock_message">Esta aplicación está vinculada a un vehículo específico.\nSolo el vehículo vinculado puede usarla.</string>
 </resources>

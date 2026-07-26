@@ -34,7 +34,7 @@ android {
   // always increases monotonically (MAJOR*10000 + MINOR*100 + PATCH).
   def verMajor = 1
   def verMinor = 0
-  def verPatch = 10
+  def verPatch = 13
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
@@ -49,6 +49,19 @@ android {
     // If absent, the field is empty and the app safely falls back to built-in defaults.
     def cfgKey = localProps.getProperty('nspace.config.key')
     buildConfigField "String", "NSPACE_CONFIG_KEY", "\"" + (cfgKey != null ? cfgKey : "") + "\""
+
+    // AES-256-GCM key + endpoint base for the remote VIN revocation check.
+    // The app reads the live car VIN, then fetches "<base><VIN>.enc" from
+    // GitHub Pages (one encrypted file per authorized VIN), decrypts it
+    // locally, and compares the plaintext to the live VIN. This lets the
+    // allowlist be rotated/revoked without re-shipping the APK: to revoke a
+    // unit, simply delete its <VIN>.enc from the Pages repo. The key is
+    // gitignored (local.properties); the endpoint base defaults to the company
+    // GitHub Pages site. Offline / missing file => trust local binding.
+    def vinRemoteKey = localProps.getProperty('nspace.vin_remote.key')
+    def vinRemoteUrl = localProps.getProperty('nspace.vin_remote.url')
+    buildConfigField "String", "VIN_REMOTE_KEY", "\"" + (vinRemoteKey != null ? vinRemoteKey : "") + "\""
+    buildConfigField "String", "VIN_REMOTE_URL", "\"" + (vinRemoteUrl != null ? vinRemoteUrl : "https://www.cyaispace.tech/vin/") + "\""
   }
 
   buildTypes {
