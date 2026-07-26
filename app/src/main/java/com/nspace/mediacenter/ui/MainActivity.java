@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
+import com.nspace.mediacenter.util.DeviceBinder;
 
 /**
  * Host activity for NSpace.
@@ -18,10 +19,21 @@ import com.nspace.mediacenter.R;
 public final class MainActivity extends AppCompatActivity implements MainNavigator {
 
   private BrowserFragment browserFragment;
+  private boolean mLocked = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    // Device binding: if the app is bound to a specific car VIN and this unit
+    // doesn't match, show the lock screen and stop. We never reach the home UI.
+    if (!DeviceBinder.isAuthorized(this)) {
+      mLocked = true;
+      setContentView(R.layout.activity_lock);
+      enableImmersiveMode();
+      return;
+    }
+
     setContentView(R.layout.activity_main);
 
     handleLaunchIntent(getIntent());
@@ -35,6 +47,9 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
+    if (mLocked) {
+      return;
+    }
     handleLaunchIntent(intent);
   }
 
@@ -77,6 +92,9 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
   @Override
   public void onBackPressed() {
+    if (mLocked) {
+      return;
+    }
     Fragment current = getSupportFragmentManager().findFragmentById(R.id.content_frame);
     if (current instanceof BrowserFragment && ((BrowserFragment) current).canGoBack()) {
       ((BrowserFragment) current).goBack();

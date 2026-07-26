@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0E0E0E">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未授权设备"
+            android:textColor="#FFFFFF"
+            android:textSize="44sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:text="本应用已绑定至指定车机，\n仅限绑定的车辆使用。"
+            android:textColor="#9AA0A6"
+            android:textSize="24sp" />
+    </LinearLayout>
+</FrameLayout>

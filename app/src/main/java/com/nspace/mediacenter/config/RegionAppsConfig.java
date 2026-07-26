@@ -177,6 +177,17 @@ public final class RegionAppsConfig {
   }
 
   /**
+   * Returns the VIN this build is bound to, or {@code null} if device-binding is
+   * not configured (the app then runs unbound). Compared case-insensitively
+   * against the live VIN by {@link com.nspace.mediacenter.util.DeviceBinder}.
+   */
+  public String getBoundVin() {
+    if (!rawRoot.has("bound_vin")) return null;
+    String v = rawRoot.optString("bound_vin", "");
+    return v.isEmpty() ? null : v;
+  }
+
+  /**
    * Get raw app metadata by name (brand color, URL, etc.).
    * Returns {@code null} if the app is not in the catalog.
    */
