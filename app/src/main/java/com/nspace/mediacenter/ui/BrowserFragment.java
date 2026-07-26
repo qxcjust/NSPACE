@@ -360,15 +360,18 @@ public final class BrowserFragment extends Fragment {
     final Runnable inject = new Runnable() {
       @Override
       public void run() {
-        if (mySession != volumeWidgetSession) {
-          return; // superseded by a newer navigation
+        // Snapshot the field: onDestroyView() nulls webView while queued
+        // runnables may still be dispatched by the main looper afterwards.
+        final WebView wv = webView;
+        if (wv == null || mySession != volumeWidgetSession) {
+          return; // view destroyed or superseded by a newer navigation
         }
         if (attempts[0]++ >= MAX_ATTEMPTS) {
           return;
         }
-        webView.evaluateJavascript(VOLUME_WIDGET_JS, null);
+        wv.evaluateJavascript(VOLUME_WIDGET_JS, null);
         if (attempts[0] < MAX_ATTEMPTS) {
-          webView.postDelayed(this, 2000);
+          wv.postDelayed(this, 2000);
         }
       }
     };
@@ -511,6 +514,10 @@ public final class BrowserFragment extends Fragment {
   @Override
   public void onDestroyView() {
     volumeHandler.removeCallbacks(volumeCheck);
+    // Invalidate any in-flight inject retry chain (see maybeInjectVolumeWidget):
+    // its runnables are posted on the WebView/main looper and may still fire
+    // after this fragment's view is torn down.
+    volumeWidgetSession++;
     if (webView != null) {
       // Best-effort snapshot before teardown: persist the current page to the
       // recents store so the home-screen "Continue Playing" row is populated
