@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/content_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/nspace_background" />
+    android:layout_height="match_parent">
+
+    <!-- Persistent host for the shared WebView. It always stays attached to the
+         activity window (covered by content_frame when another fragment is on
+         top). When the BrowserFragment is torn down, the WebView is re-parented
+         here instead of being removed from the window, so Chromium keeps the
+         page "visible" and audio keeps playing in the background. -->
+    <FrameLayout
+        android:id="@+id/webview_host"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/nspace_background" />
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>

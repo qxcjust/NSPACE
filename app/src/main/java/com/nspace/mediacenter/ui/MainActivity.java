@@ -19,7 +19,6 @@ import com.nspace.mediacenter.util.VinRemoteChecker;
  */
 public final class MainActivity extends AppCompatActivity implements MainNavigator {
 
-  private BrowserFragment browserFragment;
   private boolean mLocked = false;
 
   @Override
@@ -38,7 +37,8 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
     setContentView(R.layout.activity_main);
 
     handleLaunchIntent(getIntent());
-    if (savedInstanceState == null && browserFragment == null) {
+    if (savedInstanceState == null
+        && getSupportFragmentManager().findFragmentById(R.id.content_frame) == null) {
       goHome();
     }
 
@@ -140,11 +140,14 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
   @Override
   public void openUrl(String url) {
-    browserFragment = new BrowserFragment();
+    // Note: deliberately NOT held as an activity field — the fragment manager
+    // owns the instance. A long-lived activity reference would keep the old
+    // BrowserFragment (and anything it retains) reachable after replace().
+    BrowserFragment fragment = new BrowserFragment();
     Bundle args = new Bundle();
     args.putString(BrowserFragment.ARG_URL, url);
-    browserFragment.setArguments(args);
-    showFragment(browserFragment);
+    fragment.setArguments(args);
+    showFragment(fragment);
   }
 
   @Override

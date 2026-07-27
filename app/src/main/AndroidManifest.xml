@@ -11,6 +11,9 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
       android:maxSdkVersion="32" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <!-- Foreground service for background media playback (MediaSession). -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
   <!-- Leanback (Android TV) feature; keep for TV store compatibility. -->
   <uses-feature
@@ -49,7 +52,15 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="http" />
         <data android:scheme="https" />
-      </intent-filter>
+        </intent-filter>
     </activity>
+
+    <!-- Background media playback host: owns the MediaSession, shows the
+         lock-screen / notification controls, and keeps the process alive while
+         audio plays after the user leaves the browser view. -->
+    <service
+        android:name=".media.PlaybackService"
+        android:exported="false"
+        android:foregroundServiceType="mediaPlayback" />
   </application>
 </manifest>

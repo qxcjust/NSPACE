@@ -2,6 +2,7 @@ package com.nspace.mediacenter.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -16,6 +17,8 @@ import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -31,6 +34,8 @@ import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.BuildConfig;
 import com.nspace.mediacenter.core.HistoryManager;
 import com.nspace.mediacenter.core.RecentsManager;
+import com.nspace.mediacenter.media.MediaWebViewHolder;
+import com.nspace.mediacenter.media.PlaybackService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
@@ -177,7 +182,21 @@ public final class BrowserFragment extends Fragment {
   private final Runnable volumeCheck = new Runnable() {
     @Override
     public void run() {
-      String u = (webView == null) ? null : webView.getUrl();
+      // Stale-reference guard: if the shared holder no longer owns our WebView
+      // it was released (destroyed) externally -- e.g. PlaybackService reclaimed
+      // it while the app was backgrounded. Drop the dead reference and stop
+      // ticking instead of spamming "destroyed WebView" warnings every 3s.
+      if (webView != null && MediaWebViewHolder.getInstance().get() != webView) {
+        Log.w(TAG, "volumeCheck: WebView was released externally; stopping ticks");
+        webView = null;
+        return;
+      }
+      String u = null;
+      try {
+        u = (webView == null) ? null : webView.getUrl();
+      } catch (Exception ignored) {
+        // Destroyed WebView race; treated as no URL.
+      }
       Log.d(TAG, "volumeCheck tick: webView=" + (webView != null) + " url=" + u);
       if (webView != null && u != null && u.contains(VOLUME_WIDGET_HOST)) {
         Log.d(TAG, "volumeCheck: injecting for " + u);
@@ -206,8 +225,15 @@ public final class BrowserFragment extends Fragment {
       WebView.setWebContentsDebuggingEnabled(true);
     }
 
-    webView = view.findViewById(R.id.webview);
+    sAlive = true;
     progressBar = view.findViewById(R.id.progress_bar);
+
+    // Resolve the WebView from the shared holder (reused across navigations so
+    // audio keeps playing when we leave this fragment) or create it on first
+    // use. Starts the foreground MediaSession service that drives lock-screen /
+    // notification playback controls.
+    webView = resolveWebView(view);
+    ensurePlaybackService();
 
     // Start the periodic volume-widget check (see volumeCheck). The first tick
     // runs after 3s so it doesn't race the page-load progress bar.
@@ -263,6 +289,11 @@ public final class BrowserFragment extends Fragment {
       @Override
       public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
+        // Reveal the WebView now that the new page has begun loading. The stale
+        // frame from the previous app was hidden in resolveWebView and cleared
+        // by the Surface rebuild, so showing it now only ever reveals the new
+        // content (never the leftover previous-app picture).
+        view.setVisibility(View.VISIBLE);
       }
 
       @Override
@@ -287,8 +318,27 @@ public final class BrowserFragment extends Fragment {
       }
 
       @Override
+      public void onReceivedError(WebView view, WebResourceRequest request,
+          WebResourceError error) {
+        super.onReceivedError(view, request, error);
+        // Even when a resource/page fails we must reveal the WebView so the
+        // error page (or whatever the site shows) is visible instead of the
+        // WebView staying hidden behind the app background.
+        view.setVisibility(View.VISIBLE);
+      }
+
+      @Override
+      public void onReceivedHttpError(WebView view, WebResourceRequest request,
+          WebResourceResponse errorResponse) {
+        super.onReceivedHttpError(view, request, errorResponse);
+        view.setVisibility(View.VISIBLE);
+      }
+
+      @Override
       public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
+        // Defensive: always ensure the WebView is visible once a page finishes.
+        view.setVisibility(View.VISIBLE);
         String title = view.getTitle();
         HistoryManager.getInstance().addVisit(title == null ? url : title, url);
         // Update forward button state
@@ -303,6 +353,13 @@ public final class BrowserFragment extends Fragment {
         if (url != null && url.contains("haokan")) {
           maybeHideHaokanError();
         }
+        // Expose a media-element locator so the background MediaSession poller
+        // can read play/pause progress and drive lock-screen / notification
+        // playback controls. Idempotent.
+        if (webView != null) {
+          webView.evaluateJavascript(MediaWebViewHolder.FIND_MEDIA_JS, null);
+        }
+        ensurePlaybackService();
       }
     });
     webView.setWebChromeClient(new WebChromeClient() {
@@ -578,6 +635,89 @@ public final class BrowserFragment extends Fragment {
   }
 
   /**
+   * Returns the shared WebView: creates it on first use, or re-attaches the
+   * retained instance (owned by {@link MediaWebViewHolder}) on later openings.
+   * When reusing, the freshly inflated layout WebView is discarded so exactly
+   * one WebView ever exists and audio survives fragment replacement.
+   *
+   * <p>When a retained WebView is reused, it is re-parented from its previous
+   * container (often {@code R.id.webview_host}, where it was parked to keep
+   * background audio alive) into this fragment's frame. A WebView renders to a
+   * dedicated Surface; moving it between containers can leave that Surface
+   * "frozen" on the previous app's last frame even after we navigate to the new
+   * URL — so the screen keeps showing the old app until the new page paints.
+   * This is exactly the "switch to another app and the previous app's picture
+   * stays on screen" bug. To clear the frozen frame we detach and re-attach the
+   * WebView on the next looper pass, which forces Chromium to recreate its
+   * Surface and repaint the current (new) page.
+   */
+  private WebView resolveWebView(@NonNull View view) {
+    FrameLayout frame = view.findViewById(R.id.browser_web_frame);
+    WebView held = MediaWebViewHolder.getInstance().get();
+    if (held != null) {
+      WebView fresh = view.findViewById(R.id.webview);
+      if (fresh != null && fresh != held) {
+        if (fresh.getParent() instanceof ViewGroup) {
+          ((ViewGroup) fresh.getParent()).removeView(fresh);
+        }
+        fresh.destroy();
+      }
+      if (held.getParent() instanceof ViewGroup) {
+        ((ViewGroup) held.getParent()).removeView(held);
+      }
+      frame.addView(held, new FrameLayout.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+      // Hide the reused WebView immediately so the previous app's last frame
+      // (frozen on the Surface from the prior container) can never be shown
+      // during the re-attach + new-page load. It is made visible again in
+      // WebViewClient.onPageStarted / onPageFinished once the new content
+      // begins painting. See the class javadoc on the residue bug.
+      held.setVisibility(View.INVISIBLE);
+      // Force the WebView's Surface to be recreated so any frozen frame from
+      // the previous container (and thus the previous app) is dropped and the
+      // newly navigated page is shown. See method javadoc. Kept light (no
+      // bringToFront/requestLayout) to avoid an extra layout storm that can
+      // stall the main-window BufferQueue on the slow RK3588 head unit.
+      held.post(() -> {
+        try {
+          if (held.getParent() instanceof ViewGroup) {
+            ViewGroup p = (ViewGroup) held.getParent();
+            p.removeView(held);
+            p.addView(held, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+          }
+          // Stay hidden until the new page paints (onPageStarted).
+          held.setVisibility(View.INVISIBLE);
+        } catch (Exception ignored) {
+          // Best-effort; the navigation to the new URL still proceeds.
+        }
+      });
+      // Last-resort safety net: if no page callback ever fires (e.g. a
+      // navigation that never commits), reveal the WebView after a short delay
+      // so it is never left permanently invisible. By then the Surface rebuild
+      // above has cleared the stale frame, so this only ever shows new content.
+      held.postDelayed(() -> held.setVisibility(View.VISIBLE), 4000);
+      return held;
+    }
+    WebView wv = view.findViewById(R.id.webview);
+    MediaWebViewHolder.getInstance().set(wv);
+    return wv;
+  }
+
+  /**
+   * Starts the foreground MediaSession service (normal start; the service
+   * promotes itself to foreground once it detects an active media element).
+   * Safe to call repeatedly while the fragment is attached.
+   */
+  private void ensurePlaybackService() {
+    try {
+      requireContext().startService(new Intent(requireContext(), PlaybackService.class));
+    } catch (Exception ignore) {
+      // Service start is best-effort; media controls degrade gracefully.
+    }
+  }
+
+  /**
    * Reports whether the browser can navigate back.
    */
   public boolean canGoBack() {
@@ -595,8 +735,68 @@ public final class BrowserFragment extends Fragment {
     }
   }
 
+  /**
+   * Whether a BrowserFragment is currently the visible (foreground) fragment.
+   * {@link com.nspace.mediacenter.media.PlaybackService} reads this to decide
+   * whether it is safe to release the retained WebView when playback stops:
+   * if the user is still looking at the browser page we keep it (they may
+   * resume), but if they have navigated away we free it to reclaim memory.
+   *
+   * <p>Named {@code isBrowserVisible} (not {@code isVisible}) because
+   * {@code Fragment} already declares a non-static {@code isVisible()}; a static
+   * method with the same signature cannot coexist with it and fails to compile.
+   */
+  private static volatile boolean sVisible = false;
+
+  public static boolean isBrowserVisible() {
+    return sVisible;
+  }
+
+  /**
+   * Whether a BrowserFragment instance currently exists (its view is created
+   * and not yet destroyed). Unlike {@link #isBrowserVisible()}, this stays true
+   * while the whole app is backgrounded (fragment paused but alive).
+   *
+   * <p>{@link com.nspace.mediacenter.media.PlaybackService} must NOT release
+   * (destroy) the shared WebView while this is true: the live fragment still
+   * holds a reference to it, and destroying it underneath the fragment leaves a
+   * dead page plus a "destroyed WebView" warning storm from the volumeCheck
+   * poller when the user returns to the app.
+   */
+  private static volatile boolean sAlive = false;
+
+  public static boolean isBrowserAlive() {
+    return sAlive;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    sVisible = true;
+    if (webView != null) {
+      // Resume WebView rendering and JS timers when this fragment is visible
+      // again. resumeTimers() is process-global but we only ever host a single
+      // WebView, so pairing it with pauseTimers() in onPause() is safe.
+      webView.onResume();
+      webView.resumeTimers();
+    }
+  }
+
+  @Override
+  public void onPause() {
+    sVisible = false;
+    // Deliberately do NOT pause the WebView here. Calling onPause() /
+    // pauseTimers() also halts HTMLMediaElement playback, which is exactly the
+    // "music stops when I switch to the home screen" bug. The WebView is
+    // retained (see onDestroyView) and a foreground MediaSession service keeps
+    // the process alive, so audio keeps playing. Rendering naturally stops
+    // because the view is detached from the window while we're in the background.
+    super.onPause();
+  }
+
   @Override
   public void onDestroyView() {
+    sAlive = false;
     volumeHandler.removeCallbacks(volumeCheck);
     // Invalidate any in-flight inject retry chain (see maybeInjectVolumeWidget):
     // its runnables are posted on the WebView/main looper and may still fire
@@ -631,7 +831,43 @@ public final class BrowserFragment extends Fragment {
       } catch (Exception ignored) {
         // Best-effort only; never block teardown.
       }
-      webView.destroy();
+      // Decide whether to keep the WebView alive or release it. We only retain
+      // it when audio is ACTIVELY playing: that is the only case where the user
+      // benefits from background playback. If nothing is playing, we destroy the
+      // WebView (and its ~280MB renderer process) immediately, reverting to the
+      // pre-v1.0.18 behaviour so memory is reclaimed after every browse -- this
+      // is what stops the head unit from feeling sluggish over time.
+      if (PlaybackService.isPlaying()) {
+        // Keep alive: re-parent into the always-on window host
+        // (R.id.webview_host) rather than just removing it from the window. A
+        // WebView that loses its window makes Chromium mark the page "hidden",
+        // which pauses <video>/<audio> playback -- that was the original "music
+        // stops when I go home" bug. Re-parenting keeps it attached to a live,
+        // visible window (merely covered by content_frame), so media continues.
+        // The next BrowserFragment re-attaches it into browser_web_frame and
+        // re-applies the clients.
+        try {
+          webView.setWebChromeClient(null);
+          webView.setWebViewClient(null);
+          final ViewGroup host =
+              (ViewGroup) requireActivity().findViewById(R.id.webview_host);
+          if (host != null) {
+            if (webView.getParent() instanceof ViewGroup) {
+              ((ViewGroup) webView.getParent()).removeView(webView);
+            }
+            host.addView(webView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+          } else if (webView.getParent() instanceof ViewGroup) {
+            ((ViewGroup) webView.getParent()).removeView(webView);
+          }
+        } catch (Exception ignored) {
+          // Best-effort cleanup.
+        }
+      } else {
+        // Nothing playing -> free everything now.
+        MediaWebViewHolder.getInstance().release();
+        PlaybackService.stopIfInactive();
+      }
       webView = null;
     }
     // Tear down any active HTML5 fullscreen view so it doesn't leak into the
