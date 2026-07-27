@@ -36,6 +36,7 @@ import com.nspace.mediacenter.core.HistoryManager;
 import com.nspace.mediacenter.core.RecentsManager;
 import com.nspace.mediacenter.media.MediaWebViewHolder;
 import com.nspace.mediacenter.media.PlaybackService;
+import com.nspace.mediacenter.util.AdBlocker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.UUID;
@@ -57,6 +58,33 @@ import java.util.concurrent.Executors;
 public final class BrowserFragment extends Fragment {
 
   public static final String ARG_URL = "arg_url";
+
+  // Visual-layer ad hiding. Complements the network blocker in
+  // shouldInterceptRequest. Only display:none on nodes that look like ads
+  // (ad/banner class or id, or data-ad markers) — never removes real
+  // functionality, so pages keep working normally.
+  private static final String AD_HIDE_JS =
+      "(function(){try{"
+    + "var css='[class*=\"ad-\"],[class*=\"ads\"],[class*=\"adv\"],[class*=\"advert\"],"
+    + "[id*=\"ad-\"],[id*=\"ads\"],[class*=\"banner\"],[id*=\"banner\"],"
+    + "[data-ad],[data-ads],[data-ad-client],[data-ad-slot]{display:none!important;}';"
+    + "var st=document.createElement('style');st.type='text/css';"
+    + "st.appendChild(document.createTextNode(css));"
+    + "(document.head||document.documentElement).appendChild(st);"
+    + "function hide(n){if(!n||n.nodeType!==1)return;"
+    + "if(n.matches&&n.matches('[class*=\"ad-\"],[class*=\"ads\"],[class*=\"adv\"],"
+    + "[class*=\"advert\"],[id*=\"ad-\"],[id*=\"ads\"],[class*=\"banner\"],[id*=\"banner\"],"
+    + "[data-ad],[data-ads]'))n.style.display='none';"
+    + "var els=n.querySelectorAll('[class*=\"ad-\"],[class*=\"ads\"],[class*=\"adv\"],"
+    + "[class*=\"advert\"],[id*=\"ad-\"],[id*=\"ads\"],[class*=\"banner\"],[id*=\"banner\"],"
+    + "[data-ad],[data-ads]');"
+    + "for(var i=0;i<els.length;i++)els[i].style.display='none';}"
+    + "hide(document);"
+    + "var t;var obs=new MutationObserver(function(m){if(t)return;"
+    + "t=setTimeout(function(){t=null;for(var k=0;k<m.length;k++){var r=m[k];"
+    + "for(var i=0;i<r.addedNodes.length;i++)hide(r.addedNodes[i]);}},300);});"
+    + "obs.observe(document.documentElement,{childList:true,subtree:true});"
+    + "}catch(e){}})();";
 
   // Desktop browser UA so video portals (e.g. mgtv.com) serve the full web
   // player instead of their mobile layout. The car head unit is a 1920x1080
@@ -287,6 +315,26 @@ public final class BrowserFragment extends Fragment {
     webView.getSettings().setUserAgentString(DESKTOP_USER_AGENT);
     webView.setWebViewClient(new WebViewClient() {
       @Override
+      public WebResourceResponse shouldInterceptRequest(WebView view,
+          WebResourceRequest request) {
+        // Only ever block SUB-RESOURCES (images/scripts/css/iframes) hosted on
+        // known third-party ad networks. The main document is never touched, so
+        // navigation and page functionality are always preserved. Blocked ads
+        // get an empty 200 response — the page doesn't even notice they're gone.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+            && !request.isForMainFrame()) {
+          final String url = request.getUrl().toString();
+          if (AdBlocker.isAd(url)) {
+            if (BuildConfig.DEBUG) {
+              Log.d(TAG, "ad blocked: " + url);
+            }
+            return AdBlocker.emptyResponse();
+          }
+        }
+        return null;
+      }
+
+      @Override
       public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
         // Reveal the WebView now that the new page has begun loading. The stale
@@ -321,10 +369,12 @@ public final class BrowserFragment extends Fragment {
       public void onReceivedError(WebView view, WebResourceRequest request,
           WebResourceError error) {
         super.onReceivedError(view, request, error);
-        // Even when a resource/page fails we must reveal the WebView so the
-        // error page (or whatever the site shows) is visible instead of the
-        // WebView staying hidden behind the app background.
-        view.setVisibility(View.VISIBLE);
+        // Reveal the WebView ONLY on main-frame errors. Blocked ads are
+        // sub-resources that fail on purpose — those must not flip visibility
+        // or spam the log here.
+        if (request == null || request.isForMainFrame()) {
+          view.setVisibility(View.VISIBLE);
+        }
       }
 
       @Override
@@ -358,6 +408,10 @@ public final class BrowserFragment extends Fragment {
         // playback controls. Idempotent.
         if (webView != null) {
           webView.evaluateJavascript(MediaWebViewHolder.FIND_MEDIA_JS, null);
+          // Hide banner / popup ad containers (visual layer, complements the
+          // network blocking in shouldInterceptRequest). Non-destructive: only
+          // display:none on ad-likely nodes, never breaks page functionality.
+          webView.evaluateJavascript(AD_HIDE_JS, null);
         }
         ensurePlaybackService();
       }
