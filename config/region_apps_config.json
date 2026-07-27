@@ -227,14 +227,6 @@
         "default": "Amazon Music"
       }
     },
-    "TIDAL": {
-      "category": "audio",
-      "url": "https://tidal.com",
-      "locales": {
-        "default": "TIDAL"
-      },
-      "icon": "ic_tidal"
-    },
     "Crunchyroll": {
       "category": "video",
       "url": "https://www.crunchyroll.com",
@@ -531,14 +523,6 @@
       },
       "icon": "ic_dailymotion"
     },
-    "Plex": {
-      "category": "video",
-      "url": "https://watch.plex.tv/en-GB",
-      "locales": {
-        "default": "Plex"
-      },
-      "icon": "ic_plex"
-    },
     "Iheart": {
       "category": "audio",
       "url": "https://www.iheart.com/",
@@ -782,8 +766,7 @@
         "Spotify",
         "Amazon Music",
         "Apple Music",
-        "Deezer",
-        "TIDAL"
+        "Deezer"
       ],
       "videoTop5": [
         "Disney+",
@@ -801,8 +784,7 @@
         "Spotify",
         "Amazon Music",
         "Apple Music",
-        "Deezer",
-        "TIDAL"
+        "Deezer"
       ],
       "videoTop5": [
         "Disney+",
@@ -820,8 +802,7 @@
         "Spotify",
         "Amazon Music",
         "Apple Music",
-        "Deezer",
-        "TIDAL"
+        "Deezer"
       ],
       "videoTop5": [
         "Disney+",
@@ -951,7 +932,6 @@
       "continent": "东欧",
       "audioTop5": [
         "Spotify",
-        "TIDAL",
         "Deezer",
         "Apple Music",
         "SoundCloud"
@@ -969,7 +949,6 @@
       "continent": "东欧",
       "audioTop5": [
         "Spotify",
-        "TIDAL",
         "Apple Music",
         "Deezer",
         "SoundCloud"
@@ -1123,7 +1102,6 @@
         "Spotify",
         "Apple Music",
         "Deezer",
-        "TIDAL",
         "SoundCloud"
       ],
       "videoTop5": [
@@ -1142,7 +1120,6 @@
         "Spotify",
         "SoundCloud",
         "Apple Music",
-        "TIDAL",
         "Amazon Music"
       ],
       "videoTop5": [
@@ -1181,15 +1158,13 @@
         "Iheart",
         "Deezer",
         "Stingray",
-        "YouTube Music",
-        "TIDAL"
+        "YouTube Music"
       ],
       "videoTop5": [
         "WeTV",
         "YouTube",
         "Tiktok",
         "Dailymotion",
-        "Plex",
         "Distro",
         "Oil Hunt",
         "Toongoggles",

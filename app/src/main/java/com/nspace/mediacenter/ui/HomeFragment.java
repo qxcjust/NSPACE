@@ -127,14 +127,35 @@ public final class HomeFragment extends Fragment {
       appsContainer.addView(card);
     }
 
-    // Reset the scroller to the left edge so the large tiles always start from
-    // the first app.  Disable saved state so the car launcher doesn't restore a
-    // previous scroll position after reinstalling the app.
+    // Restore the last scroll position so the user doesn't have to swipe all
+    // the way back to where they were on every Home entry.  We persist the
+    // offset ourselves (SharedPreferences) instead of relying on view state,
+    // which the car launcher discards across process restarts.  scrollTo()
+    // clamps automatically, so a stale offset larger than the new content
+    // width (e.g. after apps were removed) degrades gracefully.
     HorizontalScrollView appsScroll = root.findViewById(R.id.apps_scroll);
     if (appsScroll != null) {
       appsScroll.setSaveEnabled(false);
       appsContainer.setSaveEnabled(false);
-      appsScroll.post(() -> appsScroll.scrollTo(0, 0));
+      final int savedX = prefs().getInt(KEY_APPS_SCROLL_X, 0);
+      appsScroll.post(() -> appsScroll.scrollTo(savedX, 0));
+      // Persist as the user scrolls (cheap: in-memory write, async disk flush).
+      appsScroll.setOnScrollChangeListener((v, x, y, ox, oy) ->
+          prefs().edit().putInt(KEY_APPS_SCROLL_X, x).apply());
+    }
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    // Belt-and-braces: capture the final position when leaving Home (covers
+    // fling-in-progress edge cases where the last scroll callback might race).
+    View root = getView();
+    if (root != null) {
+      HorizontalScrollView appsScroll = root.findViewById(R.id.apps_scroll);
+      if (appsScroll != null) {
+        prefs().edit().putInt(KEY_APPS_SCROLL_X, appsScroll.getScrollX()).apply();
+      }
     }
   }
 
@@ -367,6 +388,8 @@ public final class HomeFragment extends Fragment {
 
   private static final String PREFS_NAME = "nspace_prefs";
   private static final String KEY_OVERRIDE_REGION = "override_region";
+  /** Persisted horizontal offset of the Favorite Apps row (px). */
+  private static final String KEY_APPS_SCROLL_X = "apps_scroll_x";
 
   /** Show a single-choice dialog listing all target regions + "follow system". */
   private void showRegionPicker() {
@@ -394,6 +417,9 @@ public final class HomeFragment extends Fragment {
         .setSingleChoiceItems(items, checked, (dialog, which) -> {
           String sel = (which == 0) ? null : codes.get(which - 1);
           saveOverrideRegion(sel);
+          // The app list is about to change entirely; a remembered offset from
+          // the old region would land the user in a random spot. Start fresh.
+          prefs().edit().putInt(KEY_APPS_SCROLL_X, 0).apply();
           dialog.dismiss();
           updateRegionBadge(requireView().findViewById(R.id.region_badge));
           final float density = getResources().getDisplayMetrics().density;
