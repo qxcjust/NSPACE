@@ -134,8 +134,57 @@ public final class AdBlocker {
         }
     }
 
+    // Sites with anti-adblock walls that block core content when ads are
+    // intercepted. Whitelisting them disables network + visual ad blocking
+    // for that page so playback/navigation keeps working (per the "no broken
+    // functionality" design guarantee).
+    private static final String[] AD_BLOCK_WHITELIST_HOSTS = {
+            "distro.tv",
+    };
+
     private AdBlocker() {
         // utility class
+    }
+
+    /** Extract the host from an http(s) URL, or null if unavailable. */
+    private static String hostOf(final String url) {
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+        final String lower = url.toLowerCase();
+        if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+            return null;
+        }
+        int hostStart = lower.indexOf("://") + 3;
+        if (hostStart < 3) {
+            return null;
+        }
+        int hostEnd = lower.indexOf('/', hostStart);
+        String host = (hostEnd < 0) ? lower.substring(hostStart)
+                : lower.substring(hostStart, hostEnd);
+        // Strip optional port.
+        int portIdx = host.indexOf(':');
+        if (portIdx >= 0) {
+            host = host.substring(0, portIdx);
+        }
+        return host;
+    }
+
+    /**
+     * @return true if the page URL belongs to a site where ad blocking must be
+     *         disabled to avoid anti-adblock walls that break functionality.
+     */
+    public static boolean isHostWhitelisted(final String pageUrl) {
+        final String host = hostOf(pageUrl);
+        if (host == null) {
+            return false;
+        }
+        for (final String w : AD_BLOCK_WHITELIST_HOSTS) {
+            if (host.equals(w) || host.endsWith("." + w)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

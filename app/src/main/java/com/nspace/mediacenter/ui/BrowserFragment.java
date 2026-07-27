@@ -9,6 +9,8 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import android.util.Log;
 import android.os.Handler;
 import android.os.Looper;
@@ -190,6 +192,11 @@ public final class BrowserFragment extends Fragment {
 
   // Throttle consecutive snapshots of the same URL (e.g. reloads / back-forward)
   private String lastCaptureUrl;
+
+  // Track the current page URL so shouldInterceptRequest can disable ad
+  // blocking on sites with anti-adblock walls (e.g. distro.tv) that would
+  // otherwise break functionality. Updated on the UI thread in onPageStarted.
+  private volatile String mCurrentUrl;
   private long lastCaptureTime;
 
   // Background thread for snapshot encoding + disk write, so a captured frame
@@ -317,6 +324,12 @@ public final class BrowserFragment extends Fragment {
       @Override
       public WebResourceResponse shouldInterceptRequest(WebView view,
           WebResourceRequest request) {
+        // Sites like distro.tv deploy anti-adblock walls that block playback
+        // entirely when ad requests are intercepted. For those hosts we give up
+        // ad blocking so functionality is preserved.
+        if (AdBlocker.isHostWhitelisted(mCurrentUrl)) {
+          return null;
+        }
         // Only ever block SUB-RESOURCES (images/scripts/css/iframes) hosted on
         // known third-party ad networks. The main document is never touched, so
         // navigation and page functionality are always preserved. Blocked ads
@@ -337,6 +350,10 @@ public final class BrowserFragment extends Fragment {
       @Override
       public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
+        // Remember the page we are navigating to. Ad blocking is disabled for
+        // whitelisted hosts (e.g. distro.tv) that show anti-adblock walls which
+        // block core functionality when ads are intercepted.
+        mCurrentUrl = url;
         // Reveal the WebView now that the new page has begun loading. The stale
         // frame from the previous app was hidden in resolveWebView and cleared
         // by the Surface rebuild, so showing it now only ever reveals the new
@@ -347,8 +364,7 @@ public final class BrowserFragment extends Fragment {
       @Override
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         String url = request == null ? null : request.getUrl().toString();
-        if (url != null && !url.startsWith("http://") && !url.startsWith("https://")
-            && !url.startsWith("about:") && !url.startsWith("javascript:")) {
+        if (interceptUrl(view, url)) {
           return true;
         }
         return super.shouldOverrideUrlLoading(view, request);
@@ -358,11 +374,30 @@ public final class BrowserFragment extends Fragment {
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
         // Block custom app schemes (e.g. baiduhaokan://) that the WebView cannot
         // render. Letting them through shows ERR_UNKNOWN_URL_SCHEME.
-        if (url != null && !url.startsWith("http://") && !url.startsWith("https://")
-            && !url.startsWith("about:") && !url.startsWith("javascript:")) {
+        if (interceptUrl(view, url)) {
           return true;
         }
         return super.shouldOverrideUrlLoading(view, url);
+      }
+
+      // Returns true if the navigation was consumed (either blocked as a custom
+      // scheme, or rewritten to a playback-friendly URL like the Dailymotion
+      // embed player). Lets super handle everything else.
+      private boolean interceptUrl(WebView view, String url) {
+        if (url == null) {
+          return false;
+        }
+        if (!url.startsWith("http://") && !url.startsWith("https://")
+            && !url.startsWith("about:") && !url.startsWith("javascript:")) {
+          return true; // block non-http(s) custom schemes
+        }
+        String rewritten = rewriteForPlayback(url);
+        if (!rewritten.equals(url)) {
+          Log.d(TAG, "interceptUrl rewrite: " + url + " -> " + rewritten);
+          view.loadUrl(rewritten);
+          return true;
+        }
+        return false;
       }
 
       @Override
@@ -411,7 +446,11 @@ public final class BrowserFragment extends Fragment {
           // Hide banner / popup ad containers (visual layer, complements the
           // network blocking in shouldInterceptRequest). Non-destructive: only
           // display:none on ad-likely nodes, never breaks page functionality.
-          webView.evaluateJavascript(AD_HIDE_JS, null);
+          // Skip for whitelisted hosts (e.g. distro.tv) whose anti-adblock wall
+          // would otherwise block core content.
+          if (!AdBlocker.isHostWhitelisted(url)) {
+            webView.evaluateJavascript(AD_HIDE_JS, null);
+          }
         }
         ensurePlaybackService();
       }
@@ -676,6 +715,27 @@ public final class BrowserFragment extends Fragment {
     });
   }
 
+  // Dailymotion's full watch page leans on a heavy GraphQL/SSR API surface
+  // that several car networks block or TLS-reset (surfaces as the
+  // "Playback error / check your internet connection" screen). The bare
+  // embed player ships a much smaller request set and usually survives those
+  // restrictions, so redirect /video/<id> → /embed/video/<id> to land the user
+  // on a playable player instead of the broken watch page.
+  private static final Pattern DAILYMOTION_VIDEO = Pattern.compile(
+      "(?i)^(https?://(?:www\\.)?dailymotion\\.com)/video/([A-Za-z0-9_]+)(.*)$");
+
+  private static String rewriteForPlayback(String url) {
+    if (url == null) {
+      return url;
+    }
+    Matcher m = DAILYMOTION_VIDEO.matcher(url);
+    if (m.matches()) {
+      String tail = m.group(3) == null ? "" : m.group(3);
+      return m.group(1) + "/embed/video/" + m.group(2) + tail;
+    }
+    return url;
+  }
+
   private void loadUrl(String raw) {
     if (raw == null || raw.isEmpty()) {
       return;
@@ -685,7 +745,11 @@ public final class BrowserFragment extends Fragment {
         && !target.startsWith("about:") && !target.startsWith("file:")) {
       target = "https://" + target;
     }
-    webView.loadUrl(target);
+    String rewritten = rewriteForPlayback(target);
+    if (!rewritten.equals(target)) {
+      Log.d(TAG, "loadUrl rewrite: " + target + " -> " + rewritten);
+    }
+    webView.loadUrl(rewritten);
   }
 
   /**
