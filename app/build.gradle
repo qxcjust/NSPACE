@@ -30,19 +30,18 @@ android {
     }
   }
 
-  // ---- Semantic version: single source of truth (MAJOR.MINOR.PATCH) ----
-  // Bump these three numbers on every release; versionCode is derived and
-  // always increases monotonically (MAJOR*10000 + MINOR*100 + PATCH).
-  def verMajor = 1
-  def verMinor = 0
-  def verPatch = 27
+  // ---- Version: single source of truth ----
+  // Release v2.1.0.28 = "2." prefix on the original 1.0.x line, trailing
+  // patch bumped 27 -> 28. versionCode stays strictly monotonic (was 10027).
+  def appVersionName = "2.1.0.28"
+  def appVersionCode = 2010028   // 2*1_000_000 + 1*10_000 + 0*100 + 28
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
     minSdk 24
     targetSdk 33
-    versionCode verMajor * 10000 + verMinor * 100 + verPatch
-    versionName "${verMajor}.${verMinor}.${verPatch}"
+    versionCode appVersionCode
+    versionName appVersionName
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     // AES-256-GCM keys are NO LONGER injected as BuildConfig literals: a single
