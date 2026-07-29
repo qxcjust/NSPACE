@@ -3,6 +3,7 @@ package com.nspace.mediacenter;
 import android.app.Application;
 import com.tencent.mmkv.MMKV;
 import com.nspace.mediacenter.core.AccountManager;
+import com.nspace.mediacenter.util.AppIntegrity;
 import com.nspace.mediacenter.core.BookmarkManager;
 import com.nspace.mediacenter.core.DownloadManager;
 import com.nspace.mediacenter.core.HistoryManager;
@@ -27,6 +28,11 @@ public final class NspaceApplication extends Application {
 
     // MMKV must be initialised once, before any encode/decode call.
     MMKV.initialize(this);
+
+    // Warm the integrity check early; enforce() is also called from the launch
+    // Activity and the device-binding gate so a single patched call site is not
+    // enough to bypass tamper detection.
+    AppIntegrity.verify(this);
 
     // Pre-load persisted state into the managers.
     BookmarkManager.getInstance();

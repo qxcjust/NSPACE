@@ -40,3 +40,10 @@ captures/
 mmkv/Android/
 mmkv/Core/
 mmkv/.git
+
+# Local build/secret tooling (not part of source tree)
+_secrets.json
+_gen_secrets.py
+vin_enc_new/
+nul
+NSPACE_v1.0.27.md

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
+import com.nspace.mediacenter.util.AppIntegrity;
 import com.nspace.mediacenter.util.DeviceBinder;
 import com.nspace.mediacenter.util.VinRemoteChecker;
 
@@ -24,6 +25,15 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    // Integrity gate: a repackaged (re-signed) or debugged binary is rejected
+    // before any UI or binding logic runs.
+    if (!AppIntegrity.verify(this)) {
+      mLocked = true;
+      setContentView(R.layout.activity_lock);
+      enableImmersiveMode();
+      return;
+    }
 
     // Device binding: if the app is bound to a specific car VIN and this unit
     // doesn't match, show the lock screen and stop. We never reach the home UI.

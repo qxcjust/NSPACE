@@ -3,7 +3,7 @@ package com.nspace.mediacenter.config;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import com.nspace.mediacenter.BuildConfig;
+import com.nspace.mediacenter.util.KeyVault;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -177,13 +177,15 @@ public final class RegionAppsConfig {
   }
 
   /**
-   * Returns the VIN this build is bound to, or {@code null} if device-binding is
-   * not configured (the app then runs unbound). Compared case-insensitively
-   * against the live VIN by {@link com.nspace.mediacenter.util.DeviceBinder}.
+   * Returns the SHA-256 (hex) of the VIN this build is bound to, or {@code null}
+   * if device-binding is not configured (the app then runs unbound). The raw VIN
+   * is never stored in the config — only its hash — so it cannot be read back out
+   * of the encrypted asset. {@link com.nspace.mediacenter.util.DeviceBinder}
+   * compares this against the SHA-256 of the live VIN.
    */
-  public String getBoundVin() {
-    if (!rawRoot.has("bound_vin")) return null;
-    String v = rawRoot.optString("bound_vin", "");
+  public String getBoundVinHash() {
+    if (!rawRoot.has("bound_vin_hash")) return null;
+    String v = rawRoot.optString("bound_vin_hash", "");
     return v.isEmpty() ? null : v;
   }
 
@@ -232,7 +234,7 @@ public final class RegionAppsConfig {
     }
     byte[] iv = Arrays.copyOfRange(data, 0, GCM_IV_LEN);
     byte[] ct = Arrays.copyOfRange(data, GCM_IV_LEN, data.length);
-    byte[] key = hexToBytes(BuildConfig.NSPACE_CONFIG_KEY);
+    byte[] key = KeyVault.configKey();
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
     Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
     cipher.init(Cipher.DECRYPT_MODE, keySpec, new GCMParameterSpec(GCM_TAG_BITS, iv));

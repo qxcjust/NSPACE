@@ -2,7 +2,7 @@ package com.nspace.mediacenter.util;
 
 import android.os.Handler;
 import android.os.Looper;
-import com.nspace.mediacenter.BuildConfig;
+import com.nspace.mediacenter.util.KeyVault;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -18,7 +18,8 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * <p>On start the app reads the live car VIN, builds the per-VIN URL
  * {@code <VIN_REMOTE_URL><VIN>.enc}, fetches that encrypted file from GitHub
- * Pages, decrypts it locally with {@link BuildConfig#VIN_REMOTE_KEY}, and
+ * Pages, decrypts it locally with the key reconstructed by
+ * {@link com.nspace.mediacenter.util.KeyVault#vinRemoteKey()}, and
  * compares the plaintext to the live VIN. One file per authorized vehicle.
  *
  * <ul>
@@ -67,7 +68,7 @@ public final class VinRemoteChecker {
     }
     byte[] data;
     try {
-      data = download(BuildConfig.VIN_REMOTE_URL + current + ".enc");
+      data = download(KeyVault.vinRemoteUrl() + current + ".enc");
     } catch (java.io.FileNotFoundException e) {
       // The per-VIN file is not published -> this vehicle is not on the
       // remote allowlist. Treat as a definitive revoke.
@@ -82,7 +83,7 @@ public final class VinRemoteChecker {
     try {
       byte[] iv = Arrays.copyOfRange(data, 0, IV_LEN);
       byte[] ctWithTag = Arrays.copyOfRange(data, IV_LEN, data.length);
-      byte[] key = hexToBytes(BuildConfig.VIN_REMOTE_KEY);
+      byte[] key = KeyVault.vinRemoteKey();
       if (key == null || key.length != 32) {
         return Result.OFFLINE;
       }

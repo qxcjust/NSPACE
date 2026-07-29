@@ -3,4 +3,4 @@
      The resource shrinker cannot detect getIdentifier("ic_...", "drawable", ...) references,
      so it replaces these PNGs with dummy black files unless we keep them explicitly. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_*" />
+    tools:keep="@drawable/ic_* , @xml/network_security_config" />

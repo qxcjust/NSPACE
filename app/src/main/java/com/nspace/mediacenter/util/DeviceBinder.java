@@ -2,6 +2,9 @@ package com.nspace.mediacenter.util;
 
 import android.content.Context;
 import com.nspace.mediacenter.config.RegionAppsConfig;
+import com.nspace.mediacenter.util.AppIntegrity;
+import java.security.MessageDigest;
+import java.util.Locale;
 
 /**
  * Device-binding gate. The app can be bound to a single car unit by VIN,
@@ -27,9 +30,13 @@ public final class DeviceBinder {
    * Evaluate the binding for the current device.
    */
   public static Result check(Context ctx) {
+    // Tamper gate: a repackaged or debugged binary must never be authorized.
+    if (!AppIntegrity.verify(ctx)) {
+      return Result.LOCKED_MISMATCH;
+    }
     RegionAppsConfig cfg = RegionAppsConfig.getInstance(ctx);
-    String bound = (cfg != null) ? cfg.getBoundVin() : null;
-    if (bound == null || bound.isEmpty()) {
+    String boundHash = (cfg != null) ? cfg.getBoundVinHash() : null;
+    if (boundHash == null || boundHash.isEmpty()) {
       return Result.NO_BINDING;
     }
     String current = VinReader.getVin();
@@ -37,7 +44,34 @@ public final class DeviceBinder {
       // We cannot confirm this is the bound car, so fail closed.
       return Result.LOCKED_UNREADABLE;
     }
-    return current.equalsIgnoreCase(bound.trim()) ? Result.OK : Result.LOCKED_MISMATCH;
+    // Compare the SHA-256 of the live VIN against the stored hash. The raw VIN is
+    // never present in the config, and the comparison is constant-time.
+    String currentHash = sha256Hex(current.toUpperCase(Locale.US));
+    return constantTimeEquals(currentHash, boundHash) ? Result.OK : Result.LOCKED_MISMATCH;
+  }
+
+  /** SHA-256 of {@code s}, hex-encoded, lowercase. */
+  private static String sha256Hex(String s) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA-256");
+      byte[] d = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      StringBuilder sb = new StringBuilder(d.length * 2);
+      for (byte b : d) sb.append(String.format("%02x", b));
+      return sb.toString();
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  /** Constant-time string comparison to avoid hash-timing side channels. */
+  private static boolean constantTimeEquals(String a, String b) {
+    if (a == null || b == null) return false;
+    byte[] ba = a.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    byte[] bb = b.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    if (ba.length != bb.length) return false;
+    int r = 0;
+    for (int i = 0; i < ba.length; i++) r |= (ba[i] ^ bb[i]);
+    return r == 0;
   }
 
   /** True when the app is allowed to run on this device. */

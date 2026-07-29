@@ -22,6 +22,7 @@ android {
     release {
       if (storeFileProp != null && storePass != null && keyAliasProp != null && keyPass != null) {
         storeFile file(storeFileProp)
+        storeType "PKCS12"
         storePassword storePass
         keyAlias keyAliasProp
         keyPassword keyPass
@@ -34,7 +35,7 @@ android {
   // always increases monotonically (MAJOR*10000 + MINOR*100 + PATCH).
   def verMajor = 1
   def verMinor = 0
-  def verPatch = 26
+  def verPatch = 27
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
@@ -44,31 +45,29 @@ android {
     versionName "${verMajor}.${verMinor}.${verPatch}"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-    // AES-256-GCM key for the encrypted region_apps_config.enc asset.
-    // Source of truth is the gitignored nspace.config.key in local.properties.
-    // If absent, the field is empty and the app safely falls back to built-in defaults.
-    def cfgKey = localProps.getProperty('nspace.config.key')
-    buildConfigField "String", "NSPACE_CONFIG_KEY", "\"" + (cfgKey != null ? cfgKey : "") + "\""
-
-    // AES-256-GCM key + endpoint base for the remote VIN revocation check.
-    // The app reads the live car VIN, then fetches "<base><VIN>.enc" from
-    // GitHub Pages (one encrypted file per authorized VIN), decrypts it
-    // locally, and compares the plaintext to the live VIN. This lets the
-    // allowlist be rotated/revoked without re-shipping the APK: to revoke a
-    // unit, simply delete its <VIN>.enc from the Pages repo. The key is
-    // gitignored (local.properties); the endpoint base defaults to the company
-    // GitHub Pages site. Offline / missing file => trust local binding.
-    def vinRemoteKey = localProps.getProperty('nspace.vin_remote.key')
+    // AES-256-GCM keys are NO LONGER injected as BuildConfig literals: a single
+    // regex over classes.dex could previously extract them. They are now
+    // reconstructed at runtime from obfuscated fragments in util/KeyVault, which
+    // reads the build-time secrets from local.properties only to ENCRYPT the
+    // assets — the plaintext key never ships in the APK.
+    //
+    // The remote VIN revocation check still needs its endpoint base; that is a
+    // public URL, not a secret, so it remains here.
     def vinRemoteUrl = localProps.getProperty('nspace.vin_remote.url')
-    buildConfigField "String", "VIN_REMOTE_KEY", "\"" + (vinRemoteKey != null ? vinRemoteKey : "") + "\""
     buildConfigField "String", "VIN_REMOTE_URL", "\"" + (vinRemoteUrl != null ? vinRemoteUrl : "https://www.cyaispace.tech/vin/") + "\""
   }
 
   buildTypes {
     release {
-      // Anti-decompile: full R8 obfuscation + optimization + resource shrinking.
+      // Anti-decompile: full R8 obfuscation + optimization.
+      // NOTE: shrinkResources is intentionally DISABLED. The resource shrinker
+      // silently drops res/xml/network_security_config.xml (referenced only via
+      // android:networkSecurityConfig in the manifest, which it does not treat as
+      // a keep-reachable reference), breaking TLS certificate pinning. Code-level
+      // hardening (R8 + key obfuscation + self-integrity) is unaffected; the
+      // marginal APK size gain is not worth losing the pinning.
       minifyEnabled true
-      shrinkResources true
+      shrinkResources false
       zipAlignEnabled true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.release
