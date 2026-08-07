@@ -31,5 +31,20 @@
             android:text="@string/lock_message"
             android:textColor="#9AA0A6"
             android:textSize="24sp" />
+
+        <!-- Device ID shown below the supplier-contact prompt so the supplier
+             can copy the exact value to authorize this device. Hidden unless a
+             deviceId is provided. -->
+        <TextView
+            android:id="@+id/lock_device_id_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#4FC3F7"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

@@ -86,23 +86,29 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
   /**
    * Lock screen for an authorization failure. When {@code deviceId} is provided
-   * it is shown so the supplier knows exactly which &lt;id&gt;.enc to publish on
-   * GitHub Pages to authorize this device.
+   * it is shown in a dedicated line below the supplier-contact prompt, so the
+   * supplier can copy the exact value to publish the right
+   * {@code aid/<id>.enc} on GitHub Pages to authorize this device.
    */
   private void showLockScreen(String deviceId) {
     mLocked = true;
     setContentView(R.layout.activity_lock);
     TextView title = findViewById(R.id.lock_title_text);
     TextView msg = findViewById(R.id.lock_message_text);
+    TextView deviceIdView = findViewById(R.id.lock_device_id_text);
     if (title != null) {
       title.setText(R.string.lock_title);
     }
     if (msg != null) {
-      String message = getString(R.string.lock_message);
+      msg.setText(R.string.lock_message);
+    }
+    if (deviceIdView != null) {
       if (deviceId != null && !deviceId.isEmpty()) {
-        message += "\n\nDevice ID: " + deviceId;
+        deviceIdView.setText("Device ID: " + deviceId);
+        deviceIdView.setVisibility(View.VISIBLE);
+      } else {
+        deviceIdView.setVisibility(View.GONE);
       }
-      msg.setText(message);
     }
     enableImmersiveMode();
   }

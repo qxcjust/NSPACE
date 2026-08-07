@@ -31,17 +31,16 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.34 = v2.1.0.33 + two correctness fixes that unblock first-
-  // time authorization on a real device, plus a small operator aid:
-  //   1. TLS cert pins refreshed to the live chain (YR1 / ISRG Root YR) — done
-  //      in 2.1.0.33.
-  //   2. The lock screen now prints the device's own ANDROID_ID, because the
-  //      per-app ANDROID_ID (what the app actually authorizes against) differs
-  //      from `adb shell settings get secure android_id` (shell context). This
-  //      tells the supplier exactly which <id>.enc to publish.
+  // Release v2.1.0.35 = v2.1.0.34 + lock-screen polish: the device's own
+  // ANDROID_ID is now rendered in a dedicated, accent-colored line BELOW the
+  // "contact your supplier to authorize this device" prompt (separate TextView
+  // in activity_lock.xml), instead of being appended to the message text. This
+  // makes the value the supplier must copy unambiguous. The per-app ANDROID_ID
+  // gotcha (app value != `adb shell settings get secure android_id`) still
+  // applies — authorize against the ID shown on the lock screen.
   // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.34"
-  def appVersionCode = 2010034   // 2*1_000_000 + 1*10_000 + 0*100 + 34
+  def appVersionName = "2.1.0.35"
+  def appVersionCode = 2010035   // 2*1_000_000 + 1*10_000 + 0*100 + 35
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
