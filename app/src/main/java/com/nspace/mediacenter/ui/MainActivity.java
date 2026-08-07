@@ -104,7 +104,9 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
     }
     if (deviceIdView != null) {
       if (deviceId != null && !deviceId.isEmpty()) {
-        deviceIdView.setText("Device ID: " + deviceId);
+        // Show the bare device number only (no "Device ID" label), so the
+        // supplier can copy the exact value to publish aid/<id>.enc.
+        deviceIdView.setText(deviceId);
         deviceIdView.setVisibility(View.VISIBLE);
       } else {
         deviceIdView.setVisibility(View.GONE);

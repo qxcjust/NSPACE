@@ -31,14 +31,14 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.36 = v2.1.0.35 + startup copy fix: the verifying screen
-  // text (string verifying_title, shown while the ANDROID_ID remote auth check
-  // runs) changed from "Verifying device authorization…" to the neutral
-  // "Starting" / 启动中, and is now translated into all 7 supported languages
-  // (en/zh/es/pt/ru/th/my/ms) instead of silently falling back to English.
+  // Release v2.1.0.37 = v2.1.0.36 + lock-screen polish: the unauthorized screen
+  // now shows the bare device number (the ANDROID_ID the app authorizes
+  // against) with no "Device ID:" label, so the supplier copies exactly the
+  // value needed for aid/<id>.enc. The per-app ANDROID_ID gotcha still applies
+  // (app value != `adb shell settings get secure android_id`).
   // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.36"
-  def appVersionCode = 2010036   // 2*1_000_000 + 1*10_000 + 0*100 + 36
+  def appVersionName = "2.1.0.37"
+  def appVersionCode = 2010037   // 2*1_000_000 + 1*10_000 + 0*100 + 37
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
