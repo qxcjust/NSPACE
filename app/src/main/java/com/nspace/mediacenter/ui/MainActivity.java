@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.util.AppIntegrity;
-import com.nspace.mediacenter.util.TrialLimiter;
+import com.nspace.mediacenter.util.AuthorizationCache;
+import com.nspace.mediacenter.util.DeviceId;
+import com.nspace.mediacenter.util.RemoteAuthorizer;
 
 /**
  * Host activity for NSpace.
@@ -35,35 +37,60 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
       return;
     }
 
-    // 7-day free trial gate: the open build runs with no authorization step,
-    // but only for a fixed window from first launch. Once it elapses the UI
-    // locks (the user is told the trial expired, not "unauthorized device").
-    if (TrialLimiter.isExpired(this)) {
-      mLocked = true;
-      setContentView(R.layout.activity_lock);
-      TextView title = findViewById(R.id.lock_title_text);
-      TextView msg = findViewById(R.id.lock_message_text);
-      if (title != null) {
-        title.setText(R.string.lock_title_trial);
-      }
-      if (msg != null) {
-        msg.setText(R.string.lock_message_trial);
-      }
-      enableImmersiveMode();
-      return;
-    }
+    // ANDROID_ID-based remote authorization gate. The app fetches
+    // "<AID_REMOTE_URL>/<android_id>.enc", decrypts it with the shared key, and
+    // only enters the home UI when the file both exists and decrypts to this
+    // device's own ID. Publishing the file authorizes the device; deleting it
+    // revokes. A device that was never authorized and is offline stays locked.
+    mLocked = true;
+    setContentView(R.layout.activity_verifying);
+    enableImmersiveMode();
 
-    // No VIN binding / remote authorization gate: install and run freely so the
-    // customer can validate functionality directly.
+    final String deviceId = DeviceId.getDeviceId(this);
+    RemoteAuthorizer.verify(this, result -> {
+      switch (result) {
+        case PASS:
+          AuthorizationCache.grant(this, deviceId);
+          enterMain();
+          break;
+        case REVOKED:
+          AuthorizationCache.revoke(this);
+          showLockScreen();
+          break;
+        case OFFLINE:
+          if (AuthorizationCache.hasGrant(this, deviceId)) {
+            enterMain();
+          } else {
+            showLockScreen();
+          }
+          break;
+      }
+    });
+  }
+
+  /** Swap the verification screen for the main UI (authorization granted). */
+  private void enterMain() {
     mLocked = false;
     setContentView(R.layout.activity_main);
-
     handleLaunchIntent(getIntent());
-    if (savedInstanceState == null
-        && getSupportFragmentManager().findFragmentById(R.id.content_frame) == null) {
+    if (getSupportFragmentManager().findFragmentById(R.id.content_frame) == null) {
       goHome();
     }
+    enableImmersiveMode();
+  }
 
+  /** Replace whatever is on screen with the lock screen (unauthorized). */
+  private void showLockScreen() {
+    mLocked = true;
+    setContentView(R.layout.activity_lock);
+    TextView title = findViewById(R.id.lock_title_text);
+    TextView msg = findViewById(R.id.lock_message_text);
+    if (title != null) {
+      title.setText(R.string.lock_title);
+    }
+    if (msg != null) {
+      msg.setText(R.string.lock_message);
+    }
     enableImmersiveMode();
   }
 

@@ -11,7 +11,7 @@
  * Each file holds a SINGLE VIN, AES-256-GCM encrypted, wire format:
  *   [12-byte IV][ciphertext][16-byte GCM tag].
  *
- * Key source of truth: nspace.vin_remote.key in local.properties (gitignored).
+ * Key source of truth: nspace.aid_remote.key in local.properties (gitignored).
  * Default VIN: bound_vin from config/region_apps_config.json.
  *
  * Usage:
@@ -51,9 +51,9 @@ function main() {
   const vinArg = process.argv[2];
   const dirArg = process.argv[3];
 
-  const hexKey = readLocalProp('nspace.vin_remote.key');
+  const hexKey = readLocalProp('nspace.aid_remote.key');
   if (!hexKey || hexKey.length !== 64) {
-    console.error('ERROR: nspace.vin_remote.key (64 hex chars) missing in local.properties');
+    console.error('ERROR: nspace.aid_remote.key (64 hex chars) missing in local.properties');
     process.exit(1);
   }
   const key = Buffer.from(hexKey, 'hex');

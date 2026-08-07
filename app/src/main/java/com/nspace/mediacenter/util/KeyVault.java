@@ -28,17 +28,19 @@ public final class KeyVault {
   private static final String CFG_MASK =
       "0a8abbf4c0384bd650d5fbbc04016d900a8abbf442ccda2a86f5fc6c50d5fbbc";
 
-  // ── remote vin.enc key material (obfuscated) ──
-  private static final String[] VIN_FRAGS = {
+  // ── remote authorization (.enc allowlist) key material (obfuscated) ──
+  // Shared by both the legacy /vin (per-VIN) and the new /aid (per-ANDROID_ID)
+  // allowlists. Same reconstruction scheme as above.
+  private static final String[] REMOTE_FRAGS = {
       "8ac1ac62", "bfcaee40", "46144dff", "9ee77706",
       "b95ed407", "fb15021b", "7b1f9e14", "0600ac3d"
   };
-  private static final int[] VIN_ORDER = { 0, 3, 5, 4, 1, 6, 7, 2 };
-  private static final String VIN_MASK =
+  private static final int[] REMOTE_ORDER = { 0, 3, 5, 4, 1, 6, 7, 2 };
+  private static final String REMOTE_MASK =
       "00000000212d9946bd014fe427b9a30106943a47800a9c0f7d1f32294014e1c2";
 
   private static volatile byte[] sCfg;
-  private static volatile byte[] sVin;
+  private static volatile byte[] sRemote;
 
   private KeyVault() {
   }
@@ -53,22 +55,14 @@ public final class KeyVault {
     return sCfg;
   }
 
-  /** AES-256 key (32 bytes) for decrypting the remote per-VIN revocation file. */
-  public static byte[] vinRemoteKey() {
-    if (sVin == null) {
+  /** AES-256 key (32 bytes) for decrypting the remote authorization .enc files. */
+  public static byte[] remoteKey() {
+    if (sRemote == null) {
       synchronized (KeyVault.class) {
-        if (sVin == null) sVin = reconstruct(VIN_FRAGS, VIN_ORDER, VIN_MASK);
+        if (sRemote == null) sRemote = reconstruct(REMOTE_FRAGS, REMOTE_ORDER, REMOTE_MASK);
       }
     }
-    return sVin;
-  }
-
-  /**
-   * Base URL for the remote per-VIN revocation allowlist. This is a public
-   * endpoint (not a secret), shipped as a plain constant.
-   */
-  public static String vinRemoteUrl() {
-    return "https://www.cyaispace.tech/vin/";
+    return sRemote;
   }
 
   /** Reassemble fragments by {@code order}, then XOR with {@code maskHex}. */

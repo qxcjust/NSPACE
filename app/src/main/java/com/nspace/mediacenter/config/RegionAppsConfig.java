@@ -177,11 +177,10 @@ public final class RegionAppsConfig {
   }
 
   /**
-   * Returns the SHA-256 (hex) of the VIN this build is bound to, or {@code null}
-   * if device-binding is not configured (the app then runs unbound). The raw VIN
-   * is never stored in the config — only its hash — so it cannot be read back out
-   * of the encrypted asset. {@link com.nspace.mediacenter.util.DeviceBinder}
-   * compares this against the SHA-256 of the live VIN.
+   * Returns the SHA-256 (hex) of the device this build was historically bound
+   * to, or {@code null} if no binding is configured. Retained for compatibility
+   * with the encrypted config schema; the current build authorizes devices via
+   * the remote ANDROID_ID allowlist instead of a local VIN hash.
    */
   public String getBoundVinHash() {
     if (!rawRoot.has("bound_vin_hash")) return null;

@@ -31,11 +31,12 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.31 = open build with a 7-day free-trial gate (no VIN check).
-  // "2." prefix on the original 1.0.x line, trailing patch bumped 30 -> 31.
-  // versionCode stays strictly monotonic (was 2010030).
-  def appVersionName = "2.1.0.31"
-  def appVersionCode = 2010031   // 2*1_000_000 + 1*10_000 + 0*100 + 31
+  // Release v2.1.0.32 = ANDROID_ID-based remote authorization gate. The device
+  // must have its <android_id>.enc published on GitHub Pages to run; no 7-day
+  // trial and no VIN binding remain. "2." prefix on the original 1.0.x line,
+  // trailing patch bumped 31 -> 32. versionCode stays strictly monotonic.
+  def appVersionName = "2.1.0.32"
+  def appVersionCode = 2010032   // 2*1_000_000 + 1*10_000 + 0*100 + 32
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
@@ -51,10 +52,10 @@ android {
     // reads the build-time secrets from local.properties only to ENCRYPT the
     // assets — the plaintext key never ships in the APK.
     //
-    // VIN_REMOTE_URL is no longer consumed by the open (no-gate) build, but kept
-    // as a public BuildConfig field in case a future build re-introduces checks.
-    def vinRemoteUrl = localProps.getProperty('nspace.vin_remote.url')
-    buildConfigField "String", "VIN_REMOTE_URL", "\"" + (vinRemoteUrl != null ? vinRemoteUrl : "https://www.cyaispace.tech/vin/") + "\""
+    // AID_REMOTE_URL is the public base for per-ANDROID_ID authorization files
+    // hosted on GitHub Pages; the app appends "<android_id>.enc" at runtime.
+    def aidRemoteUrl = localProps.getProperty('nspace.aid_remote.url')
+    buildConfigField "String", "AID_REMOTE_URL", "\"" + (aidRemoteUrl != null ? aidRemoteUrl : "https://www.cyaispace.tech/aid/") + "\""
   }
 
   buildTypes {
