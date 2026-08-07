@@ -191,4 +191,7 @@
   <!-- Device lock screen (VIN binding) -->
   <string name="lock_title">Unauthorized Device</string>
   <string name="lock_message">This app is bound to a specific vehicle.\nOnly the bound vehicle is allowed to use it.</string>
+
+  <!-- Authorization verification screen (publish-VIN-to-authorize mode) -->
+  <string name="verifying_title">Verifying device authorization…</string>
 </resources>

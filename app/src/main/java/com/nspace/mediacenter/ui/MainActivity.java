@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.util.AppIntegrity;
+import com.nspace.mediacenter.util.AuthorizationCache;
 import com.nspace.mediacenter.util.DeviceBinder;
+import com.nspace.mediacenter.util.VinReader;
 import com.nspace.mediacenter.util.VinRemoteChecker;
 
 /**
@@ -35,15 +37,34 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
       return;
     }
 
-    // Device binding: if the app is bound to a specific car VIN and this unit
-    // doesn't match, show the lock screen and stop. We never reach the home UI.
-    if (!DeviceBinder.isAuthorized(this)) {
+    // Device binding: the config may either bind the app to one specific car
+    // VIN (hash present) or run unbound (empty hash). Either way we resolve the
+    // concrete binding result here.
+    DeviceBinder.Result binding = DeviceBinder.check(this);
+    if (binding == DeviceBinder.Result.LOCKED_MISMATCH
+        || binding == DeviceBinder.Result.LOCKED_UNREADABLE) {
+      // Bound mode, and this unit is not the bound car (or its VIN is
+      // unreadable). Hard stop before any UI is shown.
       mLocked = true;
       setContentView(R.layout.activity_lock);
       enableImmersiveMode();
       return;
     }
 
+    if (binding == DeviceBinder.Result.NO_BINDING) {
+      // Unbound mode: any car may install, but it is only authorized once its
+      // VIN file is published on the remote allowlist (GitHub Pages). Block the
+      // UI behind a verification screen and wait for the remote check to decide.
+      mLocked = true;
+      setContentView(R.layout.activity_verifying);
+      enableImmersiveMode();
+      startRemoteAuthorizationCheck();
+      return;
+    }
+
+    // Bound mode and this unit matches: go straight in, with a fire-and-forget
+    // revocation check that may escalate to a lock screen later.
+    mLocked = false;
     setContentView(R.layout.activity_main);
 
     handleLaunchIntent(getIntent());
@@ -54,11 +75,58 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
     enableImmersiveMode();
 
-    // Remote revocation check (async, offline-safe). The local binding above
-    // is the always-on gate; this only escalates to a lock screen if the
-    // remote allowlist explicitly revokes this unit. A missing file or no
-    // network is treated as "trust local" – startup is never blocked.
     startRemoteRevocationCheck();
+  }
+
+  /**
+   * Unbound ("publish the VIN to authorize") mode: block entry until the remote
+   * allowlist check resolves.
+   * <ul>
+   *   <li>{@code PASS}    – the car's VIN file is published and matches → enter.</li>
+   *   <li>{@code REVOKED} – no file published (404) → lock as unauthorized.</li>
+   *   <li>{@code OFFLINE} – can't verify; let a car that previously passed an
+   *                         online check in (so a legit car isn't locked in a
+   *                         tunnel), but lock a car that was never authorized.</li>
+   * </ul>
+   */
+  private void startRemoteAuthorizationCheck() {
+    VinRemoteChecker.verify(result -> {
+      switch (result) {
+        case PASS:
+          AuthorizationCache.grant(this, VinReader.getVin());
+          enterMain();
+          break;
+        case REVOKED:
+          AuthorizationCache.revoke(this);
+          showLockScreen();
+          break;
+        case OFFLINE:
+          if (AuthorizationCache.hasGrant(this, VinReader.getVin())) {
+            enterMain();
+          } else {
+            showLockScreen();
+          }
+          break;
+      }
+    });
+  }
+
+  /** Swap the verification screen for the main UI (authorization granted). */
+  private void enterMain() {
+    mLocked = false;
+    setContentView(R.layout.activity_main);
+    handleLaunchIntent(getIntent());
+    if (getSupportFragmentManager().findFragmentById(R.id.content_frame) == null) {
+      goHome();
+    }
+    enableImmersiveMode();
+  }
+
+  /** Replace whatever is on screen with the lock screen. */
+  private void showLockScreen() {
+    mLocked = true;
+    setContentView(R.layout.activity_lock);
+    enableImmersiveMode();
   }
 
   private void startRemoteRevocationCheck() {

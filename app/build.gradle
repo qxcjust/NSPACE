@@ -31,10 +31,11 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.28 = "2." prefix on the original 1.0.x line, trailing
-  // patch bumped 27 -> 28. versionCode stays strictly monotonic (was 10027).
-  def appVersionName = "2.1.0.28"
-  def appVersionCode = 2010028   // 2*1_000_000 + 1*10_000 + 0*100 + 28
+  // Release v2.1.0.29 = unbound authorization mode (publish VIN = authorize).
+  // "2." prefix on the original 1.0.x line, trailing patch bumped 28 -> 29.
+  // versionCode stays strictly monotonic (was 2010028).
+  def appVersionName = "2.1.0.29"
+  def appVersionCode = 2010029   // 2*1_000_000 + 1*10_000 + 0*100 + 29
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

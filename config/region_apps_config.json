@@ -5,7 +5,7 @@
     "source": "NSpace出海配置",
     "updated": "2026-07-25"
   },
-  "bound_vin_hash": "225fd931b84dcf8e07fb97095428ddc1f6bf008d428ba2d8e53fc47b56f27ad9",
+  "bound_vin_hash": "",
   "apps": {
     "YouTube Music": {
       "category": "audio",
