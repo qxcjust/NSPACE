@@ -95,4 +95,6 @@
   <!-- Device lock screen (VIN binding) -->
   <string name="lock_title">Dispositivo não autorizado</string>
   <string name="lock_message">Este aplicativo está vinculado a um veículo específico.\nApenas o veículo vinculado pode usá-lo.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Iniciando</string>
 </resources>

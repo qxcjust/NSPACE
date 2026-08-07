@@ -95,4 +95,6 @@
   <!-- Device lock screen (VIN binding) -->
   <string name="lock_title">အခွင့်မပြုသော စက်ပစ္စည်း</string>
   <string name="lock_message">ဤအက်ပ်ကို သီးသန့်မော်တော်တစ်စီးတွင် ချိတ်ဆက်ထားသည်။\nချိတ်ဆက်ထားသော မော်တော်သာ အသုံးပြုနိုင်သည်။</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">စတင်နေသည်</string>
 </resources>

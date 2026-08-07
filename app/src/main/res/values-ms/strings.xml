@@ -95,4 +95,6 @@
   <!-- Device lock screen (VIN binding) -->
   <string name="lock_title">Peranti Tidak Dibenarkan</string>
   <string name="lock_message">Apl ini diikat pada kenderaan tertentu.\nHanya kenderaan yang diikat dibenarkan menggunakannya.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Sedang dimulakan</string>
 </resources>

@@ -6,5 +6,5 @@
   <string name="lock_message">本设备未获得使用授权。\n请联系供应商为本设备授权。</string>
 
   <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
-  <string name="verifying_title">正在验证设备授权…</string>
+  <string name="verifying_title">启动中</string>
 </resources>
