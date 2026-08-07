@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.nspace.mediacenter.BuildConfig;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.config.RegionAppsConfig;
 import com.nspace.mediacenter.core.RecentsManager;
@@ -88,6 +89,13 @@ public final class HomeFragment extends Fragment {
     View settingsBtn = view.findViewById(R.id.settings_button);
     if (settingsBtn != null) {
       settingsBtn.setOnClickListener(v -> showRegionPicker());
+    }
+
+    // ── App version (display-only, top-right) ──
+    TextView versionText = view.findViewById(R.id.version_text);
+    if (versionText != null) {
+      versionText.setText("v" + BuildConfig.VERSION_NAME);
+      versionText.setVisibility(View.VISIBLE);
     }
 
     // ── Favorite Apps row ────────────────────────────────

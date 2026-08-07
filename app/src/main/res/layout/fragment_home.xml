@@ -213,4 +213,18 @@
       android:background="@drawable/region_badge_bg"
       android:visibility="gone" />
 
+  <!-- App version (display-only, top-right, below the status bar and outside
+       the car launcher's shortcut-menu hot zone). Not interactive. -->
+  <TextView
+      android:id="@+id/version_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|end"
+      android:layout_marginTop="114dp"
+      android:layout_marginEnd="28dp"
+      android:textSize="13sp"
+      android:textStyle="bold"
+      android:textColor="#B3FFFFFF"
+      android:visibility="gone" />
+
 </FrameLayout>

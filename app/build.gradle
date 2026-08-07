@@ -31,14 +31,13 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.37 = v2.1.0.36 + lock-screen polish: the unauthorized screen
-  // now shows the bare device number (the ANDROID_ID the app authorizes
-  // against) with no "Device ID:" label, so the supplier copies exactly the
-  // value needed for aid/<id>.enc. The per-app ANDROID_ID gotcha still applies
-  // (app value != `adb shell settings get secure android_id`).
+  // Release v2.1.0.38 = v2.1.0.37 + main-screen polish: the home screen now
+  // shows the app version string ("v<versionName>") in the top-right corner
+  // (display-only, below the status bar and outside the car launcher's
+  // shortcut-menu hot zone), read from BuildConfig.VERSION_NAME.
   // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.37"
-  def appVersionCode = 2010037   // 2*1_000_000 + 1*10_000 + 0*100 + 37
+  def appVersionName = "2.1.0.38"
+  def appVersionCode = 2010038   // 2*1_000_000 + 1*10_000 + 0*100 + 38
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
