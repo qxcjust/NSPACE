@@ -5,6 +5,10 @@
   <string name="lock_title">未授权设备</string>
   <string name="lock_message">本应用已绑定至指定车机，\n仅限绑定的车辆使用。</string>
 
+  <!-- Device lock screen (7-day free trial expired) -->
+  <string name="lock_title_trial">试用已到期</string>
+  <string name="lock_message_trial">本试用版 7 天试用期已结束。\n请联系供应商获取正式授权。</string>
+
   <!-- Authorization verification screen (publish-VIN-to-authorize mode) -->
   <string name="verifying_title">正在验证设备授权…</string>
 </resources>

@@ -2,12 +2,14 @@ package com.nspace.mediacenter.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.util.AppIntegrity;
+import com.nspace.mediacenter.util.TrialLimiter;
 
 /**
  * Host activity for NSpace.
@@ -29,6 +31,24 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
     if (!AppIntegrity.verify(this)) {
       mLocked = true;
       setContentView(R.layout.activity_lock);
+      enableImmersiveMode();
+      return;
+    }
+
+    // 7-day free trial gate: the open build runs with no authorization step,
+    // but only for a fixed window from first launch. Once it elapses the UI
+    // locks (the user is told the trial expired, not "unauthorized device").
+    if (TrialLimiter.isExpired(this)) {
+      mLocked = true;
+      setContentView(R.layout.activity_lock);
+      TextView title = findViewById(R.id.lock_title_text);
+      TextView msg = findViewById(R.id.lock_message_text);
+      if (title != null) {
+        title.setText(R.string.lock_title_trial);
+      }
+      if (msg != null) {
+        msg.setText(R.string.lock_message_trial);
+      }
       enableImmersiveMode();
       return;
     }

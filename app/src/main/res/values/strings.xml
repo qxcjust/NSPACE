@@ -192,6 +192,10 @@
   <string name="lock_title">Unauthorized Device</string>
   <string name="lock_message">This app is bound to a specific vehicle.\nOnly the bound vehicle is allowed to use it.</string>
 
+  <!-- Device lock screen (7-day free trial expired) -->
+  <string name="lock_title_trial">Trial Expired</string>
+  <string name="lock_message_trial">This 7-day trial version has expired.\nPlease contact your supplier for a full license.</string>
+
   <!-- Authorization verification screen (publish-VIN-to-authorize mode) -->
   <string name="verifying_title">Verifying device authorization…</string>
 </resources>

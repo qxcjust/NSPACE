@@ -31,11 +31,11 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.30 = open build with NO VIN gate (customer validation).
-  // "2." prefix on the original 1.0.x line, trailing patch bumped 29 -> 30.
-  // versionCode stays strictly monotonic (was 2010029).
-  def appVersionName = "2.1.0.30"
-  def appVersionCode = 2010030   // 2*1_000_000 + 1*10_000 + 0*100 + 30
+  // Release v2.1.0.31 = open build with a 7-day free-trial gate (no VIN check).
+  // "2." prefix on the original 1.0.x line, trailing patch bumped 30 -> 31.
+  // versionCode stays strictly monotonic (was 2010030).
+  def appVersionName = "2.1.0.31"
+  def appVersionCode = 2010031   // 2*1_000_000 + 1*10_000 + 0*100 + 31
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

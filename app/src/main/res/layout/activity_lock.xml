@@ -13,6 +13,7 @@
         android:padding="48dp">
 
         <TextView
+            android:id="@+id/lock_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/lock_title"
@@ -21,6 +22,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/lock_message_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
