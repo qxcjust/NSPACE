@@ -7,20 +7,23 @@
     </trust-anchors>
   </base-config>
 
-  <!-- Pin the revocation endpoint. A MITM or fake allowlist server whose
-       certificate does not chain to one of these pins is rejected, so the
-       remote VIN check cannot be spoofed. We pin the Let's Encrypt
-       intermediate (R3) and root (ISRG X1) rather than the leaf: the leaf
-       rotates every ~90 days, but the issuer chain is stable, so the pin
-       survives renewals. If pinning ever fails (e.g. cert migrated to a new
-       CA, or before 2028-01-01 expiry), the check safely degrades to OFFLINE
-       (trust local). The app never hard-fails on a pin mismatch.
-       NOTE: Android requires base64-encoded digests here, not hex. -->
+  <!-- Pin the remote authorization endpoint. A MITM or fake allowlist server
+       whose certificate does not chain to one of these pins is rejected, so
+       the remote authorization check cannot be spoofed. We pin the Let's
+       Encrypt intermediate (YR1) and the root (ISRG Root YR) rather than the
+       leaf: the leaf rotates every ~90 days, but the issuer chain is stable,
+       so the pin survives renewals. Pins were recomputed from the live cert
+       chain on the 2.1.0.32 maintenance rebuild (R3/ISRG X1 had rotated out).
+       If pinning ever fails (e.g. cert migrated to a new CA, or before the
+       expiration below), the check safely degrades to OFFLINE (trust local)
+       because RemoteAuthorizer treats TLS errors as OFFLINE. The app never
+       hard-fails the user on a pin mismatch. NOTE: Android requires
+       base64-encoded digests here, not hex. -->
   <domain-config>
     <domain includeSubdomains="true">cyaispace.tech</domain>
-    <pin-set expiration="2028-01-01">
-      <pin digest="SHA-256">E5SWNNmc1v1qqAvANP76zOsZaf7vmGWGcT7NuwV1jT8=</pin>
-      <pin digest="SHA-256">ByY50LBA1b/64WrZw/bMYIYEBiH1HuYabUaokVwHz3Y=</pin>
+    <pin-set expiration="2030-01-01">
+      <pin digest="SHA-256">LoMHBotttiDko50Gi13uXW71eIy7LAttI+rYT8wXF4w=</pin>
+      <pin digest="SHA-256">fk6IOKit1ild5647BH06ujSIq5XbCgqlbYl6ANhhi88=</pin>
     </pin-set>
   </domain-config>
 </network-security-config>

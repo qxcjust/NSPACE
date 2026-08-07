@@ -31,12 +31,13 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.32 = ANDROID_ID-based remote authorization gate. The device
-  // must have its <android_id>.enc published on GitHub Pages to run; no 7-day
-  // trial and no VIN binding remain. "2." prefix on the original 1.0.x line,
-  // trailing patch bumped 31 -> 32. versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.32"
-  def appVersionCode = 2010032   // 2*1_000_000 + 1*10_000 + 0*100 + 32
+  // Release v2.1.0.33 = v2.1.0.32 + certificate-pin refresh. The live
+  // www.cyaispace.tech chain had rotated from R3/ISRG X1 to YR1/ISRG Root YR,
+  // so the old pins hard-failed TLS and new devices could never fetch their
+  // <android_id>.enc. Pins updated to the current chain (see
+  // res/xml/network_security_config.xml). versionCode stays strictly monotonic.
+  def appVersionName = "2.1.0.33"
+  def appVersionCode = 2010033   // 2*1_000_000 + 1*10_000 + 0*100 + 33
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
