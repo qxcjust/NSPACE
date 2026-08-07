@@ -213,14 +213,16 @@
       android:background="@drawable/region_badge_bg"
       android:visibility="gone" />
 
-  <!-- App version (display-only, top-right, below the status bar and outside
-       the car launcher's shortcut-menu hot zone). Not interactive. -->
+  <!-- App version (display-only, top-right). Pushed to the very top by the
+       root layout's fitsSystemWindows inset (content starts at y≈status-bar
+       height); marginTop is kept tiny so the text sits just under the status
+       bar. Not interactive. -->
   <TextView
       android:id="@+id/version_text"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
-      android:layout_marginTop="114dp"
+      android:layout_marginTop="8dp"
       android:layout_marginEnd="28dp"
       android:textSize="13sp"
       android:textStyle="bold"

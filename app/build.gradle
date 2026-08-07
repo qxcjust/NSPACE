@@ -31,13 +31,13 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.38 = v2.1.0.37 + main-screen polish: the home screen now
-  // shows the app version string ("v<versionName>") in the top-right corner
-  // (display-only, below the status bar and outside the car launcher's
-  // shortcut-menu hot zone), read from BuildConfig.VERSION_NAME.
+  // Release v2.1.0.39 = v2.1.0.38 + version-label placement fix: the home
+  // screen version text now sits at the very top (marginTop≈8dp, just under
+  // the status bar via the root fitsSystemWindows inset) instead of being
+  // pushed far down (114dp). Read from BuildConfig.VERSION_NAME.
   // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.38"
-  def appVersionCode = 2010038   // 2*1_000_000 + 1*10_000 + 0*100 + 38
+  def appVersionName = "2.1.0.39"
+  def appVersionCode = 2010039   // 2*1_000_000 + 1*10_000 + 0*100 + 39
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
