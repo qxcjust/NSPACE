@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — kk (Kazakh) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Артқа</string>
+  <string name="action_forward">Алға</string>
+  <string name="action_refresh">Жаңарту</string>
+  <string name="action_home">Басты бет</string>
+  <string name="action_settings">Параметрлер</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">Навигацияны ашу</string>
+  <string name="nav_close">Навигацияны жабу</string>
+  <string name="nav_home">Басты бет</string>
+  <string name="nav_bookmarks">Бетбелгілер</string>
+  <string name="nav_history">Тарих</string>
+  <string name="nav_downloads">Жүктемелер</string>
+  <string name="nav_privacy">Жекелік</string>
+  <string name="nav_settings">Параметрлер</string>
+  <string name="nav_account">Аккаунт</string>
+  <!-- Home -->
+  <string name="home_search_hint">Іздеу немесе URL енгізу</string>
+  <string name="home_search_button">Іздеу</string>
+  <string name="action_search">Іздеу</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Басты бет</string>
+  <string name="tab_discover">Зерттеу</string>
+  <string name="tab_apps">Қолданбалар</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpace қош келдіңіз</string>
+  <string name="hero_subtitle_default">Сіздің медиа орталығыңыз, бәрі бір жерде</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Таңдаулы қолданбалар</string>
+  <string name="section_continue">Ойнатуды жалғастыру</string>
+  <string name="section_trending">Қазір трендте</string>
+  <string name="content_placeholder">Жақында</string>
+  <!-- Browser -->
+  <string name="browser_go">Өту</string>
+  <string name="browser_bookmark">Бетбелгі</string>
+  <!-- Downloads -->
+  <string name="download_start">Жүктеуді бастау</string>
+  <string name="download_clear">Аяқталғандарды өшіру</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Тарихты өшіру</string>
+  <string name="privacy_clear_cookies">Cookie өшіру</string>
+  <string name="privacy_clear_storage">Веб-сақтауды өшіру</string>
+  <string name="privacy_clear_all">Барлығын өшіру</string>
+  <string name="privacy_cleared_history">Тарих өшірілді</string>
+  <string name="privacy_cleared_cookies">Cookie өшірілді</string>
+  <string name="privacy_cleared_storage">Веб-сақтау өшірілді</string>
+  <string name="privacy_cleared_all">Барлық жеке деректер өшірілді</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">Әдепкі іздеу жүйесі</string>
+  <string name="settings_version">Нұсқа %1$s</string>
+  <!-- Account -->
+  <string name="account_email">Электрондық пошта</string>
+  <string name="account_password">Құпия сөз</string>
+  <string name="account_sign_in">Кіру</string>
+  <string name="account_google">Google арқылы жалғастыру</string>
+  <string name="account_qr">QR арқылы кіру</string>
+  <string name="account_sign_out">Шығу</string>
+  <string name="account_signed_in_as">%1$s (%2$s) ретінде кірді</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">Мақсатты өңірді таңдау</string>
+  <string name="region_follow_system">Жүйе тілін қолдану</string>
+  <string name="region_badge_format">Өңір · %1$s</string>
+  <string name="region_toast_applied">Өңір өзгертілді: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">Рұқсатсыз құрылғы</string>
+  <string name="lock_message">Бұл құрылғыға рұқсат берілмеген.\nОсы құрылғыға рұқсат беру үшін жеткізушіңізге хабарласыңыз.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Іске қосылуда</string>
+</resources>

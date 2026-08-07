@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — in (Indonesian) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Kembali</string>
+  <string name="action_forward">Maju</string>
+  <string name="action_refresh">Segarkan</string>
+  <string name="action_home">Beranda</string>
+  <string name="action_settings">Pengaturan</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">Buka navigasi</string>
+  <string name="nav_close">Tutup navigasi</string>
+  <string name="nav_home">Beranda</string>
+  <string name="nav_bookmarks">Penanda</string>
+  <string name="nav_history">Riwayat</string>
+  <string name="nav_downloads">Unduhan</string>
+  <string name="nav_privacy">Privasi</string>
+  <string name="nav_settings">Pengaturan</string>
+  <string name="nav_account">Akun</string>
+  <!-- Home -->
+  <string name="home_search_hint">Cari atau ketik URL</string>
+  <string name="home_search_button">Cari</string>
+  <string name="action_search">Cari</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Beranda</string>
+  <string name="tab_discover">Jelajahi</string>
+  <string name="tab_apps">Aplikasi</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">Selamat datang di NSpace</string>
+  <string name="hero_subtitle_default">Pusat media Anda, semua dalam satu tempat</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Aplikasi favorit</string>
+  <string name="section_continue">Lanjutkan pemutaran</string>
+  <string name="section_trending">Sedang tren</string>
+  <string name="content_placeholder">Segera hadir</string>
+  <!-- Browser -->
+  <string name="browser_go">Buka</string>
+  <string name="browser_bookmark">Tandai</string>
+  <!-- Downloads -->
+  <string name="download_start">Mulai unduh</string>
+  <string name="download_clear">Hapus yang selesai</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Hapus riwayat</string>
+  <string name="privacy_clear_cookies">Hapus cookie</string>
+  <string name="privacy_clear_storage">Hapus penyimpanan web</string>
+  <string name="privacy_clear_all">Hapus semua</string>
+  <string name="privacy_cleared_history">Riwayat dihapus</string>
+  <string name="privacy_cleared_cookies">Cookie dihapus</string>
+  <string name="privacy_cleared_storage">Penyimpanan web dihapus</string>
+  <string name="privacy_cleared_all">Semua data pribadi dihapus</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">Mesin pencari default</string>
+  <string name="settings_version">Versi %1$s</string>
+  <!-- Account -->
+  <string name="account_email">Email</string>
+  <string name="account_password">Kata sandi</string>
+  <string name="account_sign_in">Masuk</string>
+  <string name="account_google">Lanjut dengan Google</string>
+  <string name="account_qr">Masuk dengan QR</string>
+  <string name="account_sign_out">Keluar</string>
+  <string name="account_signed_in_as">Masuk sebagai %1$s (%2$s)</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">Pilih wilayah tujuan</string>
+  <string name="region_follow_system">Ikuti bahasa sistem</string>
+  <string name="region_badge_format">Wilayah · %1$s</string>
+  <string name="region_toast_applied">Wilayah diubah: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">Perangkat tidak diizinkan</string>
+  <string name="lock_message">Perangkat ini tidak diizinkan.\nHubungi pemasok Anda untuk mengizinkan perangkat ini.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Memulai</string>
+</resources>

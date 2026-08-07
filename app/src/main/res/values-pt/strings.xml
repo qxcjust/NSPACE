@@ -94,7 +94,7 @@
   <string name="region_toast_applied">Região alterada: %1$s</string>
   <!-- Device lock screen (VIN binding) -->
   <string name="lock_title">Dispositivo não autorizado</string>
-  <string name="lock_message">Este aplicativo está vinculado a um veículo específico.\nApenas o veículo vinculado pode usá-lo.</string>
+  <string name="lock_message">Este dispositivo não está autorizado.\nContacte o seu fornecedor para autorizar este dispositivo.</string>
   <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
   <string name="verifying_title">Iniciando</string>
 </resources>

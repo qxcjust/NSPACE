@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — ko (Korean) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">뒤로</string>
+  <string name="action_forward">앞으로</string>
+  <string name="action_refresh">새로 고침</string>
+  <string name="action_home">홈</string>
+  <string name="action_settings">설정</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">탐색 열기</string>
+  <string name="nav_close">탐색 닫기</string>
+  <string name="nav_home">홈</string>
+  <string name="nav_bookmarks">북마크</string>
+  <string name="nav_history">기록</string>
+  <string name="nav_downloads">다운로드</string>
+  <string name="nav_privacy">개인정보</string>
+  <string name="nav_settings">설정</string>
+  <string name="nav_account">계정</string>
+  <!-- Home -->
+  <string name="home_search_hint">검색하거나 URL 입력</string>
+  <string name="home_search_button">검색</string>
+  <string name="action_search">검색</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">홈</string>
+  <string name="tab_discover">둘러보기</string>
+  <string name="tab_apps">앱</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpace에 오신 것을 환영합니다</string>
+  <string name="hero_subtitle_default">하나의 장소에 모인 미디어 허브</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">즐겨찾는 앱</string>
+  <string name="section_continue">이어서 재생</string>
+  <string name="section_trending">지금 뜨는 콘텐츠</string>
+  <string name="content_placeholder">곧 출시 예정</string>
+  <!-- Browser -->
+  <string name="browser_go">이동</string>
+  <string name="browser_bookmark">북마크</string>
+  <!-- Downloads -->
+  <string name="download_start">다운로드 시작</string>
+  <string name="download_clear">완료된 항목 지우기</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">기록 지우기</string>
+  <string name="privacy_clear_cookies">쿠키 지우기</string>
+  <string name="privacy_clear_storage">웹 저장소 지우기</string>
+  <string name="privacy_clear_all">모두 지우기</string>
+  <string name="privacy_cleared_history">기록이 지워졌습니다</string>
+  <string name="privacy_cleared_cookies">쿠키가 지워졌습니다</string>
+  <string name="privacy_cleared_storage">웹 저장소가 지워졌습니다</string>
+  <string name="privacy_cleared_all">모든 개인정보 데이터가 지워졌습니다</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">기본 검색 엔진</string>
+  <string name="settings_version">버전 %1$s</string>
+  <!-- Account -->
+  <string name="account_email">이메일</string>
+  <string name="account_password">비밀번호</string>
+  <string name="account_sign_in">로그인</string>
+  <string name="account_google">Google로 계속</string>
+  <string name="account_qr">QR로 로그인</string>
+  <string name="account_sign_out">로그아웃</string>
+  <string name="account_signed_in_as">%1$s(%2$s)으로 로그인됨</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">대상 지역 선택</string>
+  <string name="region_follow_system">시스템 언어 따르기</string>
+  <string name="region_badge_format">지역 · %1$s</string>
+  <string name="region_toast_applied">지역이 변경되었습니다: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">인증되지 않은 기기</string>
+  <string name="lock_message">이 기기는 인증되지 않았습니다.\n이 기기를 인증하려면 공급업체에 문의하세요.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">시작 중</string>
+</resources>

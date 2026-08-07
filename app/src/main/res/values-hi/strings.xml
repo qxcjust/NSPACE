@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — hi (Hindi) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">वापस</string>
+  <string name="action_forward">आगे</string>
+  <string name="action_refresh">रीफ्रेश</string>
+  <string name="action_home">होम</string>
+  <string name="action_settings">सेटिंग</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">नेविगेशन खोलें</string>
+  <string name="nav_close">नेविगेशन बंद करें</string>
+  <string name="nav_home">होम</string>
+  <string name="nav_bookmarks">बुकमार्क</string>
+  <string name="nav_history">इतिहास</string>
+  <string name="nav_downloads">डाउनलोड</string>
+  <string name="nav_privacy">गोपनीयता</string>
+  <string name="nav_settings">सेटिंग</string>
+  <string name="nav_account">खाता</string>
+  <!-- Home -->
+  <string name="home_search_hint">खोजें या URL टाइप करें</string>
+  <string name="home_search_button">खोज</string>
+  <string name="action_search">खोज</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">होम</string>
+  <string name="tab_discover">खोजें</string>
+  <string name="tab_apps">ऐप्स</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpace में आपका स्वागत है</string>
+  <string name="hero_subtitle_default">आपका मीडिया हब, सब कुछ एक जगह</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">पसंदीदा ऐप्स</string>
+  <string name="section_continue">प्ले जारी रखें</string>
+  <string name="section_trending">ट्रेंडिंग</string>
+  <string name="content_placeholder">जल्द आ रहा है</string>
+  <!-- Browser -->
+  <string name="browser_go">जाएं</string>
+  <string name="browser_bookmark">बुकमार्क</string>
+  <!-- Downloads -->
+  <string name="download_start">डाउनलोड शुरू करें</string>
+  <string name="download_clear">पूर्ण हुए हटाएं</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">इतिहास साफ करें</string>
+  <string name="privacy_clear_cookies">कुकीज़ साफ करें</string>
+  <string name="privacy_clear_storage">वेब स्टोरेज साफ करें</string>
+  <string name="privacy_clear_all">सब कुछ साफ करें</string>
+  <string name="privacy_cleared_history">इतिहास साफ़ हो गया</string>
+  <string name="privacy_cleared_cookies">कुकीज़ साफ़ हो गईं</string>
+  <string name="privacy_cleared_storage">वेब स्टोरेज साफ़ हो गया</string>
+  <string name="privacy_cleared_all">सारा निजी डेटा साफ़ हो गया</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">डिफ़ॉल्ट सर्च इंजन</string>
+  <string name="settings_version">संस्करण %1$s</string>
+  <!-- Account -->
+  <string name="account_email">ईमेल</string>
+  <string name="account_password">पासवर्ड</string>
+  <string name="account_sign_in">साइन इन</string>
+  <string name="account_google">Google के साथ जारी रखें</string>
+  <string name="account_qr">QR से साइन इन करें</string>
+  <string name="account_sign_out">साइन आउट</string>
+  <string name="account_signed_in_as">%1$s (%2$s) के रूप में साइन इन</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">लक्ष्य क्षेत्र चुनें</string>
+  <string name="region_follow_system">सिस्टम भाषा का पालन करें</string>
+  <string name="region_badge_format">क्षेत्र · %1$s</string>
+  <string name="region_toast_applied">क्षेत्र बदला गया: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">अधिकृत नहीं किया गया डिवाइस</string>
+  <string name="lock_message">यह डिवाइस अधिकृत नहीं है।\nइस डिवाइस को अधिकृत करने के लिए अपने आपूर्तिकर्ता से संपर्क करें।</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">शुरू हो रहा है</string>
+</resources>

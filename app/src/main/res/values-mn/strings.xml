@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — mn (Mongolian) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Буцах</string>
+  <string name="action_forward">Урагш</string>
+  <string name="action_refresh">Шинэчлэх</string>
+  <string name="action_home">Нүүр</string>
+  <string name="action_settings">Тохиргоо</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">Навигацыг нээх</string>
+  <string name="nav_close">Навигацыг хаах</string>
+  <string name="nav_home">Нүүр</string>
+  <string name="nav_bookmarks">Тэмдэглэл</string>
+  <string name="nav_history">Түүх</string>
+  <string name="nav_downloads">Татан авалт</string>
+  <string name="nav_privacy">Нууцлал</string>
+  <string name="nav_settings">Тохиргоо</string>
+  <string name="nav_account">Бүртгэл</string>
+  <!-- Home -->
+  <string name="home_search_hint">Хайх эсвэл URL бичих</string>
+  <string name="home_search_button">Хайх</string>
+  <string name="action_search">Хайх</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Нүүр</string>
+  <string name="tab_discover">Судлах</string>
+  <string name="tab_apps">Апп</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpace-д тавтай морилно уу</string>
+  <string name="hero_subtitle_default">Таны медиа төв, бүгд газрын зугаар</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Дуртай апп</string>
+  <string name="section_continue">Дахин тоглуулах</string>
+  <string name="section_trending">Одоо тренд</string>
+  <string name="content_placeholder">Удахгүй</string>
+  <!-- Browser -->
+  <string name="browser_go">Орох</string>
+  <string name="browser_bookmark">Тэмдэглэл</string>
+  <!-- Downloads -->
+  <string name="download_start">Татан авалтыг эхлүүлэх</string>
+  <string name="download_clear">Дууссаныг цэвэрлэх</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Түүхийг цэвэрлэх</string>
+  <string name="privacy_clear_cookies">Cookie цэвэрлэх</string>
+  <string name="privacy_clear_storage">Вэб санах ойг цэвэрлэх</string>
+  <string name="privacy_clear_all">Бүгдийг цэвэрлэх</string>
+  <string name="privacy_cleared_history">Түүх цэвэрлэгдсэн</string>
+  <string name="privacy_cleared_cookies">Cookie цэвэрлэгдсэн</string>
+  <string name="privacy_cleared_storage">Вэб санах ой цэвэрлэгдсэн</string>
+  <string name="privacy_cleared_all">Бүх хувийн өгөгдөл цэвэрлэгдсэн</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">Анхдагч хайлтын систем</string>
+  <string name="settings_version">Хувилбар %1$s</string>
+  <!-- Account -->
+  <string name="account_email">И-мэйл</string>
+  <string name="account_password">Нууц үг</string>
+  <string name="account_sign_in">Нэвтрэх</string>
+  <string name="account_google">Google-ээр үргэлжлүүлэх</string>
+  <string name="account_qr">QR-ээр нэвтрэх</string>
+  <string name="account_sign_out">Гарах</string>
+  <string name="account_signed_in_as">%1$s (%2$s) ээр нэвтэрсэн</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">Оноосон бүсийг сонгох</string>
+  <string name="region_follow_system">Системийн хэлийг дагах</string>
+  <string name="region_badge_format">Бүс · %1$s</string>
+  <string name="region_toast_applied">Бүс солигдлоо: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">Зөвшөөрөлгүй төхөөрөмж</string>
+  <string name="lock_message">Энэ төхөөрөмж зөвшөөрөгдөөгүй.\nЭнэ төхөөрөмжийг зөвшөөрүүлэхийн тулд нийлүүлэгчтэйгээ холбогдоно уу.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Эхэлж байна</string>
+</resources>

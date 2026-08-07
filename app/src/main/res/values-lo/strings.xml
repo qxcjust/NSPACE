@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — lo (Lao) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">ກັບຄືນ</string>
+  <string name="action_forward">ໄປຂ້າງຫນ້າ</string>
+  <string name="action_refresh">ໂຫຼດໃໝ່</string>
+  <string name="action_home">ໜ້າຫຼັກ</string>
+  <string name="action_settings">ຕັ້ງຄ່າ</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">ເປີດການນຳທາງ</string>
+  <string name="nav_close">ປິດການນຳທາງ</string>
+  <string name="nav_home">ໜ້າຫຼັກ</string>
+  <string name="nav_bookmarks">ບຸກມາກ</string>
+  <string name="nav_history">ປະຫວັດ</string>
+  <string name="nav_downloads">ດາວໂຫຼດ</string>
+  <string name="nav_privacy">ຄວາມເປັນສ່ວນຕົວ</string>
+  <string name="nav_settings">ຕັ້ງຄ່າ</string>
+  <string name="nav_account">ບັນຊີ</string>
+  <!-- Home -->
+  <string name="home_search_hint">ຄົ້ນຫາຫຼືພິມ URL</string>
+  <string name="home_search_button">ຄົ້ນຫາ</string>
+  <string name="action_search">ຄົ້ນຫາ</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">ໜ້າຫຼັກ</string>
+  <string name="tab_discover">ສຳລວດ</string>
+  <string name="tab_apps">ແອັບ</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">ຍິນດີຕ້ອນຮັບສູ່ NSpace</string>
+  <string name="hero_subtitle_default">ສູນສື່ຂອງທ່ານ, ທັງໝົດໃນບ່ອນດຽວ</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">ແອັບທີ່ມັກ</string>
+  <string name="section_continue">ສືບຕໍ່ການລົງສະແດງ</string>
+  <string name="section_trending">ກຳລັງນິຍົມ</string>
+  <string name="content_placeholder">ໄວ້ລໍຖ້າ</string>
+  <!-- Browser -->
+  <string name="browser_go">ໄປ</string>
+  <string name="browser_bookmark">ບຸກມາກ</string>
+  <!-- Downloads -->
+  <string name="download_start">ເລີ່ມດາວໂຫຼດ</string>
+  <string name="download_clear">ລົບລາຍການທີ່ສຳເລັດ</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">ລົບປະຫວັດ</string>
+  <string name="privacy_clear_cookies">ລົບຄຸກກີ້</string>
+  <string name="privacy_clear_storage">ລົບພື້ນທີ່ເກັບຂໍ້ມູນເວັບ</string>
+  <string name="privacy_clear_all">ລົບທັງໝົດ</string>
+  <string name="privacy_cleared_history">ລົບປະຫວັດແລ້ວ</string>
+  <string name="privacy_cleared_cookies">ລົບຄຸກກີ້ແລ້ວ</string>
+  <string name="privacy_cleared_storage">ລົບພື້ນທີ່ເກັບຂໍ້ມູນເວັບແລ້ວ</string>
+  <string name="privacy_cleared_all">ລົບຂໍ້ມູນສ່ວນຕົວທັງໝົດແລ້ວ</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">ເຄື່ອງມືຄົ້ນຫາເລີ່ມຕົ້ນ</string>
+  <string name="settings_version">ລຸ້ນ %1$s</string>
+  <!-- Account -->
+  <string name="account_email">ອີເມລ</string>
+  <string name="account_password">ລະຫັດຜ່ານ</string>
+  <string name="account_sign_in">ເຂົ້າສູ່ລະບົບ</string>
+  <string name="account_google">ສືບຕໍ່ດ້ວຍ Google</string>
+  <string name="account_qr">ເຂົ້າສູ່ລະບົບດ້ວຍ QR</string>
+  <string name="account_sign_out">ອອກຈາກລະບົບ</string>
+  <string name="account_signed_in_as">ເຂົ້າສູ່ລະບົບເປັນ %1$s (%2$s)</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">ເລືອກພາກພື້ນເປົ້າຫມາຍ</string>
+  <string name="region_follow_system">ປະຕິບັດຕາມພາສາລະບົບ</string>
+  <string name="region_badge_format">ພາກພື້ນ · %1$s</string>
+  <string name="region_toast_applied">ປ່ຽນພາກພື້ນແລ້ວ: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">ອຸປະກອນບໍ່ຮັບອະນຸຍາດ</string>
+  <string name="lock_message">ອຸປະກອນນີ້ບໍ່ໄດ້ຮັບອະນຸຍາດ.\nຕິດຕໍ່ຜູ້ສະໜອງເພື່ອໃຫ້ອະນຸຍາດອຸປະກອນນີ້.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">ກຳລັງເລີ່ມຕົ້ນ</string>
+</resources>

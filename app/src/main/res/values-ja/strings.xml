@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — ja (Japanese) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">戻る</string>
+  <string name="action_forward">進む</string>
+  <string name="action_refresh">更新</string>
+  <string name="action_home">ホーム</string>
+  <string name="action_settings">設定</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">ナビゲーションを開く</string>
+  <string name="nav_close">ナビゲーションを閉じる</string>
+  <string name="nav_home">ホーム</string>
+  <string name="nav_bookmarks">ブックマーク</string>
+  <string name="nav_history">履歴</string>
+  <string name="nav_downloads">ダウンロード</string>
+  <string name="nav_privacy">プライバシー</string>
+  <string name="nav_settings">設定</string>
+  <string name="nav_account">アカウント</string>
+  <!-- Home -->
+  <string name="home_search_hint">検索またはURLを入力</string>
+  <string name="home_search_button">検索</string>
+  <string name="action_search">検索</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">ホーム</string>
+  <string name="tab_discover">探索</string>
+  <string name="tab_apps">アプリ</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpaceへようこそ</string>
+  <string name="hero_subtitle_default">すべてが一か所に集まるメディアハブ</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">お気に入りアプリ</string>
+  <string name="section_continue">再生を続ける</string>
+  <string name="section_trending">話題のコンテンツ</string>
+  <string name="content_placeholder">近日公開</string>
+  <!-- Browser -->
+  <string name="browser_go">移動</string>
+  <string name="browser_bookmark">ブックマーク</string>
+  <!-- Downloads -->
+  <string name="download_start">ダウンロードを開始</string>
+  <string name="download_clear">完了したものを削除</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">履歴を削除</string>
+  <string name="privacy_clear_cookies">Cookieを削除</string>
+  <string name="privacy_clear_storage">Webストレージを削除</string>
+  <string name="privacy_clear_all">すべて削除</string>
+  <string name="privacy_cleared_history">履歴を削除しました</string>
+  <string name="privacy_cleared_cookies">Cookieを削除しました</string>
+  <string name="privacy_cleared_storage">Webストレージを削除しました</string>
+  <string name="privacy_cleared_all">すべてのプライベートデータを削除しました</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">デフォルトの検索エンジン</string>
+  <string name="settings_version">バージョン %1$s</string>
+  <!-- Account -->
+  <string name="account_email">メールアドレス</string>
+  <string name="account_password">パスワード</string>
+  <string name="account_sign_in">サインイン</string>
+  <string name="account_google">Googleで続行</string>
+  <string name="account_qr">QRでサインイン</string>
+  <string name="account_sign_out">サインアウト</string>
+  <string name="account_signed_in_as">%1$s (%2$s) でサインイン中</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">対象地域を選択</string>
+  <string name="region_follow_system">システムの言語に従う</string>
+  <string name="region_badge_format">地域 · %1$s</string>
+  <string name="region_toast_applied">地域を変更しました：%1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">未認証のデバイス</string>
+  <string name="lock_message">このデバイスは認証されていません。\nこのデバイスを認証するにはサプライヤーに連絡してください。</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">起動中</string>
+</resources>

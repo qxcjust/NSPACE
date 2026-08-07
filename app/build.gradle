@@ -31,13 +31,14 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.39 = v2.1.0.38 + version-label placement fix: the home
-  // screen version text now sits at the very top (marginTop≈8dp, just under
-  // the status bar via the root fitsSystemWindows inset) instead of being
-  // pushed far down (114dp). Read from BuildConfig.VERSION_NAME.
+  // Release v2.1.0.40 = v2.1.0.39 + i18n expansion: added 13 locale resource
+  // sets (ja, ko, vi, lo, km, in, hi, ne, kk, uz, mn, ar, fa) for China's
+  // neighbouring / Belt-and-Road markets, and fixed the stale (VIN-binding)
+  // lock_message in the 6 pre-existing locales (es, pt, ru, th, my, ms) to
+  // the current "contact your supplier" wording. Brand names stay untranslated.
   // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.39"
-  def appVersionCode = 2010039   // 2*1_000_000 + 1*10_000 + 0*100 + 39
+  def appVersionName = "2.1.0.40"
+  def appVersionCode = 2010040   // 2*1_000_000 + 1*10_000 + 0*100 + 40
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

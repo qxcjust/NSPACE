@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — fa (Persian) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">بازگشت</string>
+  <string name="action_forward">جلو</string>
+  <string name="action_refresh">تازه‌سازی</string>
+  <string name="action_home">خانه</string>
+  <string name="action_settings">تنظیمات</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">باز کردن پیمایش</string>
+  <string name="nav_close">بستن پیمایش</string>
+  <string name="nav_home">خانه</string>
+  <string name="nav_bookmarks">نشانک‌ها</string>
+  <string name="nav_history">تاریخچه</string>
+  <string name="nav_downloads">دانلودها</string>
+  <string name="nav_privacy">حریم خصوصی</string>
+  <string name="nav_settings">تنظیمات</string>
+  <string name="nav_account">حساب کاربری</string>
+  <!-- Home -->
+  <string name="home_search_hint">جستجو یا وارد کردن نشانی URL</string>
+  <string name="home_search_button">جستجو</string>
+  <string name="action_search">جستجو</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">خانه</string>
+  <string name="tab_discover">کشف</string>
+  <string name="tab_apps">برنامه‌ها</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">به NSpace خوش آمدید</string>
+  <string name="hero_subtitle_default">مرکز رسانه‌ای شما، همه در یک جا</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">برنامه‌های مورد علاقه</string>
+  <string name="section_continue">ادامه پخش</string>
+  <string name="section_trending">روندهای فعلی</string>
+  <string name="content_placeholder">به زودی</string>
+  <!-- Browser -->
+  <string name="browser_go">برو</string>
+  <string name="browser_bookmark">نشانک</string>
+  <!-- Downloads -->
+  <string name="download_start">شروع دانلود</string>
+  <string name="download_clear">پاک کردن موارد کامل‌شده</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">پاک کردن تاریخچه</string>
+  <string name="privacy_clear_cookies">پاک کردن کوکی‌ها</string>
+  <string name="privacy_clear_storage">پاک کردن حافظه وب</string>
+  <string name="privacy_clear_all">پاک کردن همه</string>
+  <string name="privacy_cleared_history">تاریخچه پاک شد</string>
+  <string name="privacy_cleared_cookies">کوکی‌ها پاک شدند</string>
+  <string name="privacy_cleared_storage">حافظه وب پاک شد</string>
+  <string name="privacy_cleared_all">تمام داده‌های خصوصی پاک شد</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">موتور جستجوی پیش‌فرض</string>
+  <string name="settings_version">نسخه %1$s</string>
+  <!-- Account -->
+  <string name="account_email">ایمیل</string>
+  <string name="account_password">گذرواژه</string>
+  <string name="account_sign_in">ورود</string>
+  <string name="account_google">ادامه با Google</string>
+  <string name="account_qr">ورود با QR</string>
+  <string name="account_sign_out">خروج</string>
+  <string name="account_signed_in_as">وارد شده به نام %1$s (%2$s)</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">انتخاب منطقه هدف</string>
+  <string name="region_follow_system">پیروی از زبان سیستم</string>
+  <string name="region_badge_format">منطقه · %1$s</string>
+  <string name="region_toast_applied">منطقه تغییر کرد: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">دستگاه غیرمجاز</string>
+  <string name="lock_message">این دستگاه مجاز نیست.\nبرای مجاز کردن این دستگاه با تامین‌کننده خود تماس بگیرید.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">در حال شروع</string>
+</resources>

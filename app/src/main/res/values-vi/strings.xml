@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — vi (Vietnamese) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Quay lại</string>
+  <string name="action_forward">Tiến</string>
+  <string name="action_refresh">Làm mới</string>
+  <string name="action_home">Trang chủ</string>
+  <string name="action_settings">Cài đặt</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">Mở điều hướng</string>
+  <string name="nav_close">Đóng điều hướng</string>
+  <string name="nav_home">Trang chủ</string>
+  <string name="nav_bookmarks">Dấu trang</string>
+  <string name="nav_history">Lịch sử</string>
+  <string name="nav_downloads">Tải xuống</string>
+  <string name="nav_privacy">Quyền riêng tư</string>
+  <string name="nav_settings">Cài đặt</string>
+  <string name="nav_account">Tài khoản</string>
+  <!-- Home -->
+  <string name="home_search_hint">Tìm kiếm hoặc nhập URL</string>
+  <string name="home_search_button">Tìm kiếm</string>
+  <string name="action_search">Tìm kiếm</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Trang chủ</string>
+  <string name="tab_discover">Khám phá</string>
+  <string name="tab_apps">Ứng dụng</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">Chào mừng đến với NSpace</string>
+  <string name="hero_subtitle_default">Trung tâm giải trí của bạn, tất cả trong một</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Ứng dụng yêu thích</string>
+  <string name="section_continue">Tiếp tục phát</string>
+  <string name="section_trending">Xu hướng hiện nay</string>
+  <string name="content_placeholder">Sắp ra mắt</string>
+  <!-- Browser -->
+  <string name="browser_go">Đi</string>
+  <string name="browser_bookmark">Đánh dấu</string>
+  <!-- Downloads -->
+  <string name="download_start">Bắt đầu tải xuống</string>
+  <string name="download_clear">Xóa mục đã xong</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Xóa lịch sử</string>
+  <string name="privacy_clear_cookies">Xóa cookie</string>
+  <string name="privacy_clear_storage">Xóa bộ nhớ web</string>
+  <string name="privacy_clear_all">Xóa tất cả</string>
+  <string name="privacy_cleared_history">Đã xóa lịch sử</string>
+  <string name="privacy_cleared_cookies">Đã xóa cookie</string>
+  <string name="privacy_cleared_storage">Đã xóa bộ nhớ web</string>
+  <string name="privacy_cleared_all">Đã xóa tất cả dữ liệu riêng tư</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">Công cụ tìm kiếm mặc định</string>
+  <string name="settings_version">Phiên bản %1$s</string>
+  <!-- Account -->
+  <string name="account_email">Email</string>
+  <string name="account_password">Mật khẩu</string>
+  <string name="account_sign_in">Đăng nhập</string>
+  <string name="account_google">Tiếp tục với Google</string>
+  <string name="account_qr">Đăng nhập bằng QR</string>
+  <string name="account_sign_out">Đăng xuất</string>
+  <string name="account_signed_in_as">Đã đăng nhập với %1$s (%2$s)</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">Chọn khu vực đích</string>
+  <string name="region_follow_system">Theo ngôn ngữ hệ thống</string>
+  <string name="region_badge_format">Khu vực · %1$s</string>
+  <string name="region_toast_applied">Đã chuyển khu vực: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">Thiết bị chưa được ủy quyền</string>
+  <string name="lock_message">Thiết bị này chưa được ủy quyền.\nHãy liên hệ nhà cung cấp để được cấp quyền cho thiết bị này.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Đang khởi động</string>
+</resources>

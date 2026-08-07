@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — ar (Arabic) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">رجوع</string>
+  <string name="action_forward">للأمام</string>
+  <string name="action_refresh">تحديث</string>
+  <string name="action_home">الرئيسية</string>
+  <string name="action_settings">الإعدادات</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">فتح التنقل</string>
+  <string name="nav_close">إغلاق التنقل</string>
+  <string name="nav_home">الرئيسية</string>
+  <string name="nav_bookmarks">الإشارات المرجعية</string>
+  <string name="nav_history">السجل</string>
+  <string name="nav_downloads">التنزيلات</string>
+  <string name="nav_privacy">الخصوصية</string>
+  <string name="nav_settings">الإعدادات</string>
+  <string name="nav_account">الحساب</string>
+  <!-- Home -->
+  <string name="home_search_hint">ابحث أو اكتب رابط URL</string>
+  <string name="home_search_button">بحث</string>
+  <string name="action_search">بحث</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">الرئيسية</string>
+  <string name="tab_discover">اكتشف</string>
+  <string name="tab_apps">التطبيقات</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">مرحبًا بك في NSpace</string>
+  <string name="hero_subtitle_default">مركز الوسائط الخاص بك، كل شيء في مكان واحد</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">التطبيقات المفضلة</string>
+  <string name="section_continue">متابعة التشغيل</string>
+  <string name="section_trending">الأكثر رواجًا الآن</string>
+  <string name="content_placeholder">قريبًا</string>
+  <!-- Browser -->
+  <string name="browser_go">انتقال</string>
+  <string name="browser_bookmark">إشارة مرجعية</string>
+  <!-- Downloads -->
+  <string name="download_start">بدء التنزيل</string>
+  <string name="download_clear">مسح المكتمل</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">مسح السجل</string>
+  <string name="privacy_clear_cookies">مسح ملفات الارتباط</string>
+  <string name="privacy_clear_storage">مسح التخزين على الويب</string>
+  <string name="privacy_clear_all">مسح الكل</string>
+  <string name="privacy_cleared_history">تم مسح السجل</string>
+  <string name="privacy_cleared_cookies">تم مسح ملفات الارتباط</string>
+  <string name="privacy_cleared_storage">تم مسح التخزين على الويب</string>
+  <string name="privacy_cleared_all">تم مسح جميع البيانات الخاصة</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">محرك البحث الافتراضي</string>
+  <string name="settings_version">الإصدار %1$s</string>
+  <!-- Account -->
+  <string name="account_email">البريد الإلكتروني</string>
+  <string name="account_password">كلمة المرور</string>
+  <string name="account_sign_in">تسجيل الدخول</string>
+  <string name="account_google">المتابعة مع Google</string>
+  <string name="account_qr">تسجيل الدخول عبر رمز QR</string>
+  <string name="account_sign_out">تسجيل الخروج</string>
+  <string name="account_signed_in_as">تم تسجيل الدخول باسم %1$s (%2$s)</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">اختر المنطقة المستهدفة</string>
+  <string name="region_follow_system">اتبع لغة النظام</string>
+  <string name="region_badge_format">المنطقة · %1$s</string>
+  <string name="region_toast_applied">تم تغيير المنطقة: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">جهاز غير مصرح به</string>
+  <string name="lock_message">هذا الجهاز غير مصرح به.\nاتصل بموردك للسماح بهذا الجهاز.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">جارٍ البدء</string>
+</resources>

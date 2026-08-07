@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NSpace — uz (Uzbek) localization -->
+<resources>
+  <!-- Sidebar navigation actions -->
+  <string name="action_back">Orqaga</string>
+  <string name="action_forward">Oldinga</string>
+  <string name="action_refresh">Yangilash</string>
+  <string name="action_home">Bosh sahifa</string>
+  <string name="action_settings">Sozlamalar</string>
+  <!-- Navigation drawer -->
+  <string name="nav_open">Navigatsiyani oching</string>
+  <string name="nav_close">Navigatsiyani yoping</string>
+  <string name="nav_home">Bosh sahifa</string>
+  <string name="nav_bookmarks">Xatcho\'plar</string>
+  <string name="nav_history">Tarix</string>
+  <string name="nav_downloads">Yuklamalar</string>
+  <string name="nav_privacy">Maxfiylik</string>
+  <string name="nav_settings">Sozlamalar</string>
+  <string name="nav_account">Hisob</string>
+  <!-- Home -->
+  <string name="home_search_hint">Qidirish yoki URL kiriting</string>
+  <string name="home_search_button">Qidirish</string>
+  <string name="action_search">Qidirish</string>
+  <!-- Top navigation tabs -->
+  <string name="tab_home">Bosh sahifa</string>
+  <string name="tab_discover">Kashf etish</string>
+  <string name="tab_apps">Ilovalar</string>
+  <!-- Hero banner -->
+  <string name="hero_title_default">NSpace ga xush kelibsiz</string>
+  <string name="hero_subtitle_default">Sizning media markazingiz, hammasi bitta joyda</string>
+  <!-- Content sections -->
+  <string name="section_favorite_apps">Sevimli ilovalar</string>
+  <string name="section_continue">Davom ettirish</string>
+  <string name="section_trending">Trenddagi</string>
+  <string name="content_placeholder">Tez orada</string>
+  <!-- Browser -->
+  <string name="browser_go">O\'tish</string>
+  <string name="browser_bookmark">Xatcho\'p</string>
+  <!-- Downloads -->
+  <string name="download_start">Yuklashni boshlash</string>
+  <string name="download_clear">Tugallanganlarni tozalash</string>
+  <!-- Privacy -->
+  <string name="privacy_clear_history">Tarixni tozalash</string>
+  <string name="privacy_clear_cookies">Cookie-larini tozalash</string>
+  <string name="privacy_clear_storage">Veb-xotirani tozalash</string>
+  <string name="privacy_clear_all">Hammasini tozalash</string>
+  <string name="privacy_cleared_history">Tarix tozalandi</string>
+  <string name="privacy_cleared_cookies">Cookie-lar tozalandi</string>
+  <string name="privacy_cleared_storage">Veb-xotira tozalandi</string>
+  <string name="privacy_cleared_all">Barcha shaxsiy ma\'lumotlar tozalandi</string>
+  <!-- Settings -->
+  <string name="settings_search_engine">Standart qidiruv tizimi</string>
+  <string name="settings_version">Versiya %1$s</string>
+  <!-- Account -->
+  <string name="account_email">Email</string>
+  <string name="account_password">Parol</string>
+  <string name="account_sign_in">Kirish</string>
+  <string name="account_google">Google orqali davom etish</string>
+  <string name="account_qr">QR orqali kirish</string>
+  <string name="account_sign_out">Chiqish</string>
+  <string name="account_signed_in_as">%1$s (%2$s) sifatida kirildi</string>
+  <!-- Home app-shortcut labels (brand names kept as-is across locales) -->
+  <string name="app_name">NSpace</string>
+  <string name="download_url_hint">https://example.com/file.mp4</string>
+  <string name="shortcut_bilibili">Bilibili</string>
+  <string name="shortcut_tencent">Tencent Video</string>
+  <string name="shortcut_douyin">Douyin</string>
+  <string name="shortcut_xigua">Xigua</string>
+  <string name="shortcut_kuaishou">Kuaishou</string>
+  <string name="shortcut_haokan">Haokan Video</string>
+  <string name="shortcut_sohu">Sohu Video</string>
+  <string name="shortcut_xiaohongshu">Xiaohongshu</string>
+  <string name="shortcut_dedao">Dedao</string>
+  <string name="shortcut_toutiao">Toutiao</string>
+  <string name="shortcut_apple_music">Apple Music</string>
+  <!-- Region switcher -->
+  <string name="region_picker_title">Maqsadli hududni tanlang</string>
+  <string name="region_follow_system">Tizim tiliga amal qilish</string>
+  <string name="region_badge_format">Hudud · %1$s</string>
+  <string name="region_toast_applied">Hudud o\'zgartirildi: %1$s</string>
+  <!-- Device lock screen (not authorized via remote allowlist) -->
+  <string name="lock_title">Ruxsatsiz qurilma</string>
+  <string name="lock_message">Bu qurilma ruxsat etilmagan.\nBu qurilmani ruxsatlash uchun yetkazib beruvchingizga murojaat qiling.</string>
+  <!-- Authorization verification screen (ANDROID_ID remote allowlist) -->
+  <string name="verifying_title">Ishga tushirilmoqda</string>
+</resources>
