@@ -31,11 +31,11 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.29 = unbound authorization mode (publish VIN = authorize).
-  // "2." prefix on the original 1.0.x line, trailing patch bumped 28 -> 29.
-  // versionCode stays strictly monotonic (was 2010028).
-  def appVersionName = "2.1.0.29"
-  def appVersionCode = 2010029   // 2*1_000_000 + 1*10_000 + 0*100 + 29
+  // Release v2.1.0.30 = open build with NO VIN gate (customer validation).
+  // "2." prefix on the original 1.0.x line, trailing patch bumped 29 -> 30.
+  // versionCode stays strictly monotonic (was 2010029).
+  def appVersionName = "2.1.0.30"
+  def appVersionCode = 2010030   // 2*1_000_000 + 1*10_000 + 0*100 + 30
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
@@ -51,8 +51,8 @@ android {
     // reads the build-time secrets from local.properties only to ENCRYPT the
     // assets — the plaintext key never ships in the APK.
     //
-    // The remote VIN revocation check still needs its endpoint base; that is a
-    // public URL, not a secret, so it remains here.
+    // VIN_REMOTE_URL is no longer consumed by the open (no-gate) build, but kept
+    // as a public BuildConfig field in case a future build re-introduces checks.
     def vinRemoteUrl = localProps.getProperty('nspace.vin_remote.url')
     buildConfigField "String", "VIN_REMOTE_URL", "\"" + (vinRemoteUrl != null ? vinRemoteUrl : "https://www.cyaispace.tech/vin/") + "\""
   }
