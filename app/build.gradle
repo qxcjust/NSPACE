@@ -31,13 +31,17 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.33 = v2.1.0.32 + certificate-pin refresh. The live
-  // www.cyaispace.tech chain had rotated from R3/ISRG X1 to YR1/ISRG Root YR,
-  // so the old pins hard-failed TLS and new devices could never fetch their
-  // <android_id>.enc. Pins updated to the current chain (see
-  // res/xml/network_security_config.xml). versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.33"
-  def appVersionCode = 2010033   // 2*1_000_000 + 1*10_000 + 0*100 + 33
+  // Release v2.1.0.34 = v2.1.0.33 + two correctness fixes that unblock first-
+  // time authorization on a real device, plus a small operator aid:
+  //   1. TLS cert pins refreshed to the live chain (YR1 / ISRG Root YR) — done
+  //      in 2.1.0.33.
+  //   2. The lock screen now prints the device's own ANDROID_ID, because the
+  //      per-app ANDROID_ID (what the app actually authorizes against) differs
+  //      from `adb shell settings get secure android_id` (shell context). This
+  //      tells the supplier exactly which <id>.enc to publish.
+  // versionCode stays strictly monotonic.
+  def appVersionName = "2.1.0.34"
+  def appVersionCode = 2010034   // 2*1_000_000 + 1*10_000 + 0*100 + 34
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

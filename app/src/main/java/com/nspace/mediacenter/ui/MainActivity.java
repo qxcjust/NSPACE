@@ -55,13 +55,13 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
           break;
         case REVOKED:
           AuthorizationCache.revoke(this);
-          showLockScreen();
+          showLockScreen(deviceId);
           break;
         case OFFLINE:
           if (AuthorizationCache.hasGrant(this, deviceId)) {
             enterMain();
           } else {
-            showLockScreen();
+            showLockScreen(deviceId);
           }
           break;
       }
@@ -81,6 +81,15 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
   /** Replace whatever is on screen with the lock screen (unauthorized). */
   private void showLockScreen() {
+    showLockScreen(null);
+  }
+
+  /**
+   * Lock screen for an authorization failure. When {@code deviceId} is provided
+   * it is shown so the supplier knows exactly which &lt;id&gt;.enc to publish on
+   * GitHub Pages to authorize this device.
+   */
+  private void showLockScreen(String deviceId) {
     mLocked = true;
     setContentView(R.layout.activity_lock);
     TextView title = findViewById(R.id.lock_title_text);
@@ -89,7 +98,11 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
       title.setText(R.string.lock_title);
     }
     if (msg != null) {
-      msg.setText(R.string.lock_message);
+      String message = getString(R.string.lock_message);
+      if (deviceId != null && !deviceId.isEmpty()) {
+        message += "\n\nDevice ID: " + deviceId;
+      }
+      msg.setText(message);
     }
     enableImmersiveMode();
   }
