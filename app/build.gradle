@@ -31,17 +31,21 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.45 = v2.1.0.44 + focus-kick fix for "playing but silent"
-  // after another app finishes. Root cause: Chromium's AudioFocusDelegate
-  // abandons focus on a permanent LOSS and keeps its duck volume multiplier at
-  // 0, so our play() resumed the element but produced no audio. Fix: on resume
-  // after an external interruption we request + HOLD audio focus (kick), which
-  // sends AUDIOFOCUS_GAIN to Chromium and resets the multiplier. The focus
-  // listener is a no-op so we never react to LOSS (would re-trigger the
-  // v2.1.0.41/2.1.0.42 ping-pong). Focus is released on pause/stop/destroy.
-  // versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.45"
-  def appVersionCode = 2010045   // 2*1_000_000 + 1*10_000 + 0*100 + 45
+  // Release v2.1.0.46 = v2.1.0.45 + kick judgment-window tuning for the
+  // "resume but silent" case triggered by third-party players (Douyin).
+  //   (1) LATCH: interruption flag set on first external edge (within
+  //       LATCH_WINDOW_MS of our last play) and held for the whole external
+  //       session — fixes long sessions where lastPlayingTime froze.
+  //   (2) DEBOUNCE: external "stop" only counts after STOP_DEBOUNCE_POLLS
+  //       consecutive inactive polls, filtering Douyin's inter-clip gaps that
+  //       previously caused a premature resume + ate the flag.
+  //   (3) DELAY: focus kick fires KICK_DELAY_MS after the stop so it lands
+  //       after the external app really released focus (early kick = denied).
+  // Underlying kick still sends AUDIOFOCUS_GAIN to Chromium to reset its duck
+  // multiplier; listener is a no-op (no ping-pong). Focus released on
+  // pause/stop/destroy. versionCode stays strictly monotonic.
+  def appVersionName = "2.1.0.46"
+  def appVersionCode = 2010046   // 2*1_000_000 + 1*10_000 + 0*100 + 46
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

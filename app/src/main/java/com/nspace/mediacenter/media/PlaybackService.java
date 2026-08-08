@@ -68,8 +68,28 @@ public final class PlaybackService extends android.app.Service {
   private long lastPlayingTime = 0;
   private boolean interruptedByExternal = false;
   private int kickRetries = 0;
+  private int externalStopStreak = 0;     // consecutive polls with no external audio (stop debounce)
   private boolean focusHeld = false;
   private AudioFocusRequest focusRequest;
+
+  // ── Kick judgment-window tuning (v2.1.0.46) ────────────────
+  // First external-audio edge only counts as an interruption if it arrives
+  // within this window of our last playback — so a manual pause followed much
+  // later by another app does NOT auto-resume. Once latched, the interruption
+  // flag stays set for the WHOLE external session (even if it runs >5s), which
+  // fixes long Douyin sessions where lastPlayingTime froze and the old code
+  // stopped re-latching on later edges.
+  private static final long LATCH_WINDOW_MS = 5000;
+  // Require this many consecutive inactive polls (~2s) before treating the
+  // external app as truly stopped. Filters the sub-second audio gaps between
+  // Douyin clips that previously looked like "stop" and triggered a premature
+  // resume + kick.
+  private static final int STOP_DEBOUNCE_POLLS = 2;
+  // Delay the focus kick after a detected stop so it lands after the external
+  // app has fully released audio focus; an early kick can be denied (or the
+  // external app re-grabs), leaving Chromium's duck multiplier at 0 = silent.
+  private static final long KICK_DELAY_MS = 400;
+  private static final int KICK_RETRIES = 3;
 
   // Recovery "kick" listener: a deliberate no-op. We request audio focus on
   // resume (see kickAudioFocus) so Chromium — which abandons focus when another
@@ -254,20 +274,30 @@ public final class PlaybackService extends android.app.Service {
         || mode == AudioManager.MODE_IN_CALL
         || mode == AudioManager.MODE_IN_COMMUNICATION;
 
-    if (externalActive && !wasExternalActive) {
-      // External audio just appeared. If we were playing recently, mark for
-      // resume + focus kick when it stops.
-      if (System.currentTimeMillis() - lastPlayingTime < 5000) {
-        interruptedByExternal = true;
-        kickRetries = 3;
-        Log.d(TAG, "external audio detected, will resume+kick when it stops");
+    if (externalActive) {
+      // External audio present. On the rising edge, latch an interruption if we
+      // were playing just before it grabbed focus. The flag then persists for
+      // the whole external session — we do NOT re-check the time window, so a
+      // long Douyin session (where lastPlayingTime freezes) still resumes+kicks
+      // correctly when the app finally stops.
+      if (!wasExternalActive) {
+        if (System.currentTimeMillis() - lastPlayingTime < LATCH_WINDOW_MS) {
+          interruptedByExternal = true;
+          kickRetries = KICK_RETRIES;
+          Log.d(TAG, "external audio started, latched interruption (resume+kick on stop)");
+        }
       }
-    } else if (!externalActive && wasExternalActive) {
-      // External audio just stopped. Resume our media and kick focus so the
-      // sound actually comes back (otherwise Chromium stays silently ducked).
-      if (interruptedByExternal) {
-        Log.d(TAG, "external audio stopped, resuming playback + kicking focus");
+      externalStopStreak = 0;
+    } else {
+      // No external audio this poll. Count consecutive inactive polls and only
+      // treat it as a real stop once the streak reaches STOP_DEBOUNCE_POLLS —
+      // this ignores the brief silence between Douyin clips that previously
+      // caused a premature resume + kicked away the interruption flag.
+      externalStopStreak = wasExternalActive ? 1 : externalStopStreak + 1;
+      if (interruptedByExternal && externalStopStreak >= STOP_DEBOUNCE_POLLS) {
+        Log.d(TAG, "external audio stopped (debounced), resuming playback + kicking focus");
         resumePlayback();
+        externalStopStreak = 0;
       }
     }
     wasExternalActive = externalActive;
@@ -293,7 +323,10 @@ public final class PlaybackService extends android.app.Service {
   private void resumePlayback() {
     MediaWebViewHolder.getInstance().play();
     MediaWebViewHolder.getInstance().setVolume(1.0f);
-    kickAudioFocus();
+    // Delay the focus kick so it lands after the external app has fully
+    // released audio focus; an immediate kick can be denied (or the external
+    // app re-grabs focus), leaving Chromium's duck multiplier at 0 = silent.
+    pollHandler.postDelayed(this::kickAudioFocus, KICK_DELAY_MS);
   }
 
   /** Request (and hold) audio focus so Chromium's AudioFocusDelegate receives
