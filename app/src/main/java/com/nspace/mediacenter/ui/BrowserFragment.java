@@ -898,6 +898,12 @@ public final class BrowserFragment extends Fragment {
       webView.onResume();
       webView.resumeTimers();
     }
+    // When the browser returns to the foreground the WebView is refocused, so
+    // any pending external-audio interruption (Douyin / another player) can now
+    // be recovered — the media key reaches Chromium, which resumes the player
+    // (incl. cross-origin iframes) and reclaims audio focus. See
+    // PlaybackService.onBrowserForeground().
+    PlaybackService.onBrowserForeground();
   }
 
   @Override

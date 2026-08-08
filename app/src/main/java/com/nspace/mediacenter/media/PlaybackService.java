@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import androidx.annotation.Nullable;
+import com.nspace.mediacenter.BuildConfig;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.ui.BrowserFragment;
 import com.nspace.mediacenter.ui.MainActivity;
@@ -68,25 +69,17 @@ public final class PlaybackService extends android.app.Service {
   private boolean wasExternalActive = false;
   private long lastPlayingTime = 0;
   private boolean interruptedByExternal = false;
-  private int kickRetries = 0;
-  private int externalStopStreak = 0;     // consecutive polls with no external audio (stop debounce)
-  private long latchTime = 0;             // when the current interruption was latched (timeout fallback)
+  private int kickRetries = 0;            // auto-resume attempts remaining (budget)
+  private long lastResumeAttempt = 0;     // throttle auto-resume attempts
   private boolean focusHeld = false;
   private AudioFocusRequest focusRequest;
 
-  // ── Kick judgment-window tuning (v2.1.0.46) ────────────────
-  // First external-audio edge only counts as an interruption if it arrives
-  // within this window of our last playback — so a manual pause followed much
-  // later by another app does NOT auto-resume. Once latched, the interruption
-  // flag stays set for the WHOLE external session (even if it runs >5s), which
-  // fixes long Douyin sessions where lastPlayingTime froze and the old code
-  // stopped re-latching on later edges.
-  private static final long LATCH_WINDOW_MS = 5000;
-  // Require this many consecutive inactive polls (~2s) before treating the
-  // external app as truly stopped. Filters the sub-second audio gaps between
-  // Douyin clips that previously looked like "stop" and triggered a premature
-  // resume + kick.
-  private static final int STOP_DEBOUNCE_POLLS = 2;
+  // ── Kick judgment-window tuning (v2.1.0.46 → 2.1.0.49) ─────
+  // An interruption is latched on the RISING EDGE of external audio (another
+  // app grabbing focus) with NO time gate. The old 5s lastPlayingTime gate was
+  // deadly for cross-origin iframe players (Stingray / Youtube Music / …):
+  // our injected JS cannot see the iframe's <video>, so sPlaying / lastPlayingTime
+  // never update and the gate silently disabled recovery for those players.
   // Delay the focus kick after a detected stop so it lands after the external
   // app has fully released audio focus; an early kick can be denied (or the
   // external app re-grabs), leaving Chromium's duck multiplier at 0 = silent.
@@ -224,7 +217,11 @@ public final class PlaybackService extends android.app.Service {
     // On fresh user play Chromium manages its own focus, so we leave it alone.
     // When playback pauses / ends (including an external-app interruption that
     // paused us), release our held focus so we don't block the system stream.
-    if (!sPlaying && focusHeld) {
+    // BUT while an external interruption is latched we KEEP the focus we kicked
+    // for so the recovery kick can actually reset Chromium's duck multiplier
+    // (for cross-origin iframe players sPlaying is always false, so without
+    // this guard the kick would be abandoned the very next poll).
+    if (!sPlaying && focusHeld && !interruptedByExternal) {
       abandonFocus();
     }
 
@@ -269,18 +266,25 @@ public final class PlaybackService extends android.app.Service {
   }
 
   /**
-   * Passively detect external audio playback and auto-resume when it stops.
+   * Passively detect external audio interruptions and auto-resume our playback.
    *
-   * <p>Chromium's AudioFocusDelegate pauses our media when another app (phone
-   * call, navigation TTS, other music app) grabs audio focus. For transient
-   * losses it auto-resumes, but for permanent LOSS (e.g. phone call) it
-   * abandons focus entirely — playback stays paused forever after the call.
+   * <p>Chromium's AudioFocusDelegate pauses (or ducks) our media when another
+   * app grabs audio focus. For a permanent LOSS it abandons focus and keeps its
+   * duck multiplier at 0, so after the other app stops our media is "playing"
+   * but SILENT.
    *
-   * <p>External audio is detected via {@code isMusicActive()} plus
-   * {@code getMode()} (phone / VoIP). When an interruption is latched and we
-   * stay paused, a timeout safety-net forces a resume even if
-   * {@code isMusicActive()} never clears — it can stay true because our own
-   * paused AudioTrack still holds the music session after Chromium ducks us.
+   * <p>Detection: {@code isMusicActive()} plus {@code getMode()} (phone / VoIP).
+   * On the RISING EDGE we latch an interruption with NO time gate — gating on
+   * our own lastPlayingTime broke recovery for cross-origin iframe players
+   * (Youtube Music / Stingray / …) whose element our injected JS cannot see, so
+   * sPlaying / lastPlayingTime never update.
+   *
+   * <p>Recovery: while latched we attempt resume only when the external app has
+   * stopped (externalActive false) OR whenever NSPACE is the foreground app.
+   * This way, when the user backgrounds the other app and returns here, the
+   * media key reaches our now-focused WebView and Chromium (which controls all
+   * in-renderer media, iframes included) resumes playback and reclaims focus.
+   * While the other app is still foreground we stay quiet so we don't fight it.
    */
   private void checkExternalPlayback() {
     int mode = audioManager.getMode();
@@ -288,74 +292,70 @@ public final class PlaybackService extends android.app.Service {
         || mode == AudioManager.MODE_IN_CALL
         || mode == AudioManager.MODE_IN_COMMUNICATION;
 
-    if (externalActive) {
-      // External audio present. On the rising edge, latch an interruption if we
-      // were playing just before it grabbed focus. The flag then persists for
-      // the whole external session — we do NOT re-check the time window, so a
-      // long Douyin session (where lastPlayingTime freezes) still resumes+kicks
-      // correctly when the app finally stops.
-      if (!wasExternalActive) {
-        if (System.currentTimeMillis() - lastPlayingTime < LATCH_WINDOW_MS) {
-          interruptedByExternal = true;
-          kickRetries = RESUME_MAX_ATTEMPTS;
-          latchTime = 0; // allow an immediate first resume attempt
-          Log.d(TAG, "external audio started, latched interruption");
-        }
-      }
-      externalStopStreak = 0;
-    } else {
-      // No external audio this poll. Count consecutive inactive polls and only
-      // treat it as a real stop once the streak reaches STOP_DEBOUNCE_POLLS —
-      // this ignores the brief silence between Douyin clips that previously
-      // caused a premature resume + kicked away the interruption flag.
-      externalStopStreak = wasExternalActive ? 1 : externalStopStreak + 1;
-      if (interruptedByExternal && externalStopStreak >= STOP_DEBOUNCE_POLLS) {
-        Log.d(TAG, "external audio stopped (debounced), resuming playback + kicking focus");
-        resumePlayback();
-        // Same-origin players resume immediately; clear the latch. Cross-origin
-        // iframe players may still need a focused media key, handled by the
-        // retry loop below when the user returns to the foreground.
-        interruptedByExternal = false;
-        externalStopStreak = 0;
-      } else if (interruptedByExternal) {
-        // The other app released focus from the system's view but the debounce
-        // has not yet satisfied — refill the kick budget so a successful focus
-        // kick can land now (Douyin is gone, so the request will be granted).
-        kickRetries = RESUME_MAX_ATTEMPTS;
-      }
+    // Rising edge: another app just grabbed audio focus → latch an interruption.
+    // No time gate (see class note about iframe players). The flag is only
+    // cleared by a successful recovery budget, never by the 5s window.
+    if (externalActive && !wasExternalActive) {
+      interruptedByExternal = true;
+      kickRetries = RESUME_MAX_ATTEMPTS;
+      lastResumeAttempt = 0; // allow an immediate first attempt
+      Log.d(TAG, "external audio started, latched interruption (auto-resume armed)");
     }
     wasExternalActive = externalActive;
 
-    // While latched and NOT actually playing, keep retrying resume. Covers:
-    //  (a) the interruption paused the element and play()/media-key must
-    //      restart it (incl. cross-origin iframes our JS cannot reach), and
-    //  (b) detection blind spots where isMusicActive() stays true because our
-    //      own ducked AudioTrack still holds the music session open.
-    // Retrying on a timer means the forwarded media key lands once the user
-    // returns to the foreground and the WebView is refocused. Budgeted so we
-    // eventually give up and let the user resume manually.
-    if (interruptedByExternal && !sPlaying) {
-      long now = System.currentTimeMillis();
-      if (now - latchTime > RESUME_RETRY_MS) {
-        Log.d(TAG, "retry resume (attempt "
-            + (RESUME_MAX_ATTEMPTS - kickRetries + 1) + "/" + RESUME_MAX_ATTEMPTS + ")");
-        resumePlayback();
-        latchTime = now;
-        kickRetries--;
-        if (kickRetries <= 0) {
-          interruptedByExternal = false; // gave up; manual resume available
+    // Unified auto-resume while latched. Fires when the external app has stopped
+    // OR whenever NSPACE is foreground — so returning to the app (WebView
+    // refocused) immediately drives Chromium to resume the (possibly iframe)
+    // player and reclaim audio focus. Throttled + budgeted so we eventually
+    // give up and let the user resume manually.
+    if (interruptedByExternal) {
+      boolean nspaceForeground = BrowserFragment.isBrowserVisible();
+      if (!externalActive || nspaceForeground) {
+        long now = System.currentTimeMillis();
+        if (now - lastResumeAttempt >= RESUME_RETRY_MS) {
+          Log.d(TAG, "auto-resume attempt ("
+              + (RESUME_MAX_ATTEMPTS - kickRetries + 1) + "/" + RESUME_MAX_ATTEMPTS
+              + ") ext=" + externalActive + " fg=" + nspaceForeground);
+          resumePlayback();
+          lastResumeAttempt = now;
+          kickRetries--;
+          if (kickRetries <= 0 || (!externalActive && focusHeld)) {
+            interruptedByExternal = false; // recovered or gave up
+            Log.d(TAG, "auto-resume done (focus=" + focusHeld + ")");
+          }
         }
       }
     }
 
-    // Playing-but-silent safety net: Chromium keeps its duck volume multiplier
-    // at 0 after a permanent LOSS, so even though the element "plays" there is
-    // no audio. Force the focus kick (no-op once held) so Chromium receives
-    // AUDIOFOCUS_GAIN and resets the multiplier. Kept separate from the retry
-    // budget so it keeps trying every poll until focus is actually held.
-    if (interruptedByExternal && sPlaying && !focusHeld) {
-      kickAudioFocus();
+    if (BuildConfig.DEBUG) {
+      Log.d(TAG, "poll ext=" + externalActive + " music=" + audioManager.isMusicActive()
+          + " mode=" + mode + " sPlay=" + sPlaying + " focus=" + focusHeld
+          + " latch=" + interruptedByExternal + " budget=" + kickRetries);
     }
+  }
+
+  /**
+   * Called by {@link BrowserFragment#onResume()} the moment the browser WebView
+   * regains window focus. If an external interruption is latched we recover
+   * immediately (the media key now reaches a focused WebView, so Chromium
+   * resumes the player — including cross-origin iframes — and reclaims focus).
+   * Also schedules a second attempt shortly after, in case the external app has
+   * not fully released focus yet.
+   */
+  public static void onBrowserForeground() {
+    if (sInstance != null) {
+      sInstance.tryRecoverNow();
+    }
+  }
+
+  private void tryRecoverNow() {
+    if (!interruptedByExternal) {
+      return;
+    }
+    Log.d(TAG, "browser foreground, immediate recovery attempt");
+    resumePlayback();
+    pollHandler.postDelayed(this::resumePlayback, 800);
+    lastResumeAttempt = System.currentTimeMillis();
   }
 
   /** Resume media after an external-app interruption and restore sound. {@code

@@ -31,24 +31,24 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.48 = v2.1.0.47 + media-key forwarding for cross-origin
-  //   iframe players. Root cause of BOTH "Stingray can't be controlled via
-  //   MediaSession" AND "Douyin closes, playback never resumes": our injected
-  //   JS (FIND_MEDIA_JS) runs in the top-page context and Same-Origin Policy
-  //   blocks it from the player's <video> when the player is a cross-origin
-  //   iframe (Stingray / Deezer / …), so play()/pause()/setVolume() are no-ops.
-  //   Fix: resumePlayback() and the MediaSession onPlay/onPause callbacks now
-  //   ALSO forward KEYCODE_MEDIA_PLAY/PAUSE into the WebView, so Chromium's
-  //   native media session (which controls all in-renderer media, iframes
-  //   included) plays/pauses them. checkExternalPlayback rewritten: while an
-  //   interruption is latched and we're not actually playing, retry resume on a
-  //   throttle (RESUME_RETRY_MS=4s, budget RESUME_MAX_ATTEMPTS=30) — this covers
-  //   a paused iframe element AND the isMusicActive()-stuck-true blind spot, and
-  //   lands once the user returns to the foreground (WebView refocused). A
-  //   separate branch keeps kicking focus for the "playing but silent" (duck
-  //   multiplier stuck at 0) case until focus is held. versionCode monotonic.
-  def appVersionName = "2.1.0.48"
-  def appVersionCode = 2010048   // 2*1_000_000 + 1*10_000 + 0*100 + 48
+  // Release v2.1.0.49 = v2.1.0.48 + fix "no recovery at all" for iframe
+  //   players (Youtube Music / Stingray / …). Root cause: v2.1.0.48 latched an
+  //   interruption only when now-lastPlayingTime<5s, but for cross-origin iframe
+  //   players FIND_MEDIA_JS can't see the <video>, so sPlaying/lastPlayingTime
+  //   never update → the gate silently disabled recovery (never latched).
+  //   Fixes:
+  //   1) Latch on the external-audio RISING EDGE with NO time gate.
+  //   2) Auto-resume fires while latched AND (external stopped OR NSPACE is
+  //      foreground) — so returning to the app (WebView refocused) drives
+  //      Chromium to resume the (iframe) player and reclaim focus.
+  //   3) BrowserFragment.onResume() calls PlaybackService.onBrowserForeground()
+  //      for an immediate + 800ms recovery attempt (the reliable trigger).
+  //   4) While latched we KEEP the kicked focus so the duck multiplier actually
+  //      resets (iframe sPlaying is always false, would otherwise abandon it).
+  //   5) Debug poll logging (ext/music/mode/sPlay/focus/latch/budget) for
+  //      next-iteration diagnosis. versionCode monotonic.
+  def appVersionName = "2.1.0.49"
+  def appVersionCode = 2010049   // 2*1_000_000 + 1*10_000 + 0*100 + 49
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
