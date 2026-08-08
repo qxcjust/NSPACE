@@ -2,6 +2,8 @@ package com.nspace.mediacenter.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.TextView;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -23,6 +25,16 @@ import com.nspace.mediacenter.util.RemoteAuthorizer;
 public final class MainActivity extends AppCompatActivity implements MainNavigator {
 
   private boolean mLocked = false;
+
+  // ── Lock-screen authorization polling ──────────────────────────
+  // When the device is unauthorized, a background poller checks the remote
+  // authorization endpoint every 60 seconds so the device auto-unlocks the
+  // moment the supplier publishes aid/<id>.enc — without requiring an app
+  // restart.
+  private static final long POLL_INTERVAL_MS = 60_000L;
+  private final Handler pollHandler = new Handler(Looper.getMainLooper());
+  private Runnable authPollRunnable;
+  private String pendingDeviceId;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +82,7 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
 
   /** Swap the verification screen for the main UI (authorization granted). */
   private void enterMain() {
+    stopAuthPolling();
     mLocked = false;
     setContentView(R.layout.activity_main);
     handleLaunchIntent(getIntent());
@@ -113,6 +126,55 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
       }
     }
     enableImmersiveMode();
+    // Start background polling so the device auto-unlocks once the supplier
+    // publishes aid/<id>.enc — no app restart needed.
+    startAuthPolling(deviceId);
+  }
+
+  /**
+   * Start a 60-second background poll of the remote authorization endpoint.
+   * On {@code PASS} the device is granted and the main UI is entered; on
+   * {@code REVOKED} or {@code OFFLINE} the poller keeps trying.
+   */
+  private void startAuthPolling(String deviceId) {
+    stopAuthPolling();
+    pendingDeviceId = deviceId;
+    authPollRunnable = new Runnable() {
+      @Override
+      public void run() {
+        if (!mLocked || pendingDeviceId == null) {
+          return;
+        }
+        RemoteAuthorizer.verify(MainActivity.this, result -> {
+          if (!mLocked) {
+            return; // already unlocked by another path
+          }
+          switch (result) {
+            case PASS:
+              AuthorizationCache.grant(MainActivity.this, pendingDeviceId);
+              enterMain();
+              break;
+            case REVOKED:
+            case OFFLINE:
+              // Keep polling — the supplier may not have published yet.
+              pollHandler.postDelayed(authPollRunnable, POLL_INTERVAL_MS);
+              break;
+          }
+        });
+      }
+    };
+    // First check after a short delay (don't hammer the endpoint immediately
+    // after the initial check that just failed), then every 60 seconds.
+    pollHandler.postDelayed(authPollRunnable, POLL_INTERVAL_MS);
+  }
+
+  /** Stop the background authorization poller. */
+  private void stopAuthPolling() {
+    if (authPollRunnable != null) {
+      pollHandler.removeCallbacks(authPollRunnable);
+      authPollRunnable = null;
+    }
+    pendingDeviceId = null;
   }
 
   @Override
@@ -122,6 +184,12 @@ public final class MainActivity extends AppCompatActivity implements MainNavigat
       return;
     }
     handleLaunchIntent(intent);
+  }
+
+  @Override
+  protected void onDestroy() {
+    stopAuthPolling();
+    super.onDestroy();
   }
 
   /**

@@ -131,6 +131,17 @@ public final class MediaWebViewHolder {
   }
 
   /**
+   * Set the media element's volume (0.0–1.0). Used by PlaybackService to duck
+   * audio when another app (e.g. navigation voice guidance) grabs transient
+   * audio focus with {@code AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}, and to restore
+   * it when focus is regained.
+   */
+  public void setVolume(float vol) {
+    eval("(function(){var m=(typeof window.__nsFindMedia==='function')?window.__nsFindMedia():null;"
+        + "if(m)m.volume=" + vol + ";})();");
+  }
+
+  /**
    * Reads the current media element state and reports it as JSON via {@code cb}.
    * Runs on the main thread so the result callback is safe to use for UI /
    * MediaSession updates.

@@ -6,6 +6,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
@@ -45,6 +48,65 @@ public final class PlaybackService extends android.app.Service {
   private Runnable pollRunnable;
   private boolean foreground = false;
 
+  // ── Audio focus management ─────────────────────────────────────
+  // The WebView's Chromium engine grabs audio focus automatically, but it does
+  // NOT respond to focus-loss events from other apps (e.g. navigation voice
+  // guidance). Without our own AudioFocus listener the music keeps playing at
+  // full volume over the navigation prompts. We request focus ourselves and
+  // duck / pause in response to transient losses, then abandon when playback
+  // stops so other apps can reclaim it.
+  private AudioManager audioManager;
+  private AudioFocusRequest focusRequest;
+  private boolean focusHeld = false;
+  private boolean wasDucked = false;
+  private boolean pausedByFocusLoss = false;
+
+  private final AudioManager.OnAudioFocusChangeListener focusListener =
+      new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+          switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+              // Another app needs the audio briefly and can tolerate us
+              // continuing at a lower volume (e.g. navigation TTS).
+              wasDucked = true;
+              MediaWebViewHolder.getInstance().setVolume(0.2f);
+              Log.d(TAG, "audio focus: duck (transient-can-duck)");
+              break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+              // Another app needs exclusive audio for a short time. Pause and
+              // remember to resume when focus returns.
+              wasDucked = false;
+              pausedByFocusLoss = true;
+              MediaWebViewHolder.getInstance().pause();
+              Log.d(TAG, "audio focus: pause (transient loss)");
+              break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+              // Permanent loss — another app took over. Stop and release.
+              wasDucked = false;
+              pausedByFocusLoss = false;
+              abandonAudioFocus();
+              MediaWebViewHolder.getInstance().release();
+              stopSelf();
+              Log.d(TAG, "audio focus: permanent loss, releasing");
+              break;
+            case AudioManager.AUDIOFOCUS_GAIN:
+              // Focus restored — undo ducking or resume playback if we paused.
+              if (wasDucked) {
+                wasDucked = false;
+                MediaWebViewHolder.getInstance().setVolume(1.0f);
+                Log.d(TAG, "audio focus: restored volume after duck");
+              }
+              if (pausedByFocusLoss) {
+                pausedByFocusLoss = false;
+                MediaWebViewHolder.getInstance().play();
+                Log.d(TAG, "audio focus: resumed after transient loss");
+              }
+              break;
+          }
+        }
+      };
+
   /** True while the page's media element is actually playing (not paused). */
   private static volatile boolean sPlaying = false;
   private static PlaybackService sInstance = null;
@@ -68,6 +130,8 @@ public final class PlaybackService extends android.app.Service {
   @Override
   public void onCreate() {
     super.onCreate();
+
+    audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
     session = new MediaSession(this, "NSpaceMedia");
     session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS
@@ -111,6 +175,56 @@ public final class PlaybackService extends android.app.Service {
     Log.d(TAG, "PlaybackService created");
   }
 
+  /**
+   * Request audio focus so we can duck or pause when another app (navigation
+   * voice guidance, phone call, etc.) needs the audio stream. Uses the modern
+   * {@link AudioFocusRequest} on API 26+ and the legacy API below.
+   *
+   * @return true if focus was granted.
+   */
+  private boolean requestAudioFocus() {
+    if (audioManager == null || focusHeld) {
+      return focusHeld;
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      AudioAttributes attrs = new AudioAttributes.Builder()
+          .setUsage(AudioAttributes.USAGE_MEDIA)
+          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+          .build();
+      focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+          .setAudioAttributes(attrs)
+          .setOnAudioFocusChangeListener(focusListener)
+          .setWillPauseWhenDucked(false)
+          .build();
+      int res = audioManager.requestAudioFocus(focusRequest);
+      focusHeld = (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    } else {
+      int res = audioManager.requestAudioFocus(focusListener,
+          AudioManager.STREAM_MUSIC,
+          AudioManager.AUDIOFOCUS_GAIN);
+      focusHeld = (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    }
+    Log.d(TAG, "requestAudioFocus: " + (focusHeld ? "granted" : "denied"));
+    return focusHeld;
+  }
+
+  /** Abandon audio focus so other apps can use the audio stream. */
+  private void abandonAudioFocus() {
+    if (!focusHeld) {
+      return;
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && focusRequest != null) {
+      audioManager.abandonAudioFocusRequest(focusRequest);
+      focusRequest = null;
+    } else {
+      audioManager.abandonAudioFocus(focusListener);
+    }
+    focusHeld = false;
+    wasDucked = false;
+    pausedByFocusLoss = false;
+    Log.d(TAG, "abandonAudioFocus: released");
+  }
+
   private void updateFromJson(@Nullable String json) {
     boolean paused = true;
     long current = 0;
@@ -131,7 +245,18 @@ public final class PlaybackService extends android.app.Service {
       }
     }
 
+    boolean wasPlaying = sPlaying;
     sPlaying = !paused;
+
+    // Request audio focus when playback starts, abandon when it stops.
+    // This lets us duck/pause for navigation voice guidance and other
+    // transient audio from other apps — Chromium's internal focus handling
+    // does NOT react to these events on its own.
+    if (sPlaying && !wasPlaying) {
+      requestAudioFocus();
+    } else if (!sPlaying && wasPlaying) {
+      abandonAudioFocus();
+    }
 
     int state = paused ? PlaybackState.STATE_PAUSED : PlaybackState.STATE_PLAYING;
     PlaybackState pb = new PlaybackState.Builder()
@@ -236,6 +361,7 @@ public final class PlaybackService extends android.app.Service {
   @Override
   public void onDestroy() {
     pollHandler.removeCallbacks(pollRunnable);
+    abandonAudioFocus();
     if (session != null) {
       session.setActive(false);
       session.release();
