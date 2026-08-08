@@ -31,16 +31,17 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.44 = v2.1.0.43 + passive audio playback monitoring for
-  // auto-resume after focus loss. Chromium's AudioFocusDelegate pauses media
-  // when another app (phone call, nav TTS) takes focus, but after permanent
-  // LOSS it abandons focus and never gets GAIN back — playback stays paused.
-  // We now PASSIVELY monitor other apps via AudioPlaybackCallback (API 26+)
-  // without requesting focus ourselves (avoids the ping-pong from v2.1.0.41).
-  // When the external app stops, we call play() to resume. API 24-25 falls
-  // back to polling isMusicActive() + getMode().
-  def appVersionName = "2.1.0.44"
-  def appVersionCode = 2010044   // 2*1_000_000 + 1*10_000 + 0*100 + 44
+  // Release v2.1.0.45 = v2.1.0.44 + focus-kick fix for "playing but silent"
+  // after another app finishes. Root cause: Chromium's AudioFocusDelegate
+  // abandons focus on a permanent LOSS and keeps its duck volume multiplier at
+  // 0, so our play() resumed the element but produced no audio. Fix: on resume
+  // after an external interruption we request + HOLD audio focus (kick), which
+  // sends AUDIOFOCUS_GAIN to Chromium and resets the multiplier. The focus
+  // listener is a no-op so we never react to LOSS (would re-trigger the
+  // v2.1.0.41/2.1.0.42 ping-pong). Focus is released on pause/stop/destroy.
+  // versionCode stays strictly monotonic.
+  def appVersionName = "2.1.0.45"
+  def appVersionCode = 2010045   // 2*1_000_000 + 1*10_000 + 0*100 + 45
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

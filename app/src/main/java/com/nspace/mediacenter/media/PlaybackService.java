@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
@@ -47,21 +49,41 @@ public final class PlaybackService extends android.app.Service {
   private boolean foreground = false;
 
   // ── Audio focus resume ──────────────────────────────────────────
-  // Chromium's internal AudioFocusDelegate handles pausing our media when
-  // another app (phone call, navigation TTS) grabs audio focus, and ducks
-  // for LOSS_TRANSIENT_CAN_DUCK. However, after a permanent LOSS (phone
-  // call), Chromium ABANDONS focus — it never gets a GAIN callback when the
-  // call ends, so playback stays paused forever.
+  // Chromium's internal AudioFocusDelegate pauses our media when another app
+  // (music player, phone call, navigation) grabs audio focus. For a permanent
+  // LOSS (another app finishes / phone call ends) Chromium ABANDONS focus and
+  // keeps its duck volume multiplier at 0 — so when we call play() again the
+  // media is "playing" (time advances, subtitles scroll) but SILENT.
   //
-  // We solve this by PASSIVELY polling AudioManager.isMusicActive() and
-  // getMode() every second. We do NOT request audio focus ourselves (that
-  // caused a ping-pong conflict in v2.1.0.41/2.1.0.42). When we detect
-  // external audio while we were recently playing, we mark for auto-resume.
-  // When the external audio stops, we call play() to resume.
+  // We fix this with a "focus kick": after an external interruption we resume
+  // our media AND request audio focus ourselves (request + hold). Chromium's
+  // AudioFocusDelegate then receives AUDIOFOCUS_GAIN and resets its multiplier,
+  // restoring sound. We must NOT react to LOSS in our own listener — doing so
+  // re-triggered the v2.1.0.41/2.1.0.42 ping-pong (our request vs Chromium's
+  // own, same UID, two competing focus clients). We only request focus when
+  // resuming after an interruption, never on a fresh user play (Chromium's own
+  // request handles that), which is what avoids the conflict.
   private AudioManager audioManager;
   private boolean wasExternalActive = false;
-  private boolean shouldAutoResume = false;
   private long lastPlayingTime = 0;
+  private boolean interruptedByExternal = false;
+  private int kickRetries = 0;
+  private boolean focusHeld = false;
+  private AudioFocusRequest focusRequest;
+
+  // Recovery "kick" listener: a deliberate no-op. We request audio focus on
+  // resume (see kickAudioFocus) so Chromium — which abandons focus when another
+  // app takes over — receives AUDIOFOCUS_GAIN and resets its duck volume
+  // multiplier (otherwise stuck at 0, leaving our media "playing" but silent).
+  // We must NOT react to LOSS here: that re-triggered the v2.1.0.41/2.1.0.42
+  // ping-pong conflict (our request vs Chromium's own, same UID).
+  private final AudioManager.OnAudioFocusChangeListener kickListener =
+      new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+          // No-op by design.
+        }
+      };
 
   /** True while the page's media element is actually playing (not paused). */
   private static volatile boolean sPlaying = false;
@@ -102,7 +124,9 @@ public final class PlaybackService extends android.app.Service {
 
       @Override
       public void onPause() {
-        shouldAutoResume = false;
+        interruptedByExternal = false;
+        kickRetries = 0;
+        abandonFocus();
         h.post(() -> MediaWebViewHolder.getInstance().pause());
       }
 
@@ -157,6 +181,13 @@ public final class PlaybackService extends android.app.Service {
       lastPlayingTime = System.currentTimeMillis();
     }
     sPlaying = !paused;
+
+    // On fresh user play Chromium manages its own focus, so we leave it alone.
+    // When playback pauses / ends (including an external-app interruption that
+    // paused us), release our held focus so we don't block the system stream.
+    if (!sPlaying && focusHeld) {
+      abandonFocus();
+    }
 
     int state = paused ? PlaybackState.STATE_PAUSED : PlaybackState.STATE_PLAYING;
     PlaybackState pb = new PlaybackState.Builder()
@@ -218,29 +249,96 @@ public final class PlaybackService extends android.app.Service {
    * audio when our media is paused.
    */
   private void checkExternalPlayback() {
-    if (sPlaying) {
-      wasExternalActive = false;
-      return;
-    }
     int mode = audioManager.getMode();
     boolean externalActive = audioManager.isMusicActive()
         || mode == AudioManager.MODE_IN_CALL
         || mode == AudioManager.MODE_IN_COMMUNICATION;
 
     if (externalActive && !wasExternalActive) {
-      // External audio just appeared. If we played recently, mark for resume.
+      // External audio just appeared. If we were playing recently, mark for
+      // resume + focus kick when it stops.
       if (System.currentTimeMillis() - lastPlayingTime < 5000) {
-        shouldAutoResume = true;
-        Log.d(TAG, "external audio detected, will auto-resume when it stops");
+        interruptedByExternal = true;
+        kickRetries = 3;
+        Log.d(TAG, "external audio detected, will resume+kick when it stops");
       }
     } else if (!externalActive && wasExternalActive) {
-      if (shouldAutoResume) {
-        shouldAutoResume = false;
-        Log.d(TAG, "external audio stopped, auto-resuming playback");
-        MediaWebViewHolder.getInstance().play();
+      // External audio just stopped. Resume our media and kick focus so the
+      // sound actually comes back (otherwise Chromium stays silently ducked).
+      if (interruptedByExternal) {
+        Log.d(TAG, "external audio stopped, resuming playback + kicking focus");
+        resumePlayback();
       }
     }
     wasExternalActive = externalActive;
+
+    // Safety net: if we are flagged interrupted but (for any reason) the
+    // resume-kick never fired, or the user returned to the foreground with the
+    // media "playing but silent", re-kick a few times while we are actually
+    // playing and no external audio is active.
+    if (interruptedByExternal && sPlaying && !externalActive && kickRetries > 0) {
+      kickAudioFocus();
+      kickRetries--;
+      if (kickRetries <= 0) {
+        interruptedByExternal = false;
+      }
+    }
+  }
+
+  /** Resume media after an external-app interruption and restore sound. {@code
+   *  play()} alone is not enough: Chromium abandoned focus on the interruption
+   *  and keeps its duck volume multiplier at 0, so the media would be "playing"
+   *  but silent. The focus kick makes Chromium receive AUDIOFOCUS_GAIN and
+   *  reset the multiplier. */
+  private void resumePlayback() {
+    MediaWebViewHolder.getInstance().play();
+    MediaWebViewHolder.getInstance().setVolume(1.0f);
+    kickAudioFocus();
+  }
+
+  /** Request (and hold) audio focus so Chromium's AudioFocusDelegate receives
+   *  AUDIOFOCUS_GAIN and resets its duck multiplier. The listener is a
+   *  deliberate no-op: reacting to LOSS here re-triggered the v2.1.0.41/2.1.0.42
+   *  ping-pong with Chromium's own internal focus client (same UID, two
+   *  competing requests). We hold the focus until playback pauses. */
+  private void kickAudioFocus() {
+    if (audioManager == null || focusHeld) {
+      return;
+    }
+    int res;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      AudioAttributes attrs = new AudioAttributes.Builder()
+          .setUsage(AudioAttributes.USAGE_MEDIA)
+          .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+          .build();
+      focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+          .setAudioAttributes(attrs)
+          .setOnAudioFocusChangeListener(kickListener)
+          .setWillPauseWhenDucked(false)
+          .build();
+      res = audioManager.requestAudioFocus(focusRequest);
+    } else {
+      res = audioManager.requestAudioFocus(kickListener,
+          AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+    }
+    focusHeld = (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    Log.d(TAG, "kickAudioFocus: " + (focusHeld ? "granted" : "denied"));
+  }
+
+  /** Abandon our held audio focus so other apps can take over the stream.
+   *  Called when playback pauses / stops / the service is destroyed. */
+  private void abandonFocus() {
+    if (!focusHeld) {
+      return;
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && focusRequest != null) {
+      audioManager.abandonAudioFocusRequest(focusRequest);
+      focusRequest = null;
+    } else {
+      audioManager.abandonAudioFocus(kickListener);
+    }
+    focusHeld = false;
+    Log.d(TAG, "abandonFocus: released");
   }
 
   private void enterForeground(String title) {
@@ -306,6 +404,7 @@ public final class PlaybackService extends android.app.Service {
   @Override
   public void onDestroy() {
     pollHandler.removeCallbacks(pollRunnable);
+    abandonFocus();
     if (session != null) {
       session.setActive(false);
       session.release();
