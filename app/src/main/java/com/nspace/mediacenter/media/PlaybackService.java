@@ -69,6 +69,7 @@ public final class PlaybackService extends android.app.Service {
   private boolean interruptedByExternal = false;
   private int kickRetries = 0;
   private int externalStopStreak = 0;     // consecutive polls with no external audio (stop debounce)
+  private long latchTime = 0;             // when the current interruption was latched (timeout fallback)
   private boolean focusHeld = false;
   private AudioFocusRequest focusRequest;
 
@@ -90,6 +91,11 @@ public final class PlaybackService extends android.app.Service {
   // external app re-grabs), leaving Chromium's duck multiplier at 0 = silent.
   private static final long KICK_DELAY_MS = 400;
   private static final int KICK_RETRIES = 3;
+  // Force a resume this long after latching an interruption, even if
+  // isMusicActive() still reports "active" — our own paused AudioTrack can keep
+  // the music session alive after Chromium ducks us, so the debounce-by-silence
+  // above never triggers and playback would stay paused forever.
+  private static final long RESUME_TIMEOUT_MS = 12000;
 
   // Recovery "kick" listener: a deliberate no-op. We request audio focus on
   // resume (see kickAudioFocus) so Chromium — which abandons focus when another
@@ -257,16 +263,11 @@ public final class PlaybackService extends android.app.Service {
    * losses it auto-resumes, but for permanent LOSS (e.g. phone call) it
    * abandons focus entirely — playback stays paused forever after the call.
    *
-   * <p>This method runs every second from the poll loop. When we're NOT
-   * playing (sPlaying == false), it checks {@code isMusicActive()} (catches
-   * other music apps) and {@code getMode()} (catches phone calls via
-   * MODE_IN_CALL / MODE_IN_COMMUNICATION). If external audio is detected and
-   * we were recently playing, we set {@code shouldAutoResume}. When the
-   * external audio stops, we call {@code play()} to resume.
-   *
-   * <p>We only check when NOT playing because isMusicActive() returns true
-   * when our own media is active — we can only reliably detect external
-   * audio when our media is paused.
+   * <p>External audio is detected via {@code isMusicActive()} plus
+   * {@code getMode()} (phone / VoIP). When an interruption is latched and we
+   * stay paused, a timeout safety-net forces a resume even if
+   * {@code isMusicActive()} never clears — it can stay true because our own
+   * paused AudioTrack still holds the music session after Chromium ducks us.
    */
   private void checkExternalPlayback() {
     int mode = audioManager.getMode();
@@ -284,6 +285,7 @@ public final class PlaybackService extends android.app.Service {
         if (System.currentTimeMillis() - lastPlayingTime < LATCH_WINDOW_MS) {
           interruptedByExternal = true;
           kickRetries = KICK_RETRIES;
+          latchTime = System.currentTimeMillis();
           Log.d(TAG, "external audio started, latched interruption (resume+kick on stop)");
         }
       }
@@ -301,6 +303,21 @@ public final class PlaybackService extends android.app.Service {
       }
     }
     wasExternalActive = externalActive;
+
+    // Timeout safety-net: isMusicActive() can stay true because our own paused
+    // AudioTrack still holds the music session open after Chromium ducks us, so
+    // the debounce-by-silence above never fires and playback stays paused
+    // forever. After RESUME_TIMEOUT_MS force one resume attempt. We clear the
+    // flag afterwards: if play() can't reach the element (e.g. a cross-origin
+    // iframe player) retrying on every poll won't help, and the user can
+    // resume manually.
+    if (interruptedByExternal && !sPlaying
+        && System.currentTimeMillis() - latchTime > RESUME_TIMEOUT_MS) {
+      Log.d(TAG, "interruption timeout (" + RESUME_TIMEOUT_MS + "ms), forcing resume + kick");
+      resumePlayback();
+      interruptedByExternal = false;
+      externalStopStreak = 0;
+    }
 
     // Safety net: if we are flagged interrupted but (for any reason) the
     // resume-kick never fired, or the user returned to the foreground with the
