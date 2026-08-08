@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
@@ -45,13 +46,22 @@ public final class PlaybackService extends android.app.Service {
   private Runnable pollRunnable;
   private boolean foreground = false;
 
-  // Audio focus is handled entirely by Chromium's internal AudioFocusDelegate
-  // (org.chromium.content.browser.AudioFocusDelegate). It automatically ducks
-  // for navigation TTS (LOSS_TRANSIENT_CAN_DUCK) and pauses for phone calls
-  // (LOSS_TRANSIENT / LOSS). We do NOT request audio focus ourselves — doing
-  // so creates a ping-pong conflict where our request revokes Chromium's focus
-  // (causing it to pause the media element) and vice versa, observed on the
-  // test device via `dumpsys audio` (v2.1.0.41/2.1.0.42 bug).
+  // ── Audio focus resume ──────────────────────────────────────────
+  // Chromium's internal AudioFocusDelegate handles pausing our media when
+  // another app (phone call, navigation TTS) grabs audio focus, and ducks
+  // for LOSS_TRANSIENT_CAN_DUCK. However, after a permanent LOSS (phone
+  // call), Chromium ABANDONS focus — it never gets a GAIN callback when the
+  // call ends, so playback stays paused forever.
+  //
+  // We solve this by PASSIVELY polling AudioManager.isMusicActive() and
+  // getMode() every second. We do NOT request audio focus ourselves (that
+  // caused a ping-pong conflict in v2.1.0.41/2.1.0.42). When we detect
+  // external audio while we were recently playing, we mark for auto-resume.
+  // When the external audio stops, we call play() to resume.
+  private AudioManager audioManager;
+  private boolean wasExternalActive = false;
+  private boolean shouldAutoResume = false;
+  private long lastPlayingTime = 0;
 
   /** True while the page's media element is actually playing (not paused). */
   private static volatile boolean sPlaying = false;
@@ -77,6 +87,8 @@ public final class PlaybackService extends android.app.Service {
   public void onCreate() {
     super.onCreate();
 
+    audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
     session = new MediaSession(this, "NSpaceMedia");
     session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS
         | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -90,6 +102,7 @@ public final class PlaybackService extends android.app.Service {
 
       @Override
       public void onPause() {
+        shouldAutoResume = false;
         h.post(() -> MediaWebViewHolder.getInstance().pause());
       }
 
@@ -110,6 +123,7 @@ public final class PlaybackService extends android.app.Service {
       @Override
       public void run() {
         MediaWebViewHolder.getInstance().pollState(json -> updateFromJson(json));
+        checkExternalPlayback();
         pollHandler.postDelayed(this, 1000);
       }
     };
@@ -139,6 +153,9 @@ public final class PlaybackService extends android.app.Service {
       }
     }
 
+    if (!paused) {
+      lastPlayingTime = System.currentTimeMillis();
+    }
     sPlaying = !paused;
 
     int state = paused ? PlaybackState.STATE_PAUSED : PlaybackState.STATE_PLAYING;
@@ -179,6 +196,51 @@ public final class PlaybackService extends android.app.Service {
     if (sPlaying || foreground) {
       enterForeground(title);
     }
+  }
+
+  /**
+   * Passively detect external audio playback and auto-resume when it stops.
+   *
+   * <p>Chromium's AudioFocusDelegate pauses our media when another app (phone
+   * call, navigation TTS, other music app) grabs audio focus. For transient
+   * losses it auto-resumes, but for permanent LOSS (e.g. phone call) it
+   * abandons focus entirely — playback stays paused forever after the call.
+   *
+   * <p>This method runs every second from the poll loop. When we're NOT
+   * playing (sPlaying == false), it checks {@code isMusicActive()} (catches
+   * other music apps) and {@code getMode()} (catches phone calls via
+   * MODE_IN_CALL / MODE_IN_COMMUNICATION). If external audio is detected and
+   * we were recently playing, we set {@code shouldAutoResume}. When the
+   * external audio stops, we call {@code play()} to resume.
+   *
+   * <p>We only check when NOT playing because isMusicActive() returns true
+   * when our own media is active — we can only reliably detect external
+   * audio when our media is paused.
+   */
+  private void checkExternalPlayback() {
+    if (sPlaying) {
+      wasExternalActive = false;
+      return;
+    }
+    int mode = audioManager.getMode();
+    boolean externalActive = audioManager.isMusicActive()
+        || mode == AudioManager.MODE_IN_CALL
+        || mode == AudioManager.MODE_IN_COMMUNICATION;
+
+    if (externalActive && !wasExternalActive) {
+      // External audio just appeared. If we played recently, mark for resume.
+      if (System.currentTimeMillis() - lastPlayingTime < 5000) {
+        shouldAutoResume = true;
+        Log.d(TAG, "external audio detected, will auto-resume when it stops");
+      }
+    } else if (!externalActive && wasExternalActive) {
+      if (shouldAutoResume) {
+        shouldAutoResume = false;
+        Log.d(TAG, "external audio stopped, auto-resuming playback");
+        MediaWebViewHolder.getInstance().play();
+      }
+    }
+    wasExternalActive = externalActive;
   }
 
   private void enterForeground(String title) {
