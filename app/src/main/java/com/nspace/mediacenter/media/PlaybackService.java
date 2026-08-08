@@ -82,13 +82,15 @@ public final class PlaybackService extends android.app.Service {
               Log.d(TAG, "audio focus: pause (transient loss)");
               break;
             case AudioManager.AUDIOFOCUS_LOSS:
-              // Permanent loss — another app took over. Stop and release.
+              // Permanent loss — another app took over. Pause but keep the
+              // WebView and service alive so the user can press play again
+              // later (which will re-request focus). Do NOT release/destroy
+              // the WebView here; that makes recovery impossible.
               wasDucked = false;
               pausedByFocusLoss = false;
+              MediaWebViewHolder.getInstance().pause();
               abandonAudioFocus();
-              MediaWebViewHolder.getInstance().release();
-              stopSelf();
-              Log.d(TAG, "audio focus: permanent loss, releasing");
+              Log.d(TAG, "audio focus: permanent loss, paused");
               break;
             case AudioManager.AUDIOFOCUS_GAIN:
               // Focus restored — undo ducking or resume playback if we paused.
