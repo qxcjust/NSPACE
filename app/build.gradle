@@ -31,12 +31,13 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.42 = v2.1.0.41 + audio focus fix: AUDIOFOCUS_LOSS now
-  // pauses and abandons focus WITHOUT destroying the WebView or stopping the
-  // service. The v2.1.0.41 implementation called release()+stopSelf() on
-  // permanent focus loss (e.g. phone call), making playback unrecoverable.
-  def appVersionName = "2.1.0.42"
-  def appVersionCode = 2010042   // 2*1_000_000 + 1*10_000 + 0*100 + 42
+  // Release v2.1.0.43 = v2.1.0.42 + remove audio focus management entirely.
+  // Chromium's internal AudioFocusDelegate already handles ducking (nav TTS)
+  // and pausing (phone calls). Our explicit requestAudioFocus(GAIN) created a
+  // ping-pong conflict with Chromium's internal request, causing playback to
+  // pause after a few seconds (verified via dumpsys audio on test device).
+  def appVersionName = "2.1.0.43"
+  def appVersionCode = 2010043   // 2*1_000_000 + 1*10_000 + 0*100 + 43
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"
