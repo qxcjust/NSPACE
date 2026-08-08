@@ -31,24 +31,19 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.49 = v2.1.0.48 + fix "no recovery at all" for iframe
-  //   players (Youtube Music / Stingray / …). Root cause: v2.1.0.48 latched an
-  //   interruption only when now-lastPlayingTime<5s, but for cross-origin iframe
-  //   players FIND_MEDIA_JS can't see the <video>, so sPlaying/lastPlayingTime
-  //   never update → the gate silently disabled recovery (never latched).
-  //   Fixes:
-  //   1) Latch on the external-audio RISING EDGE with NO time gate.
-  //   2) Auto-resume fires while latched AND (external stopped OR NSPACE is
-  //      foreground) — so returning to the app (WebView refocused) drives
-  //      Chromium to resume the (iframe) player and reclaim focus.
-  //   3) BrowserFragment.onResume() calls PlaybackService.onBrowserForeground()
-  //      for an immediate + 800ms recovery attempt (the reliable trigger).
-  //   4) While latched we KEEP the kicked focus so the duck multiplier actually
-  //      resets (iframe sPlaying is always false, would otherwise abandon it).
-  //   5) Debug poll logging (ext/music/mode/sPlay/focus/latch/budget) for
-  //      next-iteration diagnosis. versionCode monotonic.
-  def appVersionName = "2.1.0.49"
-  def appVersionCode = 2010049   // 2*1_000_000 + 1*10_000 + 0*100 + 49
+  // Release v2.1.0.50 = v2.1.0.49 + fix auto-resume FLAPPING (play/pause/play)
+  //   after closing the external app. Root cause: checkExternalPlayback() treated
+  //   isMusicActive() (true while *we* play) as "external audio", so the moment
+  //   we resumed, our own audio re-latched the interruption and the auto-resume
+  //   branch kept firing on our own playback — fighting Chromium and producing
+  //   the visible play→pause→play oscillation.
+  //   Fix: external = (isMusicActive() && !sPlaying) || (callMode && sPlaying),
+  //   i.e. another app is producing audio while OUR element is paused. Our own
+  //   audio no longer re-latches, so a single clean recovery sticks. Also removes
+  //   the spurious "latch on every launch while playing" edge.
+  //   (v2.1.0.49 = iframe no-recovery fix; see prior notes.)
+  def appVersionName = "2.1.0.50"
+  def appVersionCode = 2010050   // 2*1_000_000 + 1*10_000 + 0*100 + 50
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

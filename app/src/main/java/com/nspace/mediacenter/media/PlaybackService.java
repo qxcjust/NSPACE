@@ -19,6 +19,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import androidx.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.util.List;
 import com.nspace.mediacenter.BuildConfig;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.ui.BrowserFragment;
@@ -72,7 +74,27 @@ public final class PlaybackService extends android.app.Service {
   private int kickRetries = 0;            // auto-resume attempts remaining (budget)
   private long lastResumeAttempt = 0;     // throttle auto-resume attempts
   private boolean focusHeld = false;
+  private boolean kickSucceeded = false;  // last kickAudioFocus() was granted
   private AudioFocusRequest focusRequest;
+
+  // Self-managed "we are playing" flag. The in-WebView JS poll (sPlaying) is
+  // UNRELIABLE while the app is backgrounded (the renderer is throttled / its
+  // evaluateJavascript stalls), which previously caused a self-oscillation:
+  // after we resumed and kicked focus, the stale sPlaying=false made
+  // updateFromJson() abandon the focus we just acquired → audio dropped →
+  // isMusicActive() went false → resume fired again → abandon again … the
+  // play/pause/play flapping the user saw in the background. We therefore track
+  // our own playing state explicitly instead of trusting the JS poll in bg.
+  private boolean wePlaying = false;
+  private int myUid = -1;
+  // Reflection handles for AudioPlaybackConfiguration. The offline compileSdk 34
+  // stubs lack these symbols, so we resolve them at runtime to detect — by UID —
+  // whether ANOTHER app is actively playing audio. This is the reliable signal
+  // that replaces isMusicActive(): it distinguishes "we are playing" from
+  // "an external app is playing" even when the WebView is backgrounded.
+  private static Method sGetActivePlaybackConfigs;
+  private static Method sCfgIsActive;
+  private static Method sCfgGetClientUid;
 
   // ── Kick judgment-window tuning (v2.1.0.46 → 2.1.0.49) ─────
   // An interruption is latched on the RISING EDGE of external audio (another
@@ -134,6 +156,7 @@ public final class PlaybackService extends android.app.Service {
     super.onCreate();
 
     audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+    myUid = getApplicationInfo().uid;
 
     session = new MediaSession(this, "NSpaceMedia");
     session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS
@@ -143,6 +166,7 @@ public final class PlaybackService extends android.app.Service {
 
       @Override
       public void onPlay() {
+        wePlaying = true;
         h.post(() -> {
           MediaWebViewHolder.getInstance().play();
           // Also forward a media key so Chromium controls cross-origin iframe
@@ -155,6 +179,7 @@ public final class PlaybackService extends android.app.Service {
       public void onPause() {
         interruptedByExternal = false;
         kickRetries = 0;
+        wePlaying = false;
         abandonFocus();
         h.post(() -> {
           MediaWebViewHolder.getInstance().pause();
@@ -169,6 +194,7 @@ public final class PlaybackService extends android.app.Service {
 
       @Override
       public void onStop() {
+        wePlaying = false;
         MediaWebViewHolder.getInstance().release();
         stopSelf();
       }
@@ -213,6 +239,12 @@ public final class PlaybackService extends android.app.Service {
       lastPlayingTime = System.currentTimeMillis();
     }
     sPlaying = !paused;
+    // Track our own playing state from the page poll so the external-audio
+    // detection fallback and the focus-abandon guard have an accurate signal.
+    // (The MediaSession callbacks also set it, but a plain in-page play does not
+    // go through them, so without this wePlaying would stay false during normal
+    // playback and the fallback would mis-detect "external audio".)
+    wePlaying = sPlaying;
 
     // On fresh user play Chromium manages its own focus, so we leave it alone.
     // When playback pauses / ends (including an external-app interruption that
@@ -221,7 +253,20 @@ public final class PlaybackService extends android.app.Service {
     // for so the recovery kick can actually reset Chromium's duck multiplier
     // (for cross-origin iframe players sPlaying is always false, so without
     // this guard the kick would be abandoned the very next poll).
-    if (!sPlaying && focusHeld && !interruptedByExternal) {
+    // Release our held focus only when WE are not playing (wePlaying). We must
+    // NOT abandon while we believe we are playing — that previously (with the
+    // background-stale sPlaying) dropped the focus we just kicked and caused the
+    // play/pause flapping. wePlaying is self-managed and reliable in background.
+    // Release our held focus only when WE are not playing AND we are in the
+    // FOREGROUND. In the background the WebView's JS poll is throttled / stalls,
+    // so sPlaying (and thus wePlaying) can go stale-false and would otherwise
+    // make us abandon the focus we just kicked for recovery — that was the
+    // play/pause/play flapping the user saw after closing Douyin while NSpace
+    // stayed in the background. Gating on isBrowserVisible() means we never
+    // release focus based on an unreliable background poll; when the user
+    // returns to the foreground a reliable poll drives the release if we are
+    // genuinely idle.
+    if (!wePlaying && focusHeld && BrowserFragment.isBrowserVisible()) {
       abandonFocus();
     }
 
@@ -251,7 +296,7 @@ public final class PlaybackService extends android.app.Service {
     // the WebView in that state leaves the live fragment holding a destroyed
     // instance -- a dead page plus a "destroyed WebView" warning storm from
     // its volumeCheck poller when the user returns.
-    if (!sPlaying && !BrowserFragment.isBrowserAlive()) {
+    if (!wePlaying && !BrowserFragment.isBrowserAlive()) {
       MediaWebViewHolder.getInstance().release();
       stopSelf();
       return;
@@ -273,55 +318,72 @@ public final class PlaybackService extends android.app.Service {
    * duck multiplier at 0, so after the other app stops our media is "playing"
    * but SILENT.
    *
-   * <p>Detection: {@code isMusicActive()} plus {@code getMode()} (phone / VoIP).
-   * On the RISING EDGE we latch an interruption with NO time gate — gating on
-   * our own lastPlayingTime broke recovery for cross-origin iframe players
-   * (Youtube Music / Stingray / …) whose element our injected JS cannot see, so
-   * sPlaying / lastPlayingTime never update.
+   * <p>Detection: {@code isExternalAudioActive()} — resolved at runtime via
+   * {@code AudioManager.getActivePlaybackConfigurations()} and looking at the
+   * client UID of every ACTIVE playback config. If any active config belongs to
+   * an app other than us, an external app is producing audio. This is far more
+   * reliable than {@code isMusicActive()} (which is true while *we* play too,
+   * and counting it as "external" re-latched the interruption on every resume,
+   * making the auto-resume branch fire on our own playback → the play/pause/play
+   * flapping seen after closing Douyin) AND it does not depend on the in-WebView
+   * JS poll ({@code sPlaying}), which is throttled / stalls while the app is
+   * backgrounded and previously caused a self-oscillation (resume → kick focus →
+   * stale sPlaying=false → updateFromJson abandoned the focus → audio dropped →
+   * isMusicActive() false → resume again). A phone / VoIP call also counts as an
+   * external interruption while we were playing, so we resume after it ends.
    *
-   * <p>Recovery: while latched we attempt resume only when the external app has
-   * stopped (externalActive false) OR whenever NSPACE is the foreground app.
-   * This way, when the user backgrounds the other app and returns here, the
-   * media key reaches our now-focused WebView and Chromium (which controls all
-   * in-renderer media, iframes included) resumes playback and reclaims focus.
-   * While the other app is still foreground we stay quiet so we don't fight it.
+   * <p>Recovery: while latched we attempt resume only on the FALLING EDGE of the
+   * external audio (the other app stopped) OR whenever NSPACE is the foreground
+   * app. Crucially we no longer resume merely because {@code isMusicActive()} is
+   * false — that fired on every tiny audio gap of our own stream in the
+   * background and was the flapping source. Returning to the app (WebView
+   * refocused) drives Chromium to resume the (possibly iframe) player and
+   * reclaim focus. While the other app is still foreground we stay quiet.
    */
   private void checkExternalPlayback() {
     int mode = audioManager.getMode();
-    boolean externalActive = audioManager.isMusicActive()
-        || mode == AudioManager.MODE_IN_CALL
+    boolean callMode = mode == AudioManager.MODE_IN_CALL
         || mode == AudioManager.MODE_IN_COMMUNICATION;
+    boolean externalActive = isExternalAudioActive();
+    if (callMode && wePlaying) {
+      externalActive = true;
+    }
 
-    // Rising edge: another app just grabbed audio focus → latch an interruption.
-    // No time gate (see class note about iframe players). The flag is only
-    // cleared by a successful recovery budget, never by the 5s window.
+    // Rising edge: an external app (or a phone / VoIP call) just grabbed audio
+    // → latch an interruption and mark wePlaying=false (the external app now owns
+    // the output; Chromium paused us on focus loss).
     if (externalActive && !wasExternalActive) {
       interruptedByExternal = true;
       kickRetries = RESUME_MAX_ATTEMPTS;
       lastResumeAttempt = 0; // allow an immediate first attempt
+      kickSucceeded = false;
+      wePlaying = false;
       Log.d(TAG, "external audio started, latched interruption (auto-resume armed)");
     }
+    // Falling edge: the external app (or call) stopped → recover.
+    boolean externalStopped = wasExternalActive && !externalActive;
     wasExternalActive = externalActive;
 
-    // Unified auto-resume while latched. Fires when the external app has stopped
-    // OR whenever NSPACE is foreground — so returning to the app (WebView
-    // refocused) immediately drives Chromium to resume the (possibly iframe)
-    // player and reclaim audio focus. Throttled + budgeted so we eventually
-    // give up and let the user resume manually.
     if (interruptedByExternal) {
       boolean nspaceForeground = BrowserFragment.isBrowserVisible();
-      if (!externalActive || nspaceForeground) {
+      if (externalStopped || nspaceForeground) {
         long now = System.currentTimeMillis();
         if (now - lastResumeAttempt >= RESUME_RETRY_MS) {
           Log.d(TAG, "auto-resume attempt ("
               + (RESUME_MAX_ATTEMPTS - kickRetries + 1) + "/" + RESUME_MAX_ATTEMPTS
               + ") ext=" + externalActive + " fg=" + nspaceForeground);
-          resumePlayback();
+          resumePlayback(); // sets wePlaying=true, resets kickSucceeded
           lastResumeAttempt = now;
           kickRetries--;
-          if (kickRetries <= 0 || (!externalActive && focusHeld)) {
+          // Clear the latch as soon as the recovery kick has actually been
+          // granted (sound restored) OR we have exhausted the budget. This
+          // prevents an endless kick/abandon churn when the page cannot sustain
+          // playback in the background (e.g. OS throttling) — once we have
+          // kicked focus the recovery action is done; further retries would
+          // only fight the system. The user can still resume manually.
+          if (kickRetries <= 0 || (!externalActive && kickSucceeded)) {
             interruptedByExternal = false; // recovered or gave up
-            Log.d(TAG, "auto-resume done (focus=" + focusHeld + ")");
+            Log.d(TAG, "auto-resume done (focus=" + focusHeld + " kick=" + kickSucceeded + ")");
           }
         }
       }
@@ -329,8 +391,50 @@ public final class PlaybackService extends android.app.Service {
 
     if (BuildConfig.DEBUG) {
       Log.d(TAG, "poll ext=" + externalActive + " music=" + audioManager.isMusicActive()
-          + " mode=" + mode + " sPlay=" + sPlaying + " focus=" + focusHeld
+          + " sPlay=" + sPlaying + " wePlay=" + wePlaying + " focus=" + focusHeld
           + " latch=" + interruptedByExternal + " budget=" + kickRetries);
+    }
+  }
+
+  /**
+   * True if some app OTHER than us is actively playing audio. Resolved via
+   * {@link AudioManager#getActivePlaybackConfigurations()} using reflection
+   * (the offline compileSdk 34 stubs omit AudioPlaybackConfiguration symbols),
+   * inspecting the client UID of each ACTIVE config. This cleanly separates
+   * "we are playing" from "an external app is playing" without relying on
+   * isMusicActive() (which conflates the two) or the background-unreliable JS
+   * poll. Falls back to {@code isMusicActive() && !wePlaying} if the reflection
+   * path is unavailable on a given device.
+   */
+  private boolean isExternalAudioActive() {
+    try {
+      if (sGetActivePlaybackConfigs == null) {
+        sGetActivePlaybackConfigs = AudioManager.class.getMethod(
+            "getActivePlaybackConfigurations");
+        Class<?> cfgClass = Class.forName("android.media.AudioPlaybackConfiguration");
+        sCfgIsActive = cfgClass.getMethod("isActive");
+        sCfgGetClientUid = cfgClass.getMethod("getClientUid");
+      }
+      Object result = sGetActivePlaybackConfigs.invoke(audioManager);
+      if (result instanceof List<?>) {
+        for (Object cfg : (List<?>) result) {
+          if (cfg == null) {
+            continue;
+          }
+          boolean active = (Boolean) sCfgIsActive.invoke(cfg);
+          if (!active) {
+            continue;
+          }
+          int uid = (Integer) sCfgGetClientUid.invoke(cfg);
+          if (uid != myUid) {
+            return true; // another app is actively playing
+          }
+        }
+      }
+      return false;
+    } catch (Throwable t) {
+      // Fallback: system-wide music active while we believe we are not playing.
+      return audioManager.isMusicActive() && !wePlaying;
     }
   }
 
@@ -364,6 +468,9 @@ public final class PlaybackService extends android.app.Service {
    *  but silent. The focus kick makes Chromium receive AUDIOFOCUS_GAIN and
    *  reset the multiplier. */
   private void resumePlayback() {
+    wePlaying = true; // we are (re)starting playback — suppresses the abandon
+                      // guard and prevents our own audio from re-latching.
+    kickSucceeded = false; // will be set true by the delayed kickAudioFocus
     // (1) Page-DOM element for same-origin players.
     MediaWebViewHolder.getInstance().play();
     // (2) Forward a media key so Chromium's native media session resumes
@@ -402,6 +509,7 @@ public final class PlaybackService extends android.app.Service {
           AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
     focusHeld = (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    kickSucceeded = focusHeld;
     Log.d(TAG, "kickAudioFocus: " + (focusHeld ? "granted" : "denied"));
   }
 
@@ -418,6 +526,7 @@ public final class PlaybackService extends android.app.Service {
       audioManager.abandonAudioFocus(kickListener);
     }
     focusHeld = false;
+    kickSucceeded = false;
     Log.d(TAG, "abandonFocus: released");
   }
 
