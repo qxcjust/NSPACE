@@ -31,19 +31,24 @@ android {
   }
 
   // ---- Version: single source of truth ----
-  // Release v2.1.0.47 = v2.1.0.46 + resume-timeout safety net.
-  //   Root cause of "Douyin closes, playback never resumes": isMusicActive()
-  //   stays true because our own paused AudioTrack still holds the music
-  //   session after Chromium ducks us, so the debounce-by-silence never fires.
-  //   Fix: once an interruption is latched, force a resume after
-  //   RESUME_TIMEOUT_MS (12s) even if isMusicActive() never clears.
-  //   NOTE: getActivePlaybackConfigurations() was evaluated but dropped — its
-  //   active-state methods (isActive/getPlayerState/getClientUid) are absent
-  //   from the offline compile SDK, so it can't reliably tell external from our
-  //   own paused session. LATCH/DEBOUNCE/DELAY kick tuning from v2.1.0.46 kept.
-  //   versionCode stays strictly monotonic.
-  def appVersionName = "2.1.0.47"
-  def appVersionCode = 2010047   // 2*1_000_000 + 1*10_000 + 0*100 + 47
+  // Release v2.1.0.48 = v2.1.0.47 + media-key forwarding for cross-origin
+  //   iframe players. Root cause of BOTH "Stingray can't be controlled via
+  //   MediaSession" AND "Douyin closes, playback never resumes": our injected
+  //   JS (FIND_MEDIA_JS) runs in the top-page context and Same-Origin Policy
+  //   blocks it from the player's <video> when the player is a cross-origin
+  //   iframe (Stingray / Deezer / …), so play()/pause()/setVolume() are no-ops.
+  //   Fix: resumePlayback() and the MediaSession onPlay/onPause callbacks now
+  //   ALSO forward KEYCODE_MEDIA_PLAY/PAUSE into the WebView, so Chromium's
+  //   native media session (which controls all in-renderer media, iframes
+  //   included) plays/pauses them. checkExternalPlayback rewritten: while an
+  //   interruption is latched and we're not actually playing, retry resume on a
+  //   throttle (RESUME_RETRY_MS=4s, budget RESUME_MAX_ATTEMPTS=30) — this covers
+  //   a paused iframe element AND the isMusicActive()-stuck-true blind spot, and
+  //   lands once the user returns to the foreground (WebView refocused). A
+  //   separate branch keeps kicking focus for the "playing but silent" (duck
+  //   multiplier stuck at 0) case until focus is held. versionCode monotonic.
+  def appVersionName = "2.1.0.48"
+  def appVersionCode = 2010048   // 2*1_000_000 + 1*10_000 + 0*100 + 48
 
   defaultConfig {
     applicationId "com.nspace.mediacenter"

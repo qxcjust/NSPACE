@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import androidx.annotation.Nullable;
 import com.nspace.mediacenter.R;
 import com.nspace.mediacenter.ui.BrowserFragment;
@@ -90,12 +91,16 @@ public final class PlaybackService extends android.app.Service {
   // app has fully released audio focus; an early kick can be denied (or the
   // external app re-grabs), leaving Chromium's duck multiplier at 0 = silent.
   private static final long KICK_DELAY_MS = 400;
-  private static final int KICK_RETRIES = 3;
-  // Force a resume this long after latching an interruption, even if
-  // isMusicActive() still reports "active" — our own paused AudioTrack can keep
-  // the music session alive after Chromium ducks us, so the debounce-by-silence
-  // above never triggers and playback would stay paused forever.
-  private static final long RESUME_TIMEOUT_MS = 12000;
+  // Throttle auto-resume retries while an interruption is latched and we are
+  // not actually playing. Lets the forwarded media key (see MediaWebViewHolder
+  // .dispatchMediaKey) reach Chromium once the user returns to the foreground
+  // and the WebView is refocused — needed for cross-origin iframe players
+  // (Stingray / Deezer / …) whose element our injected JS cannot reach.
+  private static final long RESUME_RETRY_MS = 4000;
+  // Total auto-resume attempts before we give up and let the user resume
+  // manually. Generous so a user who comes back within a couple of minutes
+  // still gets auto-recovered.
+  private static final int RESUME_MAX_ATTEMPTS = 30;
 
   // Recovery "kick" listener: a deliberate no-op. We request audio focus on
   // resume (see kickAudioFocus) so Chromium — which abandons focus when another
@@ -145,7 +150,12 @@ public final class PlaybackService extends android.app.Service {
 
       @Override
       public void onPlay() {
-        h.post(() -> MediaWebViewHolder.getInstance().play());
+        h.post(() -> {
+          MediaWebViewHolder.getInstance().play();
+          // Also forward a media key so Chromium controls cross-origin iframe
+          // players (Stingray / Deezer / …) that our injected JS cannot reach.
+          MediaWebViewHolder.getInstance().dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY);
+        });
       }
 
       @Override
@@ -153,7 +163,10 @@ public final class PlaybackService extends android.app.Service {
         interruptedByExternal = false;
         kickRetries = 0;
         abandonFocus();
-        h.post(() -> MediaWebViewHolder.getInstance().pause());
+        h.post(() -> {
+          MediaWebViewHolder.getInstance().pause();
+          MediaWebViewHolder.getInstance().dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE);
+        });
       }
 
       @Override
@@ -284,9 +297,9 @@ public final class PlaybackService extends android.app.Service {
       if (!wasExternalActive) {
         if (System.currentTimeMillis() - lastPlayingTime < LATCH_WINDOW_MS) {
           interruptedByExternal = true;
-          kickRetries = KICK_RETRIES;
-          latchTime = System.currentTimeMillis();
-          Log.d(TAG, "external audio started, latched interruption (resume+kick on stop)");
+          kickRetries = RESUME_MAX_ATTEMPTS;
+          latchTime = 0; // allow an immediate first resume attempt
+          Log.d(TAG, "external audio started, latched interruption");
         }
       }
       externalStopStreak = 0;
@@ -299,36 +312,49 @@ public final class PlaybackService extends android.app.Service {
       if (interruptedByExternal && externalStopStreak >= STOP_DEBOUNCE_POLLS) {
         Log.d(TAG, "external audio stopped (debounced), resuming playback + kicking focus");
         resumePlayback();
+        // Same-origin players resume immediately; clear the latch. Cross-origin
+        // iframe players may still need a focused media key, handled by the
+        // retry loop below when the user returns to the foreground.
+        interruptedByExternal = false;
         externalStopStreak = 0;
+      } else if (interruptedByExternal) {
+        // The other app released focus from the system's view but the debounce
+        // has not yet satisfied — refill the kick budget so a successful focus
+        // kick can land now (Douyin is gone, so the request will be granted).
+        kickRetries = RESUME_MAX_ATTEMPTS;
       }
     }
     wasExternalActive = externalActive;
 
-    // Timeout safety-net: isMusicActive() can stay true because our own paused
-    // AudioTrack still holds the music session open after Chromium ducks us, so
-    // the debounce-by-silence above never fires and playback stays paused
-    // forever. After RESUME_TIMEOUT_MS force one resume attempt. We clear the
-    // flag afterwards: if play() can't reach the element (e.g. a cross-origin
-    // iframe player) retrying on every poll won't help, and the user can
-    // resume manually.
-    if (interruptedByExternal && !sPlaying
-        && System.currentTimeMillis() - latchTime > RESUME_TIMEOUT_MS) {
-      Log.d(TAG, "interruption timeout (" + RESUME_TIMEOUT_MS + "ms), forcing resume + kick");
-      resumePlayback();
-      interruptedByExternal = false;
-      externalStopStreak = 0;
+    // While latched and NOT actually playing, keep retrying resume. Covers:
+    //  (a) the interruption paused the element and play()/media-key must
+    //      restart it (incl. cross-origin iframes our JS cannot reach), and
+    //  (b) detection blind spots where isMusicActive() stays true because our
+    //      own ducked AudioTrack still holds the music session open.
+    // Retrying on a timer means the forwarded media key lands once the user
+    // returns to the foreground and the WebView is refocused. Budgeted so we
+    // eventually give up and let the user resume manually.
+    if (interruptedByExternal && !sPlaying) {
+      long now = System.currentTimeMillis();
+      if (now - latchTime > RESUME_RETRY_MS) {
+        Log.d(TAG, "retry resume (attempt "
+            + (RESUME_MAX_ATTEMPTS - kickRetries + 1) + "/" + RESUME_MAX_ATTEMPTS + ")");
+        resumePlayback();
+        latchTime = now;
+        kickRetries--;
+        if (kickRetries <= 0) {
+          interruptedByExternal = false; // gave up; manual resume available
+        }
+      }
     }
 
-    // Safety net: if we are flagged interrupted but (for any reason) the
-    // resume-kick never fired, or the user returned to the foreground with the
-    // media "playing but silent", re-kick a few times while we are actually
-    // playing and no external audio is active.
-    if (interruptedByExternal && sPlaying && !externalActive && kickRetries > 0) {
+    // Playing-but-silent safety net: Chromium keeps its duck volume multiplier
+    // at 0 after a permanent LOSS, so even though the element "plays" there is
+    // no audio. Force the focus kick (no-op once held) so Chromium receives
+    // AUDIOFOCUS_GAIN and resets the multiplier. Kept separate from the retry
+    // budget so it keeps trying every poll until focus is actually held.
+    if (interruptedByExternal && sPlaying && !focusHeld) {
       kickAudioFocus();
-      kickRetries--;
-      if (kickRetries <= 0) {
-        interruptedByExternal = false;
-      }
     }
   }
 
@@ -338,7 +364,11 @@ public final class PlaybackService extends android.app.Service {
    *  but silent. The focus kick makes Chromium receive AUDIOFOCUS_GAIN and
    *  reset the multiplier. */
   private void resumePlayback() {
+    // (1) Page-DOM element for same-origin players.
     MediaWebViewHolder.getInstance().play();
+    // (2) Forward a media key so Chromium's native media session resumes
+    // cross-origin iframe players (Stingray / Deezer / …) our JS cannot reach.
+    MediaWebViewHolder.getInstance().dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY);
     MediaWebViewHolder.getInstance().setVolume(1.0f);
     // Delay the focus kick so it lands after the external app has fully
     // released audio focus; an immediate kick can be denied (or the external

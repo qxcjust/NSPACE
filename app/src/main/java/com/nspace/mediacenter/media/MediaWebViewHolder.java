@@ -3,6 +3,7 @@ package com.nspace.mediacenter.media;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
 
@@ -139,6 +140,42 @@ public final class MediaWebViewHolder {
   public void setVolume(float vol) {
     eval("(function(){var m=(typeof window.__nsFindMedia==='function')?window.__nsFindMedia():null;"
         + "if(m)m.volume=" + vol + ";})();");
+  }
+
+  /**
+   * Forward a media key (e.g. {@link KeyEvent#KEYCODE_MEDIA_PLAY} /
+   * {@code KEYCODE_MEDIA_PAUSE}) into the WebView so Chromium's native media
+   * session handles it.
+   *
+   * <p>Why this is needed: many streaming players (Stingray, Deezer, …) render
+   * their player inside a <b>cross-origin iframe</b>. Our injected JS
+   * ({@link #FIND_MEDIA_JS}) runs in the top-page context and the Same-Origin
+   * Policy blocks it from ever reaching the iframe's {@code <video>} element —
+   * so {@link #play()}/{@link #pause()} are silent no-ops for those players.
+   * Chromium, however, controls ALL media in its renderer process (including
+   * cross-origin iframes) through its own media session, which reacts to media
+   * key events. Dispatching the key here lets us play / pause those players
+   * from the host app (lockscreen / notification / headset controls and the
+   * auto-resume path).
+   *
+   * <p>Requires the WebView to be focused; when the app is backgrounded the
+   * key may not reach Chromium — that is why the auto-resume path retries on a
+   * timer so it lands once the user returns to the foreground.
+   */
+  public void dispatchMediaKey(int keyCode) {
+    final WebView wv = webView;
+    if (wv == null) {
+      return;
+    }
+    new Handler(Looper.getMainLooper()).post(() -> {
+      try {
+        wv.requestFocus();
+        wv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        wv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+      } catch (Exception ignore) {
+        // WebView detached or not focusable; nothing to do.
+      }
+    });
   }
 
   /**
